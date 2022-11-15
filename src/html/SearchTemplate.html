@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+  </head>
+
+  <body>
+    <a href="<?=url?>" target=_blank>Click to open search page in new tab</a><br><br>
+
+    <label style="color:red">Property type: <?=propType?></label><br><br>
+
+    For "array" type property, text box can take in multiple lines and each line means an accession string.<br><br>
+    Endpoint prefix (<?=endpoint?>) will be automatically trimmed for each line (accession).<br>
+    You can copy/paste the whole URL of acession, uuid or name.<br><br>
+
+    <textarea id=text-accessions rows=12 style="width: 100%; max-width: 100%;"><?=text?></textarea><br>
+
+    <label style="color:red" id=label-error></label><br><br>
+
+    <button id=btn-edit onClick=onClickAccept()>
+      Accept</button><nbsp>
+
+    <button id=btn-calcel onClick=onClickCancel()>
+      Cancel</button>
+
+    <script type="text/javascript">
+
+      function onClickAccept() {
+        const propType = "<?=propType?>";
+        const endpoint = "<?=endpoint?>";
+
+        // filter out empty string and trim endpoint prefix
+        var accessions = $("#text-accessions").val().trim().split("\n")
+          .filter(value => value)
+          .map(value => value.replace(endpoint, ""));
+
+        if (propType === "string" && accessions.length > 1) {
+          $("#label-error").text("Error: Multiple lines are not allowed for string type property.");
+          return;
+        }
+
+        switch(propType) {
+          case "string":
+            var newCellValue = accessions[0];
+            break;
+
+          case "array":
+            var newCellValue = JSON.stringify(accessions);
+            break;
+
+          default:
+            $("#label-error").text("Error: Not supported type for Search.");
+            return;
+        }
+
+        google.script.run.withSuccessHandler(google.script.host.close).clickAccept(newCellValue);
+      }
+
+      function onClickCancel() {
+        google.script.run.withSuccessHandler(google.script.host.close).clickCancel();
+      }
+
+    </script>
+
+  </body>
+</html>
