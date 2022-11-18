@@ -235,27 +235,13 @@ function getMetadataForAllForUser() {
   return getMetadataForAll(forAdmin=false);
 }
 
-function useExternalJsonValidator() {
+function validateJsonWithSchema() {
   if (!checkProfile()) {
     return;
   }
 
-  var sheet = getCurrentSheet();
-
-  var numData = getNumMetadataInSheet(sheet);
-  if (numData && !alertBoxOkCancel(
-    `Found ${numData} data row(s).\n\n` + 
-    "DO NOT USE THIS IF YOU ARE WORKING ON SENSATIVE DATA. USE IT AT YOUR OWN RISK.\n" +
-    "IT IS RECOMMENDED TO CONVERT EACH ROW INTO JSON AND THEN COPY-PASTE IT TO YOUR INTERNAL JSON VALIDATOR.\n\n" +
-    "This will validate your data on sheet against the profile schema by using an EXTERNAL JSON schema validator.\n" +
-    "Use this function only when you get an error from the portal and the help message is not very helpful for debugging.\n\n" +
-    `You can add ${HEADER_COMMENTED_PROP_SKIP} column and set it to 1 for a row that you want to skip validation.\n\n` +
-    "Are you sure to proceed?")) {
-    return;
-  }
-
   var numSubmitted = validateSheet(
-    sheet, getProfileName(), getEndpointRead()
+    getCurrentSheet(), getProfileName(), getEndpointRead()
   );
   alertBox(`Validated ${numSubmitted} rows.`);
 }

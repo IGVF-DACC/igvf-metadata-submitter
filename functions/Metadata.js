@@ -287,19 +287,24 @@ function validateSheet(sheet, profileName, endpointForProfile) {
     // for example of "experiment" profile, if "status" is "submitted" and "date_submitted" is missing
     // then portal spits out an error without any helpful comments for debugging
     // so we need to validate JSON again profile schema on client's side
-    var validationResp = validateJson(filterOutCommentedProps(json), profile);
-    var validationErrCode = validationResp.getResponseCode();
+    // var validationResp = validateJson(filterOutCommentedProps(json), profile);
+    // var validationErrCode = validationResp.getResponseCode();
 
-    if (validationErrCode === 200) {
-      json[HEADER_COMMENTED_PROP_RESPONSE] = "ValidationSuccess," + validationErrCode;
+    // if (validationErrCode === 200) {
+    //   json[HEADER_COMMENTED_PROP_RESPONSE] = "ValidationSuccess," + validationErrCode;
+    // } else {
+    //   var validationErr = JSON.stringify(
+    //     JSON.parse(validationResp.getContentText().replace(/\\"/g, "'")),
+    //     null, 2
+    //   );
+    //   json[HEADER_COMMENTED_PROP_RESPONSE] = "ValidationError," + validationErrCode + "\n" + validationErr;
+    // }
+    var validationResult = validateJson(profile, filterOutCommentedProps(json));
+    if (validationResult.valid) {
+      json[HEADER_COMMENTED_PROP_RESPONSE] = "ValidationSuccess";
     } else {
-      var validationErr = JSON.stringify(
-        JSON.parse(validationResp.getContentText().replace(/\\"/g, "'")),
-        null, 2
-      );
-      json[HEADER_COMMENTED_PROP_RESPONSE] = "ValidationError," + validationErrCode + "\n" + validationErr;
+      json[HEADER_COMMENTED_PROP_RESPONSE] = JSON.stringify(validationResult.errors, null, 2);
     }
-
     // rewrite data, with commented headers such as error and text, on the sheet
     writeJsonToRow(sheet, json, row);
     numSubmitted++;

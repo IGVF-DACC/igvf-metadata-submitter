@@ -34,6 +34,7 @@ global.onOpen = () => {
   menu.addItem('Make new template row (USER)', 'makeTemplateForUser');
   menu.addItem('GET metadata for all rows (USER)', 'getMetadataForAllForUser');
   menu.addSeparator();
+  menu.addItem('Validate all rows locally (USER/ADMIN)', 'validateJsonWithSchema');
   menu.addItem('PATCH all rows to the portal (USER/ADMIN)', 'patchAll');
   menu.addItem('POST all rows to the portal (USER/ADMIN)', 'postAll');
   menu.addSeparator();
@@ -44,7 +45,6 @@ global.onOpen = () => {
 
   submenuTools.addItem('Open profile page', 'openProfilePage');
   submenuTools.addItem('Apply profile to sheet manually', 'applyProfileToSheet');
-  submenuTools.addItem('Use external JSON validator for all rows (DANGER)', 'useExternalJsonValidator');
   submenuTools.addItem('Export JSON to Google Drive', 'exportToJson');
 
   menu.addSubMenu(submenuTools);
