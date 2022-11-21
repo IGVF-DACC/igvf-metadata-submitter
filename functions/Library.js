@@ -88,15 +88,3 @@ function openUrl( url ){
   .setWidth( 90 ).setHeight( 1 );
   SpreadsheetApp.getUi().showModalDialog( html, "Opening ..." );
 }
-
-// function validateJson(json, profile) {
-//   // there is no such library for Google Apps Script
-//   // so use external JSON schema validator
-//   var params = {
-//     method: "POST",
-//     contentType: "application/json",
-//     muteHttpExceptions: true,
-//     payload: JSON.stringify({schema: profile, json: json})
-//   };
-//   return UrlFetchApp.fetch("https://assertible.com/json", params);
-// }

@@ -34,9 +34,10 @@ global.onOpen = () => {
   menu.addItem('Make new template row (USER)', 'makeTemplateForUser');
   menu.addItem('GET metadata for all rows (USER)', 'getMetadataForAllForUser');
   menu.addSeparator();
-  menu.addItem('Validate all rows locally (USER/ADMIN)', 'validateJsonWithSchema');
   menu.addItem('PATCH all rows to the portal (USER/ADMIN)', 'patchAll');
   menu.addItem('POST all rows to the portal (USER/ADMIN)', 'postAll');
+  menu.addSeparator();
+  menu.addItem('Validate all rows (USER/ADMIN)', 'validateJsonWithSchema');
   menu.addSeparator();
   menu.addItem('Convert selected row to JSON', 'convertSelectedRowToJson');
   menu.addSeparator();

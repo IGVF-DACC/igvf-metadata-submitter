@@ -283,22 +283,6 @@ function validateSheet(sheet, profileName, endpointForProfile) {
       profile, jsonBeforeTypeCast, keepCommentedProps=false
     );
 
-    // the portal does not validate JSON against schema correctly if there is a missing property.
-    // for example of "experiment" profile, if "status" is "submitted" and "date_submitted" is missing
-    // then portal spits out an error without any helpful comments for debugging
-    // so we need to validate JSON again profile schema on client's side
-    // var validationResp = validateJson(filterOutCommentedProps(json), profile);
-    // var validationErrCode = validationResp.getResponseCode();
-
-    // if (validationErrCode === 200) {
-    //   json[HEADER_COMMENTED_PROP_RESPONSE] = "ValidationSuccess," + validationErrCode;
-    // } else {
-    //   var validationErr = JSON.stringify(
-    //     JSON.parse(validationResp.getContentText().replace(/\\"/g, "'")),
-    //     null, 2
-    //   );
-    //   json[HEADER_COMMENTED_PROP_RESPONSE] = "ValidationError," + validationErrCode + "\n" + validationErr;
-    // }
     var validationResult = validateJson(profile, filterOutCommentedProps(json));
     if (validationResult.valid) {
       json[HEADER_COMMENTED_PROP_RESPONSE] = "ValidationSuccess";
