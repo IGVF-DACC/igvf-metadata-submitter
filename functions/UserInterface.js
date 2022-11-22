@@ -4,7 +4,7 @@ const KEY_ENDPOINT_READ = "endpointRead";
 const KEY_ENDPOINT_WRITE = "endpointWrite";
 const KEY_PROFILE_NAME = "profileName";
 
-const URL_GITHUB = "https://github.com/encode-DCC/google-sheet-metadata-submitter";
+const URL_GITHUB = "https://github.com/IGVF-DACC/igvf-metadata-submitter";
 
 
 function setDefaultEndpointRead() {
