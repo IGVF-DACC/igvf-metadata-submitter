@@ -23,10 +23,10 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.1.1" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.0" --rootDir ./dist
 ```
 
-Edit `scriptId` in `.clasp.json` to change the target Google Sheet to embed the script in.
+Edit `scriptId` in `.clasp.json` to change the target Google Apps.
 
 Deploy the script to the sheet.
 ```bash

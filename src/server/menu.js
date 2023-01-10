@@ -27,17 +27,19 @@ global.onOpen = () => {
 
   menu.addSubMenu(submenuSettingsAuth);
   menu.addSeparator();
+  menu.addItem('Validate all rows', 'validateJsonWithSchema');
+  menu.addSeparator();
+  menu.addItem('Make new template row', 'makeTemplateForUser');
+  menu.addItem('GET metadata for all rows', 'getMetadataForAllForUser');
+  menu.addSeparator();
   menu.addItem('Make new template row (ADMIN)', 'makeTemplateForAdmin');
   menu.addItem('GET metadata for all rows (ADMIN)', 'getMetadataForAllForAdmin');
   menu.addItem('PUT all rows to the portal (ADMIN)', 'putAll');
   menu.addSeparator();
-  menu.addItem('Make new template row (USER)', 'makeTemplateForUser');
-  menu.addItem('GET metadata for all rows (USER)', 'getMetadataForAllForUser');
-  menu.addSeparator();
-  menu.addItem('PATCH all rows to the portal (USER/ADMIN)', 'patchAll');
-  menu.addItem('POST all rows to the portal (USER/ADMIN)', 'postAll');
-  menu.addSeparator();
-  menu.addItem('Validate all rows (USER/ADMIN)', 'validateJsonWithSchema');
+  menu.addItem('PATCH all rows to the portal', 'patchAll');
+  menu.addItem('PATCH-APPEND all rows to the portal', 'patchAppendAll');
+  menu.addItem('PATCH-REMOVE all rows to the portal', 'patchRemoveAll');
+  menu.addItem('POST all rows to the portal', 'postAll');
   menu.addSeparator();
   menu.addItem('Convert selected row to JSON', 'convertSelectedRowToJson');
   menu.addSeparator();

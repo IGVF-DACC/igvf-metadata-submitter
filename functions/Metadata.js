@@ -301,3 +301,96 @@ function addMetadataTemplateToSheet(sheet, profile, forAdmin=false) {
   var sortedProps = getSortedProps(Object.keys(metadataObj), profile);
   addJsonToSheet(sheet, metadataObj, sortedProps);
 }
+
+function patchRemove(sheet, profileName, endpointForPut, endpointForProfile) {  
+  // PATCH-REMOVE is simply GET -> remove properties -> PUT
+}
+
+
+function patchAppend(sheet, profileName, endpointForPut, endpointForProfile) {
+  // check if header has only one list-type property, commented propties are allowed
+  
+
+  // returns actual number of submitted rows
+  var profile = getProfile(profileName, endpointForProfile);
+
+  const numData = getNumMetadataInSheet(sheet);
+  var numSubmitted = 0;
+
+  for (var row = HEADER_ROW + 1; row <= numData + HEADER_ROW; row++) {
+    var jsonBeforeTypeCast = rowToJson(
+      sheet, row, keepCommentedProps=true, bypassGoogleAutoParsing=true
+    );
+
+    // if has #skip and it is 1 then skip
+    if (jsonBeforeTypeCast.hasOwnProperty(HEADER_COMMENTED_PROP_SKIP)) {
+      if (toBoolean(jsonBeforeTypeCast[HEADER_COMMENTED_PROP_SKIP])) {
+        continue;
+      }
+    }
+
+    var [identifyingProp, identifyingVal, identifyingCol] =
+      findIdentifyingPropValColInRow(sheet, row, profile);
+
+    if (!identifyingProp || !identifyingVal) {
+      continue;
+    }
+
+    var json = typeCastJsonValuesByProfile(
+      profile, jsonBeforeTypeCast, keepCommentedProps=false
+    );
+
+    switch(method) {
+      case "PUT":
+      case "PATCH":
+        var url = makeMetadataUrl(method, profileName, endpointForPut, json[identifyingProp]);
+        var response = restSubmit(url, payloadJson=json, method=method);
+        break;
+
+      case "POST":
+        var url = makeMetadataUrl(method, profileName, endpointForPut);
+        var response = restSubmit(url, payloadJson=json, method=method);
+        break;
+
+      default:
+        Logger.log("submitSheetToPortal: Wrong REST method " + method);
+        continue;
+    }
+
+    var error = response.getResponseCode();
+    var responseJson = JSON.parse(response.getContentText());
+
+    json[HEADER_COMMENTED_PROP_RESPONSE] = method + "," + error;
+
+    switch(error) {
+      case 200:
+        json[HEADER_COMMENTED_PROP_SKIP] = 1;
+        break;
+
+      case 201:
+        // POST assigns new values to identifying properties (e.g. uuid, accession)
+        // so update row with those new identifying values
+        profile["identifyingProperties"].forEach(prop => {
+          if (!isCommentedProp(profile, prop)) {
+            json[prop] = responseJson["@graph"][0][prop];
+          }
+        });
+        json[HEADER_COMMENTED_PROP_RESPONSE] += "\n" + JSON.stringify(responseJson, null, HELP_TEXT_INDENT);
+        json[HEADER_COMMENTED_PROP_SKIP] = 1;
+        break;
+
+      case 422:
+        // validation failure
+        json[HEADER_COMMENTED_PROP_RESPONSE] += "\nIf error message is not helpful, use external JSON schema validator\n"
+
+      default:
+        json[HEADER_COMMENTED_PROP_RESPONSE] += "\n" + JSON.stringify(responseJson, null, HELP_TEXT_INDENT);
+        json[HEADER_COMMENTED_PROP_SKIP] = 0;
+    }
+
+    // rewrite data, with commented headers such as error and text, on the sheet
+    writeJsonToRow(sheet, json, row);
+    numSubmitted++;
+  }
+  return numSubmitted;  
+}
