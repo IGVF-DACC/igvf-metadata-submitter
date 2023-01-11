@@ -106,7 +106,21 @@ function getPropType(profile, prop) {
 }
 
 function isRequiredProp(profile, prop) {
-  return profile["required"].includes(prop);
+  // try find required property in a recursive fashion ("anyOf")
+  // 1. "required" is "anyOf", then try to find "required" in subProfile
+  // 2. "required" in this
+
+  if (profile.hasOwnProperty("required")) {
+    return profile["required"].includes(prop);
+
+  } else if (profile.hasOwnProperty("anyOf")) {
+    for (subProfile of profile["anyOf"]) {
+      if (isRequiredProp(subProfile, prop)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 function isIdentifyingProp(profile, prop) {
