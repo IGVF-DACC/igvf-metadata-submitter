@@ -37,8 +37,8 @@ global.onOpen = () => {
   menu.addItem('PUT all rows to the portal (ADMIN)', 'putAll');
   menu.addSeparator();
   menu.addItem('PATCH all rows to the portal', 'patchAll');
-  menu.addItem('PATCH-APPEND all rows to the portal', 'patchAppendAll');
-  menu.addItem('PATCH-REMOVE all rows to the portal', 'patchRemoveAll');
+  // menu.addItem('PATCH-APPEND all rows to the portal', 'patchAppendAll');
+  // menu.addItem('PATCH-REMOVE all rows to the portal', 'patchRemoveAll');
   menu.addItem('POST all rows to the portal', 'postAll');
   menu.addSeparator();
   menu.addItem('Convert selected row to JSON', 'convertSelectedRowToJson');

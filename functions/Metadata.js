@@ -306,10 +306,9 @@ function patchRemove(sheet, profileName, endpointForPut, endpointForProfile) {
   // PATCH-REMOVE is simply GET -> remove properties -> PUT
 }
 
-
 function patchAppend(sheet, profileName, endpointForPut, endpointForProfile) {
-  // check if header has only one list-type property, commented propties are allowed
-  
+  // PATCH-APPEND
+  // check if header has only one list-type property, commented properties are allowed
 
   // returns actual number of submitted rows
   var profile = getProfile(profileName, endpointForProfile);
