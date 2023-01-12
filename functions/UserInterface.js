@@ -135,11 +135,13 @@ function showSheetInfoAndHeaderLegend() {
     "- black: other editable property\n" +
     "- gray: ADMIN only property (readonly,nonSubmittable,'Do not sumit')\n\n" +
 
-    "* Commented properties (filtered out for REST actions)\n" +
-    "- #skip: Set it to 1 to skip any REST actions to the portal.\n" +
-    "- #error: For debugging info. REST action + HTTP error code + help text.\n\n" +
-    "* Searchable properties\n" +
-    "- Bold + Underline: Select a data cell and go to the menu 'IGVF/ENCODE' -> 'Search'."
+    "* Commented properties (filtered out before being sent to the portal)\n" +
+    "- #skip: Set it to 1 to skip any READ/WRITE REST action for a row.\n" +
+    "- #response: Debugging info. Action + HTTP error code + JSON response." +
+
+    "* Style legends for header properties\n" +
+    "- Underline: Searachable property. Go to menu 'Search'.\n" +
+    "- Italic+Bold: Array type property."
   );
 }
 
@@ -214,7 +216,7 @@ function getMetadataForAll(forAdmin) {
   var numData = getNumMetadataInSheet(sheet);
   if (numData && !alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` + 
-    "THIS CAN OVERWRITE ON EXISTING DATA ROWS IF #skip IS NOT SET AS 1.\n\n" +
+    "THIS ACTION CAN OVERWRITE DATA ON UNHIDDEN ROWS (OR ROWS with #skip == 1).\n\n" +
     "Are you sure to proceed?")) {
     return;
   }

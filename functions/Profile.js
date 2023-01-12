@@ -9,6 +9,7 @@ const HEADER_PROP_LAB = "lab";
 const DEFAULT_PROP_PRIORITY = [
   HEADER_COMMENTED_PROP_SKIP,
   HEADER_COMMENTED_PROP_RESPONSE,
+  HEADER_COMMENTED_PROP_RESPONSE_TIME,
   HEADER_PROP_ACCESSION,
   HEADER_PROP_UUID,
   HEADER_PROP_NAME,
@@ -37,7 +38,8 @@ const COLOR_PROP_READONLY = "lightgray";
 const COLOR_PROP_HAS_DO_NOT_SUBMIT_IN_COMMENT = "lightgray";
 const COLOR_PROP_NOT_SUBMITTABLE = "lightgray";
 const COLOR_PROP_COMMENTED = "black";
-const FORMAT_SEARCHABLE_PROP = "bold,underline";
+const FORMAT_SEARCHABLE_PROP = "underline";
+const FORMAT_ARRAY_PROP = "italic,bold";
 
 const SELECTED_PROP_KEYS_FOR_TOOLTIP = [
   "title",
@@ -77,6 +79,14 @@ function isSearchableProp(profile, prop) {
   // then it's searchable
   return propInProfile.hasOwnProperty("linkTo") ||
     propInProfile.hasOwnProperty("items") && propInProfile["items"].hasOwnProperty("linkTo");
+}
+
+function isArrayProp(profile, prop) {
+  if (!profile || prop.startsWith("#")) {
+    return false;
+  }
+  var propType = getPropType(profile, prop);
+  return propType && propType === "array";
 }
 
 function makeSearchUrlForProp(profile, prop, endpoint) {
@@ -271,8 +281,15 @@ function setColorAndTooltipForHeaderProp(sheet, profile, prop, col) {
   setCellColor(sheet, HEADER_ROW, col, getColorForProp(profile, prop));
 
   if (!prop.startsWith("#")) {
+    var styles = [];
     if (isSearchableProp(profile, prop)) {
-      setCellFormat(sheet, HEADER_ROW, col, FORMAT_SEARCHABLE_PROP);
+      styles.push(FORMAT_SEARCHABLE_PROP)
+    }
+    if (isArrayProp(profile, prop)) {
+      styles.push(FORMAT_ARRAY_PROP)
+    }
+    if (styles) {
+      setCellFormat(sheet, HEADER_ROW, col, styles.join(","));
     }
   }
 }

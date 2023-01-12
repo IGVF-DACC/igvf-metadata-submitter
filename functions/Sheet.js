@@ -45,6 +45,10 @@ function isSheetEmpty(sheet) {
   return sheet.getDataRange().isBlank();
 }
 
+function isRowHidden(sheet, row) {
+  return sheet.isRowHiddenByUser(row);
+}
+
 function getCellValue(sheet, row, col) {
   return sheet.getRange(row, col).getValue();
 }
