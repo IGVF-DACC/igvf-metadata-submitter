@@ -49,6 +49,10 @@ function isRowHidden(sheet, row) {
   return sheet.isRowHiddenByUser(row);
 }
 
+function isColumnHidden(sheet, col) {
+  return sheet.isColumnHiddenByUser(col);
+}
+
 function getCellValue(sheet, row, col) {
   return sheet.getRange(row, col).getValue();
 }
@@ -226,6 +230,23 @@ function writeJsonToRow(sheet, json, row, props) {
 function addJsonToSheet(sheet, json, props) {
   var lastRow = Math.max(getLastRow(sheet), HEADER_ROW) + 1;
   writeJsonToRow(sheet, json, lastRow, props);
+}
+
+function getSelectedColumns(sheet) {
+  // return a list of selected column's ID (col) and property {col, headerProp}
+  // ignore columns without valid header
+  var cols = [];
+  var ranges = sheet.getSelection().getActiveRangeList().getRanges();
+  for (var i = 0; i < ranges.length; i++) {
+    for (var j = 0; j < ranges[i].getNumColumns(); j++) {
+      var col = ranges[i].getColumn() + i;
+      var headerProp = getCellValue(sheet, HEADER_ROW, col);
+      if (headerProp) {
+        cols.push({col, headerProp});
+      }
+    }
+  }
+  return cols;
 }
 
 function rowToJson(sheet, row, keepCommentedProps, bypassGoogleAutoParsing) {  

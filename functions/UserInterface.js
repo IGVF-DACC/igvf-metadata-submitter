@@ -344,6 +344,35 @@ function postAll() {
   applyProfileToSheet();
 }
 
+function patchSelected() {
+  if (!checkProfile()) {
+    return;
+  }
+
+  var sheet = getCurrentSheet();
+
+  var selectedCols = getSelectedColumns(sheet);
+  if (!selectedCols) {
+    alertBox('Found no selected column(s) with valid header.');
+  }
+
+  var numData = getNumMetadataInSheet(sheet);
+  if (numData && !alertBoxOkCancel(
+    `Found ${numData} data row(s).\n\n` +
+    "PATCH action will replace properties on only selected columns only.\n\n" +
+    `Are you sure to POST to ${getEndpointWrite()}?`)) {
+    return;
+  }
+
+  var numSubmitted = submitSheetToPortal(
+    sheet, getProfileName(), getEndpointWrite(), getEndpointRead(), method="PATCH",
+    selectedColsForPatch=selectedCols,
+  );
+  alertBox(`PATCHed ${numSubmitted} rows to ${getEndpointWrite()}.`);
+
+  applyProfileToSheet();
+}
+
 function exportToJson() {
   if (!checkProfile()) {
     return;

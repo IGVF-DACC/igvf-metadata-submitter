@@ -164,6 +164,7 @@ function convertRowToJson(sheet, row, profileName, endpointForProfile, keepComme
 
 function findIdentifyingPropValColInRow(sheet, row, profile) {
   // for a given row, find the first valid identifying prop/value/col
+  // returns prop, value, col
   for (var identifyingProp of profile["identifyingProperties"]) {
     var identifyingCol = findColumnByHeaderValue(sheet, identifyingProp);
     var identifyingVal = identifyingCol ? getCellValue(sheet, row, identifyingCol) : undefined;
@@ -179,7 +180,9 @@ function findIdentifyingPropValColInRow(sheet, row, profile) {
   return [undefined, undefined, undefined];
 }
 
-function submitSheetToPortal(sheet, profileName, endpointForPut, endpointForProfile, method) {
+function submitSheetToPortal(
+  sheet, profileName, endpointForPut, endpointForProfile, method, selectedColsForPatch=[]
+) {
   // returns actual number of submitted rows
   var profile = getProfile(profileName, endpointForProfile);
 
@@ -188,7 +191,7 @@ function submitSheetToPortal(sheet, profileName, endpointForPut, endpointForProf
 
   for (var row = HEADER_ROW + 1; row <= numData + HEADER_ROW; row++) {
     var jsonBeforeTypeCast = rowToJson(
-      sheet, row, keepCommentedProps=true, bypassGoogleAutoParsing=true
+      sheet, row, keepCommentedProps=true, bypassGoogleAutoParsing=true,
     );
 
     if (isRowHidden(sheet, row)) {
@@ -210,6 +213,19 @@ function submitSheetToPortal(sheet, profileName, endpointForPut, endpointForProf
     var json = typeCastJsonValuesByProfile(
       profile, jsonBeforeTypeCast, keepCommentedProps=false
     );
+
+    // filter JSON with selectedColsForPatch
+    if (selectedColsForPatch) {
+      var filtJson = {};
+      const selectedHeaderProps = selectedColsForPatch.map((x) => x.headerProp);
+
+      for (var prop of Object.keys(json)) {
+        if (selectedHeaderProps.includes(prop)) {
+          filtJson[prop] = json[prop];
+        }
+      }
+      json = filtJson;
+    }
 
     switch(method) {
       case "PUT":
