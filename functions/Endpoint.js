@@ -3,8 +3,8 @@
 ALL_ENCODE_PROFILES parsed from https://www.encodeproject.org/profiles/?format=json
 - Schema version 36 (snapshotted at 09/21/2022)
 
-ALL_IGVF_PROFILES parsed from https://igvfd-dev.demo.igvf.org/profiles
-- Schema version 2 (snapshotted at 10/13/2022)
+ALL_IGVF_PROFILES parsed from https://github.com/IGVF-DACC/igvfd/tree/dev/src/igvfd/schemas
+- Schema version 2 (snapshotted at 01/17/2023)
 */
 
 const ENCODE = "ENCODE";
@@ -151,28 +151,48 @@ const ALL_ENCODE_PROFILES = [
 ];
 const ALL_IGVF_PROFILES = [
   "access_key",
-  "award",
-  "document",
-  "human_donor",
-  "rodent_donor",
-  "gene",
-  "image",
-  "lab",
+  "analysis_set",
   "assay_term",
-  "phenotype_term",
-  "sample_term",
-  "page",
-  "publication",
+  "award",
+  "biomarker",
+  "biosample",
   "cell_line",
+  "curated_set",
   "differentiated_cell",
   "differentiated_tissue",
+  "document",
+  "donor",
+  "file",
+  "file_set",
+  "gene",
+  "human_donor",
+  "human_genomic_variant",
+  "image",
+  "in_vitro_system",
+  "lab",
+  "measurement_set",
+  "mixins",
+  "namespaces",
+  "ontology_term",
+  "page",
+  "phenotype_term",
+  "phenotypic_feature",
   "primary_cell",
+  "publication",
+  "reference_data",
+  "rodent_donor",
+  "sample",
+  "sample_term",
+  "sequence_data",
+  "software",
+  "software_version",
+  "source",
   "technical_sample",
   "tissue",
-  "whole_organism",
-  "source",
   "treatment",
-  "user"
+  "user",
+  "variant",
+  "whole_organism",
 ];
 
 function isEncodeEndpoint(endpoint) {
