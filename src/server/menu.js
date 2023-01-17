@@ -7,26 +7,6 @@ global.onOpen = () => {
   menu.addItem('Show sheet info & header legend', 'showSheetInfoAndHeaderLegend');
   menu.addSeparator();
 
-  const submenuSettingsAuth = SpreadsheetApp.getUi().createMenu('⚙️ Settings & auth.');
-
-  const submenuSettingsAuthGlobal = SpreadsheetApp.getUi().createMenu('Global settings & auth');
-
-  submenuSettingsAuthGlobal.addItem('Authorize for ENCODE', 'authorizeForEncode');
-  submenuSettingsAuthGlobal.addItem('Authorize for IGVF', 'authorizeForIgvf');
-  submenuSettingsAuthGlobal.addItem('Set default endpoint for READs (GET)', 'setDefaultEndpointRead');
-  submenuSettingsAuthGlobal.addItem('Set default endpoint for WRITEs (POST/PATCH/PUT)', 'setDefaultEndpointWrite');
-  submenuSettingsAuthGlobal.addItem('Set default profile name', 'setDefaultProfileName');
-  submenuSettingsAuth.addSubMenu(submenuSettingsAuthGlobal);
-
-  const submenuSettingsAuthSheet = SpreadsheetApp.getUi().createMenu('Settings for THIS SHEET');
-
-  submenuSettingsAuthSheet.addItem('Set endpoint for READs (GET)', 'setEndpointRead');
-  submenuSettingsAuthSheet.addItem('Set endpoint for WRITEs (POST/PATCH/PUT)', 'setEndpointWrite');
-  submenuSettingsAuthSheet.addItem('Set profile name', 'setProfileName');
-  submenuSettingsAuth.addSubMenu(submenuSettingsAuthSheet);
-
-  menu.addSubMenu(submenuSettingsAuth);
-  menu.addSeparator();
   menu.addItem('Validate', 'validateJsonWithSchema');
   menu.addSeparator();
   menu.addItem('Make new template row', 'makeTemplateForUser');
@@ -51,6 +31,26 @@ global.onOpen = () => {
 
   menu.addSubMenu(submenuTools);
   menu.addSeparator();
+
+  const submenuAuth = SpreadsheetApp.getUi().createMenu('⚙️ Authorization');
+  submenuAuth.addItem('Authorize for ENCODE', 'authorizeForEncode');
+  submenuAuth.addItem('Authorize for IGVF', 'authorizeForIgvf');
+  menu.addSubMenu(submenuAuth);
+
+  const submenuSettingsGlobal = SpreadsheetApp.getUi().createMenu('⚙️ Settings (Global)');
+  submenuSettingsGlobal.addItem('Set default endpoint for READs (GET)', 'setDefaultEndpointRead');
+  submenuSettingsGlobal.addItem('Set default endpoint for WRITEs (POST/PATCH/PUT)', 'setDefaultEndpointWrite');
+  submenuSettingsGlobal.addItem('Set default profile name', 'setDefaultProfileName');
+  menu.addSubMenu(submenuSettingsGlobal);
+
+  const submenuSettingsSheet = SpreadsheetApp.getUi().createMenu('⚙️ Settings (This sheet)');
+  submenuSettingsSheet.addItem('Set endpoint for READs (GET)', 'setEndpointRead');
+  submenuSettingsSheet.addItem('Set endpoint for WRITEs (POST/PATCH/PUT)', 'setEndpointWrite');
+  submenuSettingsSheet.addItem('Set profile name', 'setProfileName');
+  menu.addSubMenu(submenuSettingsSheet);
+
+  menu.addSeparator();
+
   menu.addItem("Open tool's github page for README", 'openToolGithubPage');
   menu.addToUi();
 };
