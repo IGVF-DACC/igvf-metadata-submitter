@@ -18,7 +18,7 @@ global.onOpen = () => {
   menu.addSeparator();
   menu.addItem('Make new template row (ADMIN ONLY)', 'makeTemplateForAdmin');
   menu.addItem('GET metadata from portal (ADMIN ONLY)', 'getMetadataForAllForAdmin');
-  menu.addItem("PUT (REPLACE) metadata to portal's (ADMIN ONLY)", 'putAll');
+  menu.addItem('PUT metadata to portal (ADMIN ONLY)', 'putAll');
   menu.addSeparator();
   menu.addItem('Convert selected row to JSON', 'convertSelectedRowToJson');
   menu.addSeparator();
