@@ -2,12 +2,13 @@ const HELP_TEXT_INDENT = 2;
 const EXPORTED_JSON_INDENT = 2;
 const HEADER_COMMENTED_PROP_SKIP = "#skip";
 const HEADER_COMMENTED_PROP_RESPONSE = "#response";
+const HEADER_COMMENTED_PROP_RESPONSE_TIME = "#response_time";
 const DEFAULT_EXPORTED_JSON_FILE_PREFIX = "encode-metadata-submitter.exported";
-const TOOLTIP_FOR_PROP_SKIP = "COMMENTED PROPERY IS NOT SENT TO PORTAL\n\nDry-run any REST actions (GET/PUT/PATCH/POST)\n\n" +
-"If recent REST action is successful (200 or 201) then it is automatically " +
-"set as 1 to prevent duplicate submission/retrieval.";
-const TOOLTIP_FOR_PROP_ERROR = "COMMENTED PROPERY IS NOT SENT TO PORTAL\n\nRecent REST action + HTTP error code + JSON response\n\n" +
+const TOOLTIP_FOR_PROP_SKIP = "Set as 1 to skip any READ/WRITE actions for a row, which is equivalent to hiding a row."
+const TOOLTIP_FOR_PROP_RESPONSE = "Action + HTTP error code + JSON response\n\n" +
+"HTTP Error codes:\n";
 "-200: Successful.\n-201: Successfully POSTed.\n-409: Found a conflict when POSTing\n";
+const TOOLTIP_FOR_PROP_RESPONSE_TIME = "Time of latest response";
 
 
 function getTooltipForCommentedProp(prop) {
@@ -15,20 +16,14 @@ function getTooltipForCommentedProp(prop) {
     return TOOLTIP_FOR_PROP_SKIP;
   }
   else if(prop === HEADER_COMMENTED_PROP_RESPONSE) {
-    return TOOLTIP_FOR_PROP_ERROR;
+    return TOOLTIP_FOR_PROP_RESPONSE;
   }
-}
-
-function getNumMetadataInSheet(sheet) {
-  return getLastRow(sheet) - HEADER_ROW;
+  else if(prop === HEADER_COMMENTED_PROP_RESPONSE_TIME) {
+    return TOOLTIP_FOR_PROP_RESPONSE_TIME;
+  }
 }
 
 function makeMetadataUrl(method, profileName, endpoint, identifyingVal) {
-  if (identifyingVal) {
-    // if indentifying value is given and it's an array then take the first element
-    identifyingVal = isArrayString(identifyingVal) ? JSON.parse(identifyingVal)[0] : identifyingVal;
-  }
-
   switch(method) {
     case "GET":
       return `${endpoint}/${profileName}/${identifyingVal}/?format=json&frame=object`;
@@ -49,15 +44,12 @@ function getMetadataFromPortal(identifyingVal, identifyingProp, profileName, end
 
   var object = {
     [HEADER_COMMENTED_PROP_RESPONSE]: "GET" + "," + error,
-    [HEADER_COMMENTED_PROP_SKIP]: 0,
+    [HEADER_COMMENTED_PROP_RESPONSE_TIME]: getCurrentLocalTimeString(""),
     [identifyingProp]: identifyingVal
   };
 
   var responseJson = JSON.parse(response.getContentText());
   if (error === 200) {
-    // automatically set #skip as 1 to prevent duplicate GET
-    object[HEADER_COMMENTED_PROP_SKIP] = 1;
-
     // filter out non gettable property
     // see function isGettableProp in Profile.gs for details
     var profile = getProfile(profileName, endpoint);
@@ -107,13 +99,16 @@ function getSortedProps(props, profile, propPriority=DEFAULT_PROP_PRIORITY) {
 
 function updateSheetWithMetadataFromPortal(sheet, profileName, endpointForGet, endpointForProfile, forAdmin=false) {
   var profile = getProfile(profileName, endpointForProfile);
-  
+
   // check #skip column exists. if so skip row with #skip===1
   var skipCol = findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_SKIP);
 
   // update each row if has accession value
   var numUpdated = 0;
   for (var row = HEADER_ROW + 1; row <= getLastRow(sheet); row++) {
+    if (isRowHidden(sheet, row)) {
+      continue;
+    }
     if (skipCol && toBoolean(getCellValue(sheet, row, skipCol))) {
       continue;
     }
@@ -159,12 +154,18 @@ function convertRowToJson(sheet, row, profileName, endpointForProfile, keepComme
 }
 
 function findIdentifyingPropValColInRow(sheet, row, profile) {
-  // for a given row, find the first valid identifying prop/value/col
+  // for a given row, find the first valid identifying prop/value/col.
+  // if indentifying value is an array type then take the first element.
+  //
+  // returns prop, value, col
+
   for (var identifyingProp of profile["identifyingProperties"]) {
     var identifyingCol = findColumnByHeaderValue(sheet, identifyingProp);
     var identifyingVal = identifyingCol ? getCellValue(sheet, row, identifyingCol) : undefined;
 
     if (identifyingVal) {
+      // if indentifying value is an array type then take the first element
+      identifyingVal = isArrayProp(profile, identifyingProp) ? JSON.parse(identifyingVal)[0] : identifyingVal;
       return [
         identifyingProp,
         identifyingVal,
@@ -175,7 +176,9 @@ function findIdentifyingPropValColInRow(sheet, row, profile) {
   return [undefined, undefined, undefined];
 }
 
-function submitSheetToPortal(sheet, profileName, endpointForPut, endpointForProfile, method) {
+function submitSheetToPortal(
+  sheet, profileName, endpointForPut, endpointForProfile, method, selectedColsForPatch=[]
+) {
   // returns actual number of submitted rows
   var profile = getProfile(profileName, endpointForProfile);
 
@@ -184,16 +187,18 @@ function submitSheetToPortal(sheet, profileName, endpointForPut, endpointForProf
 
   for (var row = HEADER_ROW + 1; row <= numData + HEADER_ROW; row++) {
     var jsonBeforeTypeCast = rowToJson(
-      sheet, row, keepCommentedProps=true, bypassGoogleAutoParsing=true
+      sheet, row, keepCommentedProps=true, bypassGoogleAutoParsing=true,
     );
 
+    if (isRowHidden(sheet, row)) {
+      continue;
+    }
     // if has #skip and it is 1 then skip
     if (jsonBeforeTypeCast.hasOwnProperty(HEADER_COMMENTED_PROP_SKIP)) {
       if (toBoolean(jsonBeforeTypeCast[HEADER_COMMENTED_PROP_SKIP])) {
         continue;
       }
     }
-
     var [identifyingProp, identifyingVal, identifyingCol] =
       findIdentifyingPropValColInRow(sheet, row, profile);
 
@@ -205,16 +210,31 @@ function submitSheetToPortal(sheet, profileName, endpointForPut, endpointForProf
       profile, jsonBeforeTypeCast, keepCommentedProps=false
     );
 
+    var payloadJson = {};
+
+    // filter JSON with selectedColsForPatch
+    if (method === "PATCH" && selectedColsForPatch.length > 0) {
+      const selectedHeaderProps = selectedColsForPatch.map((x) => x.headerProp);
+      for (var prop of Object.keys(json)) {
+        if (selectedHeaderProps.includes(prop)) {
+          payloadJson[prop] = json[prop];
+        }
+      }
+
+    } else {
+      payloadJson = JSON.parse(JSON.stringify(json));
+    }
+
     switch(method) {
       case "PUT":
       case "PATCH":
-        var url = makeMetadataUrl(method, profileName, endpointForPut, json[identifyingProp]);
-        var response = restSubmit(url, payloadJson=json, method=method);
+        var url = makeMetadataUrl(method, profileName, endpointForPut, identifyingVal);
+        var response = restSubmit(url, payloadJson=payloadJson, method=method);
         break;
 
       case "POST":
         var url = makeMetadataUrl(method, profileName, endpointForPut);
-        var response = restSubmit(url, payloadJson=json, method=method);
+        var response = restSubmit(url, payloadJson=payloadJson, method=method);
         break;
 
       default:
@@ -226,10 +246,19 @@ function submitSheetToPortal(sheet, profileName, endpointForPut, endpointForProf
     var responseJson = JSON.parse(response.getContentText());
 
     json[HEADER_COMMENTED_PROP_RESPONSE] = method + "," + error;
+    if (method === "PATCH") {
+      json[HEADER_COMMENTED_PROP_RESPONSE] += "\nSelected props: ";
+      if (selectedColsForPatch.length === 0) {
+        json[HEADER_COMMENTED_PROP_RESPONSE] += "ALL";
+      } else {
+        json[HEADER_COMMENTED_PROP_RESPONSE] += selectedColsForPatch.map(x => x.headerProp).join(",");
+      }
+    }
+
+    json[HEADER_COMMENTED_PROP_RESPONSE_TIME] = getCurrentLocalTimeString("");
 
     switch(error) {
       case 200:
-        json[HEADER_COMMENTED_PROP_SKIP] = 1;
         break;
 
       case 201:
@@ -241,16 +270,14 @@ function submitSheetToPortal(sheet, profileName, endpointForPut, endpointForProf
           }
         });
         json[HEADER_COMMENTED_PROP_RESPONSE] += "\n" + JSON.stringify(responseJson, null, HELP_TEXT_INDENT);
-        json[HEADER_COMMENTED_PROP_SKIP] = 1;
         break;
 
       case 422:
         // validation failure
-        json[HEADER_COMMENTED_PROP_RESPONSE] += "\nIf error message is not helpful, use external JSON schema validator\n"
+        json[HEADER_COMMENTED_PROP_RESPONSE] += "\nIf error message is not helpful, try Validate on the menu.\n"
 
       default:
         json[HEADER_COMMENTED_PROP_RESPONSE] += "\n" + JSON.stringify(responseJson, null, HELP_TEXT_INDENT);
-        json[HEADER_COMMENTED_PROP_SKIP] = 0;
     }
 
     // rewrite data, with commented headers such as error and text, on the sheet
@@ -272,6 +299,9 @@ function validateSheet(sheet, profileName, endpointForProfile) {
       sheet, row, keepCommentedProps=true, bypassGoogleAutoParsing=true
     );
 
+    if (isRowHidden(sheet, row)) {
+      continue;
+    }
     // if has #skip and it is 1 then skip
     if (jsonBeforeTypeCast.hasOwnProperty(HEADER_COMMENTED_PROP_SKIP)) {
       if (toBoolean(jsonBeforeTypeCast[HEADER_COMMENTED_PROP_SKIP])) {
@@ -289,6 +319,7 @@ function validateSheet(sheet, profileName, endpointForProfile) {
     } else {
       json[HEADER_COMMENTED_PROP_RESPONSE] = JSON.stringify(validationResult.errors, null, 2);
     }
+    json[HEADER_COMMENTED_PROP_RESPONSE_TIME] = getCurrentLocalTimeString("");
     // rewrite data, with commented headers such as error and text, on the sheet
     writeJsonToRow(sheet, json, row);
     numSubmitted++;

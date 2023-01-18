@@ -66,7 +66,10 @@ function getCurrentLocalTimeString(sep="-") {
   // replaced with `sep`
   var d = new Date();
   d = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-  return d.toISOString().replace(/T/g,sep).replace(/\:/g,sep).replace(/Z/g,'') .replace(/\..*/g,'');
+  if (sep != "") {
+    return d.toISOString().replace(/T/g,sep).replace(/\:/g,sep).replace(/Z/g,'') .replace(/\..*/g,'');
+  }
+  return d.toISOString().replace(/T/g,' ').replace(/Z/g,'');
 }
 
 // https://stackoverflow.com/a/47098533/8819536

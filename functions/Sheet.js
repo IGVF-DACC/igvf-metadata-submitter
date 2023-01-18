@@ -9,7 +9,6 @@ function setSheetMetadata(sheet, key, val) {
   if (currentVal) {
     // delete existing metadata
     var finder = sheet.createDeveloperMetadataFinder().withKey(key).find();
-    Logger.log(finder);
     finder[0].remove();
   }
   sheet.addDeveloperMetadata(key, val);
@@ -41,8 +40,26 @@ function getCurrentSheetMetadata(key) {
   return getSheetMetadata(getCurrentSheet(), key);
 }
 
+function getNumMetadataInSheet(sheet, ignoreHiddenRows=false) {
+  var numRows = 0;
+  for (var row = HEADER_ROW + 1; row <= getLastRow(sheet); row++) {
+    if (!ignoreHiddenRows || ignoreHiddenRows && !isRowHidden(sheet, row)) {
+      numRows += 1;
+    }
+  }
+  return numRows;
+}
+
 function isSheetEmpty(sheet) {
   return sheet.getDataRange().isBlank();
+}
+
+function isRowHidden(sheet, row) {
+  return sheet.isRowHiddenByUser(row);
+}
+
+function isColumnHidden(sheet, col) {
+  return sheet.isColumnHiddenByUser(col);
 }
 
 function getCellValue(sheet, row, col) {
@@ -222,6 +239,26 @@ function writeJsonToRow(sheet, json, row, props) {
 function addJsonToSheet(sheet, json, props) {
   var lastRow = Math.max(getLastRow(sheet), HEADER_ROW) + 1;
   writeJsonToRow(sheet, json, lastRow, props);
+}
+
+function getSelectedColumns(sheet, keepCommentedProps=true) {
+  // return a list of selected column's ID (col) and property {col, headerProp}
+  // ignore columns without valid header
+  var cols = [];
+  var ranges = sheet.getSelection().getActiveRangeList().getRanges();
+  for (var i = 0; i < ranges.length; i++) {
+    for (var j = 0; j < ranges[i].getNumColumns(); j++) {
+      var col = ranges[i].getColumn() + i;
+      var headerProp = getCellValue(sheet, HEADER_ROW, col);
+      if (!keepCommentedProps && headerProp.startsWith("#")) {
+        continue;
+      }
+      if (headerProp) {
+        cols.push({col, headerProp});
+      }
+    }
+  }
+  return cols;
 }
 
 function rowToJson(sheet, row, keepCommentedProps, bypassGoogleAutoParsing) {  
