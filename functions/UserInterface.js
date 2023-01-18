@@ -359,7 +359,7 @@ function patchSelected() {
   var numData = getNumMetadataInSheet(sheet);
   if (numData && !alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` +
-    "PATCH action will replace properties on only selected columns only.\n\n" +
+    "PATCH action will replace properties on selected columns only.\n\n" +
     `Are you sure to POST to ${getEndpointWrite()}?`)) {
     return;
   }

@@ -1,11 +1,11 @@
 # IGVF metadata submitter
 
-IGVF metadata submitter based on Google Apps Script + Google Sheets
+IGVF metadata submitter based on Google Sheet + Google Apps Script.
 
 
 ## Installation
 
-You can install it from code or make a copy of a portable version.
+You can install it from code or make a copy from a portable version.
 
 ## Installing from code
 
@@ -24,7 +24,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.0" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.1" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -44,11 +44,11 @@ https://docs.google.com/spreadsheets/d/1zEw5qilpKZdiMXCNv4n9hOXv9s3THWkwi7-WAC2s
 
 ## Settings
 
-Can configure the submitter either globally or for a specific sheet.
+You can configure the submitter either globally or for a specific sheet.
 
 ### Authorization
 
-Authorize on ENCODE and IGVF portal. Get a username/password pair from Profile menu.
+Authorize on ENCODE and IGVF portal. Get a username/password pair from portal's `Profile` menu.
 
 ### Endpoints
 
@@ -56,12 +56,11 @@ There are two endpoints for READ and WRITE. READ actions (GET, getting profile s
 
 ### Profile
 
-Name of a profile. for example, `experiment`, `lab` and `human_donor`.
-
+Name of a profile. Only `snake_case` or capitalized `CamelCase` works. For example, `experiment`, `Lab`, `human_donor` and `MouseDonor`.
 
 ## How to select rows
 
-You can skip a row by setting `#skip` column as `1` or just by hiding the row itself (right click on the selected rows and `Hide`).
+You can skip a row by setting `#skip` column as `1` or by hiding the row itself (right-click on the selected rows and `Hide`).
 
 ## Functions
 
