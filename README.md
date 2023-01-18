@@ -38,8 +38,7 @@ $ npm run deploy
 ## Cloning a portable version (user)
 
 Make a copy of this portable version and grant any required permissions.
-
-https://docs.google.com/spreadsheets/d/1zEw5qilpKZdiMXCNv4n9hOXv9s3THWkwi7-WAC2sM7k/edit?usp=sharing
+-`v0.2.1`: https://docs.google.com/spreadsheets/d/1zEw5qilpKZdiMXCNv4n9hOXv9s3THWkwi7-WAC2sM7k/edit?usp=sharing
 
 
 ## Settings
@@ -86,8 +85,24 @@ Not implemented yet
 
 POST sends a POST request to the portal. Use this to submit a new metadata and generate an accession/ID.
 
-### PUT/REPLACE
+### PUT (REPLACE)
 
-PUT/REPLACE sends a PUT request to the portal so that the whole metadata on the portal is replaced with a row on the sheet. **Beware that this will remove any missing properties on the sheet from the portal**.
+PUT (REPLACE) sends a PUT request to the portal so that the whole metadata on the portal is replaced with a row on the sheet. **Beware that this will remove any missing properties on the sheet from the portal**.
 
-When you PUT to the portal, make sure to GET the metadata with GET(ADMIN) and then modify.
+Before you PUT to the portal, make sure to GET the metadata with GET (ADMIN) first.
+
+## Property legends
+
+Color and style represents a type of property.
+
+### Property color
+
+- <span style="color:blue">Blue</span>: Identifying property
+- <span style="color:red">Red</span>: Required property
+- <span style="color:gray">Gray</span>: Admin-only/non-submittable property
+- <span style="color:black">Black</span>: Submittable property
+
+### Property style
+
+- <span style="text-decoration:underline">Underline</span>: Searchable property
+- ***Italic+Bold***: Array type property
