@@ -16,9 +16,9 @@ global.onOpen = () => {
   // menu.addItem('PATCH-APPEND selected columns', 'patchAppendAll');
   // menu.addItem('PATCH-REMOVE selected columns', 'patchRemoveAll');
   menu.addSeparator();
-  menu.addItem('Make new template row (ADMIN)', 'makeTemplateForAdmin');
-  menu.addItem('GET metadata from portal (ADMIN)', 'getMetadataForAllForAdmin');
-  menu.addItem("REPLACE metadata with portal's (ADMIN)", 'putAll');
+  menu.addItem('Make new template row (ADMIN ONLY)', 'makeTemplateForAdmin');
+  menu.addItem('GET metadata from portal (ADMIN ONLY)', 'getMetadataForAllForAdmin');
+  menu.addItem("PUT (REPLACE) metadata to portal's (ADMIN ONLY)", 'putAll');
   menu.addSeparator();
   menu.addItem('Convert selected row to JSON', 'convertSelectedRowToJson');
   menu.addSeparator();

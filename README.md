@@ -52,7 +52,7 @@ Authorize on ENCODE and IGVF portal. Get a username/password pair from portal's 
 
 ### Endpoints
 
-There are two endpoints for READ and WRITE. READ actions (GET, getting profile schema JSON) send requests to the READ endpoint and WRITE actions (PATCH, POST, REPLACE/PUT) send requests to the WRITE endpoint.
+There are two endpoints for READ and WRITE. READ actions (GET, getting profile schema JSON) send requests to the READ endpoint and WRITE actions (PATCH, POST, PUT/REPLACE) send requests to the WRITE endpoint.
 
 ### Profile
 
@@ -86,7 +86,8 @@ Not implemented yet
 
 POST sends a POST request to the portal. Use this to submit a new metadata and generate an accession/ID.
 
-### REPLACE/PUT
+### PUT/EPLACE
 
-REPLACE sends a PUT request to the portal so that the whole metadata on the portal is replaced with a row on the sheet. **Beware that this will remove any missing properties on the sheet from the portal**.
+PUT/REPLACE sends a PUT request to the portal so that the whole metadata on the portal is replaced with a row on the sheet. **Beware that this will remove any missing properties on the sheet from the portal**.
 
+When you PUT to the portal, make sure to GET the metadata with GET(ADMIN) and then modify.
