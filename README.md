@@ -72,7 +72,7 @@ GET will send a GET request to the portal and will convert retrieved metadata to
 
 ### PATCH
 
-PATCH will send a patch request to the portal in order to patch properties of **SELECTED** columns. Only selected columns will be affected by this request. Properties in other columns will not be included in the request.
+Not implemented yet
 
 ### PATCH-APPEND
 
@@ -86,7 +86,7 @@ Not implemented yet
 
 POST sends a POST request to the portal. Use this to submit a new metadata and generate an accession/ID.
 
-### PUT/EPLACE
+### PUT/REPLACE
 
 PUT/REPLACE sends a PUT request to the portal so that the whole metadata on the portal is replaced with a row on the sheet. **Beware that this will remove any missing properties on the sheet from the portal**.
 
