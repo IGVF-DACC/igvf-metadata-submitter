@@ -207,16 +207,15 @@ function getMetadataForAll(forAdmin) {
     .length === 0) {
     alertBox(
       `Couldn't find an identifying property (${profile["identifyingProperties"].join(",")}) in header row ${HEADER_ROW}\n\n` +
-      `Add a proper identifying property to the header row and define it for each data row to retrieve from the portal.\n` +
-      `You can also add "${HEADER_COMMENTED_PROP_SKIP}" column and set it to 1 for any row to skip all REST actions for that specific row.`
+      `Add a proper identifying property to the header row and define it for each data row to retrieve from the portal.`
     );
     return;
   }
 
-  var numData = getNumMetadataInSheet(sheet);
+  var numData = getNumMetadataInSheet(sheet, ignoreHiddenRows=true);
   if (numData && !alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` + 
-    "THIS ACTION CAN OVERWRITE DATA ON UNHIDDEN ROWS (OR ROWS with #skip == 1).\n\n" +
+    "THIS ACTION CAN OVERWRITE DATA ON UNHIDDEN ROWS.\n\n" +
     "Are you sure to proceed?")) {
     return;
   }
@@ -279,12 +278,16 @@ function putAll() {
 
   var sheet = getCurrentSheet();
 
-  var numData = getNumMetadataInSheet(sheet);
-  if (numData && !alertBoxOkCancel(
+  var numData = getNumMetadataInSheet(sheet, ignoreHiddenRows=true);
+  if (numData === 0) {
+    alertBox(`Found no data to submit to the portal.`);
+    return;
+  }  
+  if (!alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` + 
     "PUT action will REPLACE metadata on the portal with those on the sheet. " +
-    "Therefore, any properties missing on the sheet will also be REMOVED from portal's metadata.\n\n" +
-    `You can add ${HEADER_COMMENTED_PROP_SKIP} column and set it to 1 for a row that you want to skip REST actions.\n\n` +
+    "Therefore, any properties missing on the sheet will also be REMOVED from portal's metadata." +
+    "If you are not an admin and just want to patch non-empty values of properties on the sheet, use PATCH instead.\n\n" +
     `Are you sure to PUT to ${getEndpointWrite()}?`)) {
     return;
   }
@@ -295,6 +298,41 @@ function putAll() {
   alertBox(`Submitted (PUT) ${numSubmitted} rows to ${getEndpointWrite()}.`);
 }
 
+function patchSelected() {
+  if (!checkProfile()) {
+    return;
+  }
+
+  var sheet = getCurrentSheet();
+
+  var selectedCols = getSelectedColumns(sheet, keepCommentedProps=false);
+  if (selectedCols.length === 0) {
+    alertBox('Found no selected column(s) with valid header.');
+    return;
+  }
+
+  var numData = getNumMetadataInSheet(sheet, ignoreHiddenRows=true);
+  if (numData === 0) {
+    alertBox(`Found no data to submit to the portal.`);
+    return;
+  }  
+  if (!alertBoxOkCancel(
+    `Found ${numData} data row(s).\n\n` +
+    "PATCH action will REPLACE properties on the portal with data on selected columns only.\n\n" +
+    `Selected properties: ${selectedCols.map(x => x.headerProp).join(",")}` + "\n\n" +
+    `Are you sure to PATCH to ${getEndpointWrite()}?`)) {
+    return;
+  }
+
+  var numSubmitted = submitSheetToPortal(
+    sheet, getProfileName(), getEndpointWrite(), getEndpointRead(), method="PATCH",
+    selectedColsForPatch=selectedCols,
+  );
+  alertBox(`PATCHed ${numSubmitted} rows to ${getEndpointWrite()}.`);
+
+  applyProfileToSheet();
+}
+
 function patchAll() {
   if (!checkProfile()) {
     return;
@@ -302,14 +340,17 @@ function patchAll() {
 
   var sheet = getCurrentSheet();
 
-  var numData = getNumMetadataInSheet(sheet);
-  if (numData && !alertBoxOkCancel(
+  var numData = getNumMetadataInSheet(sheet, ignoreHiddenRows=true);
+  if (numData === 0) {
+    alertBox(`Found no data to submit to the portal.`);
+    return;
+  }  
+  if (!alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` + 
-    "PATCH action will REPLACE properties on the portal with those non-empty values on the sheet.\n\n" +
-    `You can add ${HEADER_COMMENTED_PROP_SKIP} column and set it to 1 for a row that you want to skip REST actions.\n\n` +
+    "PATCH action will REPLACE properties on the portal with data on the sheet.\n\n" +
     `Are you sure to PATCH to ${getEndpointWrite()}?`)) {
     return;
-  }
+  } 
 
   var numSubmitted = submitSheetToPortal(
     sheet, getProfileName(), getEndpointWrite(), getEndpointRead(), method="PATCH"
@@ -324,8 +365,12 @@ function postAll() {
 
   var sheet = getCurrentSheet();
 
-  var numData = getNumMetadataInSheet(sheet);
-  if (numData && !alertBoxOkCancel(
+  var numData = getNumMetadataInSheet(sheet, ignoreHiddenRows=true);
+  if (numData === 0) {
+    alertBox(`Found no data to submit to the portal.`);
+    return;
+  }  
+  if (!alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` +
     "POST action will submit new objects (rows on the sheet) to the portal.\n\n" +
     "And then it will UPDATE rows with new identifying properties (e.g. accession, uuid) assigned from the portal. " +
@@ -340,35 +385,6 @@ function postAll() {
     sheet, getProfileName(), getEndpointWrite(), getEndpointRead(), method="POST"
   );
   alertBox(`Submitted (POST) ${numSubmitted} rows to ${getEndpointWrite()}.`);
-
-  applyProfileToSheet();
-}
-
-function patchSelected() {
-  if (!checkProfile()) {
-    return;
-  }
-
-  var sheet = getCurrentSheet();
-
-  var selectedCols = getSelectedColumns(sheet);
-  if (!selectedCols) {
-    alertBox('Found no selected column(s) with valid header.');
-  }
-
-  var numData = getNumMetadataInSheet(sheet);
-  if (numData && !alertBoxOkCancel(
-    `Found ${numData} data row(s).\n\n` +
-    "PATCH action will replace properties on selected columns only.\n\n" +
-    `Are you sure to POST to ${getEndpointWrite()}?`)) {
-    return;
-  }
-
-  var numSubmitted = submitSheetToPortal(
-    sheet, getProfileName(), getEndpointWrite(), getEndpointRead(), method="PATCH",
-    selectedColsForPatch=selectedCols,
-  );
-  alertBox(`PATCHed ${numSubmitted} rows to ${getEndpointWrite()}.`);
 
   applyProfileToSheet();
 }

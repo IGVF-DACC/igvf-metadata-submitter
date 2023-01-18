@@ -174,7 +174,9 @@ function isGettableProp(profile, prop, forAdmin=false) {
   if (forAdmin) {
     return !isNotSubmittableProp(profile, prop);
   } else {
-    return !isNonEditableProp(profile, prop)
+    return isRequiredProp(profile, prop)
+      || isIdentifyingProp(profile, prop)
+      || !isNonEditableProp(profile, prop)
       && !hasDoNotSubmitInPropComment(profile, prop)
       && !isAdminOrSystemProp(profile, prop)
   }

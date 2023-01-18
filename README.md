@@ -57,13 +57,12 @@ There are two endpoints for READ and WRITE. READ actions (GET, getting profile s
 
 Name of a profile. Only `snake_case` or capitalized `CamelCase` works. For example, `experiment`, `Lab`, `human_donor` and `MouseDonor`.
 
-## How to select rows
-
-You can skip a row by setting `#skip` column as `1` or by hiding the row itself (right-click on the selected rows and `Hide`).
-
 ## Functions
 
-This section describes how to use each function.
+This section describes how to use each function. This metadata submitter converts each row into a JSON object and then submit it to the portal.
+You can skip a row by setting `#skip` column as `1` or by hiding the row itself (right-click on the selected rows and `Hide`).
+
+Also, if cell's value is empty for a certain property then such property is not included in the JSON object.
 
 ### GET
 
@@ -71,15 +70,7 @@ GET will send a GET request to the portal and will convert retrieved metadata to
 
 ### PATCH
 
-Not implemented yet
-
-### PATCH-APPEND
-
-Not implemented yet
-
-### PATCH-REMOVE
-
-Not implemented yet
+PATCH will send a patch request to the portal in order to patch properties of **SELECTED** columns. Only selected columns will be affected by this request. Properties in other columns will not be included in the request.
 
 ### POST
 

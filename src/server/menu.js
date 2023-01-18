@@ -12,7 +12,8 @@ global.onOpen = () => {
   menu.addItem('Make new template row', 'makeTemplateForUser');
   menu.addItem('GET metadata from portal', 'getMetadataForAllForUser');
   menu.addItem('POST new metadata to portal', 'postAll');
-  // menu.addItem('PATCH selected columns', 'patchSelected');
+  menu.addItem('PATCH selected columns', 'patchSelected');
+  menu.addItem('PATCH all columns', 'patchAll');
   // menu.addItem('PATCH-APPEND selected columns', 'patchAppendAll');
   // menu.addItem('PATCH-REMOVE selected columns', 'patchRemoveAll');
   menu.addSeparator();
