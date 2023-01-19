@@ -119,13 +119,13 @@ function openToolGithubPage() {
 
 function showSheetInfoAndHeaderLegend() {
   alertBox(
-    "* Settings for THIS SHEET\n" +
-    `- Endpoint READ (GET): ${getEndpointRead()}\n` +
+    "* Settings (This sheet)\n" +
+    `- Endpoint READ (GET, profile): ${getEndpointRead()}\n` +
     `- Endpoint WRITE (POST/PATCH/PUT): ${getEndpointWrite()}\n` +
     `- Profile name: ${getProfileName()}\n\n` +
 
-    "* Global settings (used if settings for this sheet are not defined)\n" +
-    `- Endpoint READ (GET): ${getDefaultEndpointRead()}\n` +
+    "* Settings (Global)\n" +
+    `- Endpoint READ (GET, profile): ${getDefaultEndpointRead()}\n` +
     `- Endpoint WRITE (POST/PATCH/PUT): ${getDefaultEndpointWrite()}\n` +
     `- Profile name: ${getDefaultProfileName()}\n\n` +
 
@@ -135,12 +135,12 @@ function showSheetInfoAndHeaderLegend() {
     "- black: other editable property\n" +
     "- gray: ADMIN only property (readonly,nonSubmittable,'Do not sumit')\n\n" +
 
-    "* Commented properties (filtered out before being sent to the portal)\n" +
+    "* Commented properties (filtered out when being sent to the portal)\n" +
     "- #skip: Set it to 1 to skip any READ/WRITE REST action for a row.\n" +
     "- #response: Debugging info. Action + HTTP error code + JSON response.\n" +
     "- #response_time: Debugging info. Time of recent action.\n\n" +
 
-    "* Style legends for header properties\n" +
+    "* Style legends for properties\n" +
     "- Underline: Searachable property. Go to menu 'Search'.\n" +
     "- Italic+Bold: Array type property."
   );
