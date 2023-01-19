@@ -138,7 +138,7 @@ function showSheetInfoAndHeaderLegend() {
     "* Commented properties (filtered out before being sent to the portal)\n" +
     "- #skip: Set it to 1 to skip any READ/WRITE REST action for a row.\n" +
     "- #response: Debugging info. Action + HTTP error code + JSON response.\n" +
-    "- #response_time: Debugging info. Time of recent action." +
+    "- #response_time: Debugging info. Time of recent action.\n\n" +
 
     "* Style legends for header properties\n" +
     "- Underline: Searachable property. Go to menu 'Search'.\n" +
