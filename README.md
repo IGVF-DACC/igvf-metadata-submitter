@@ -65,7 +65,7 @@ This section describes how to use each function. This metadata submitter convert
 
 You can skip a row by setting `#skip` column as `1` or by hiding the row itself (right-click on the selected rows and `Hide`).
 
-Also, if cell's value is empty for a certain property then such property is not included in the JSON object.
+Also, if cell's value is empty for a certain property then such property is not included in the JSON object when being sent to the portal.
 
 ### GET
 
