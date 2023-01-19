@@ -11,7 +11,10 @@ function setSheetMetadata(sheet, key, val) {
     var finder = sheet.createDeveloperMetadataFinder().withKey(key).find();
     finder[0].remove();
   }
-  sheet.addDeveloperMetadata(key, val);
+  // DeveloperMetadataVisibility.DOCUMENT allows sharing of metadata properties
+  sheet.addDeveloperMetadata(
+    key, val, SpreadsheetApp.DeveloperMetadataVisibility.DOCUMENT
+  );
 }
 
 function getSheetMetadata(sheet, key) {
