@@ -13,8 +13,8 @@ Enable [Google Apps Script API](https://script.google.com/home/usersettings).
 
 Update `Node.js` and `npm`
 ```bash
-$curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs
-$sudo npm install npm -g
+$ curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs
+$ sudo npm install npm -g
 ```
 
 Install `clasp`
@@ -24,7 +24,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.1" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.2" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -38,7 +38,9 @@ $ npm run deploy
 ## Cloning a portable version (user)
 
 Make a copy of this portable version and grant any required permissions.
+
 -`v0.2.1`: https://docs.google.com/spreadsheets/d/1zEw5qilpKZdiMXCNv4n9hOXv9s3THWkwi7-WAC2sM7k/edit?usp=sharing
+-`v0.2.2`: https://docs.google.com/spreadsheets/d/12iLrhok81W4CqlOSJ2HD0S4B2vlKdiy3JbAS27awZkI/edit?usp=sharing
 
 
 ## Settings
@@ -51,7 +53,7 @@ Authorize on ENCODE and IGVF portal. Get a username/password pair from portal's 
 
 ### Endpoints
 
-There are two endpoints for READ and WRITE. READ actions (GET, getting profile schema JSON) send requests to the READ endpoint and WRITE actions (PATCH, POST, PUT/REPLACE) send requests to the WRITE endpoint.
+There are two endpoints for READ and WRITE. READ actions (GET, getting profile schema JSON) send requests to the READ endpoint and WRITE actions (PATCH, POST, PUT) send requests to the WRITE endpoint.
 
 ### Profile
 
@@ -60,6 +62,7 @@ Name of a profile. Only `snake_case` or capitalized `CamelCase` works. For examp
 ## Functions
 
 This section describes how to use each function. This metadata submitter converts each row into a JSON object and then submit it to the portal.
+
 You can skip a row by setting `#skip` column as `1` or by hiding the row itself (right-click on the selected rows and `Hide`).
 
 Also, if cell's value is empty for a certain property then such property is not included in the JSON object.
@@ -76,9 +79,9 @@ PATCH will send a patch request to the portal in order to patch properties of **
 
 POST sends a POST request to the portal. Use this to submit a new metadata and generate an accession/ID.
 
-### PUT (REPLACE)
+### PUT
 
-PUT (REPLACE) sends a PUT request to the portal so that the whole metadata on the portal is replaced with a row on the sheet. **Beware that this will remove any missing properties on the sheet from the portal**.
+PUT sends a PUT request to the portal so that the whole metadata on the portal is replaced with a row on the sheet. **Beware that this will remove any missing properties on the sheet from the portal**.
 
 Before you PUT to the portal, make sure to GET the metadata with GET (ADMIN) first.
 
