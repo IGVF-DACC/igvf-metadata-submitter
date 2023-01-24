@@ -1,6 +1,6 @@
 const DEFAULT_BASE_TEMPLATE = {
-  [HEADER_COMMENTED_PROP_SKIP]: null,
   [HEADER_COMMENTED_PROP_RESPONSE]: null,
+  [HEADER_COMMENTED_PROP_RESPONSE_TIME]: null,
 };
 
 function makeMetadataTemplateFromProfile(profile, forAdmin=false, template=DEFAULT_BASE_TEMPLATE) {

@@ -9,6 +9,7 @@ const HEADER_PROP_LAB = "lab";
 const DEFAULT_PROP_PRIORITY = [
   HEADER_COMMENTED_PROP_SKIP,
   HEADER_COMMENTED_PROP_RESPONSE,
+  HEADER_COMMENTED_PROP_RESPONSE_TIME,
   HEADER_PROP_ACCESSION,
   HEADER_PROP_UUID,
   HEADER_PROP_NAME,
@@ -37,7 +38,8 @@ const COLOR_PROP_READONLY = "lightgray";
 const COLOR_PROP_HAS_DO_NOT_SUBMIT_IN_COMMENT = "lightgray";
 const COLOR_PROP_NOT_SUBMITTABLE = "lightgray";
 const COLOR_PROP_COMMENTED = "black";
-const FORMAT_SEARCHABLE_PROP = "bold,underline";
+const FORMAT_SEARCHABLE_PROP = "underline";
+const FORMAT_ARRAY_PROP = "italic,bold";
 
 const SELECTED_PROP_KEYS_FOR_TOOLTIP = [
   "title",
@@ -79,6 +81,14 @@ function isSearchableProp(profile, prop) {
     propInProfile.hasOwnProperty("items") && propInProfile["items"].hasOwnProperty("linkTo");
 }
 
+function isArrayProp(profile, prop) {
+  if (!profile || prop.startsWith("#")) {
+    return false;
+  }
+  var propType = getPropType(profile, prop);
+  return propType && propType === "array";
+}
+
 function makeSearchUrlForProp(profile, prop, endpoint) {
   if (!isSearchableProp(profile, prop)) {
     return;
@@ -106,7 +116,21 @@ function getPropType(profile, prop) {
 }
 
 function isRequiredProp(profile, prop) {
-  return profile["required"].includes(prop);
+  // try find required property in a recursive fashion ("anyOf")
+  // 1. "required" is "anyOf", then try to find "required" in subProfile
+  // 2. "required" in this
+
+  if (profile.hasOwnProperty("required")) {
+    return profile["required"].includes(prop);
+
+  } else if (profile.hasOwnProperty("anyOf")) {
+    for (subProfile of profile["anyOf"]) {
+      if (isRequiredProp(subProfile, prop)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 function isIdentifyingProp(profile, prop) {
@@ -150,7 +174,9 @@ function isGettableProp(profile, prop, forAdmin=false) {
   if (forAdmin) {
     return !isNotSubmittableProp(profile, prop);
   } else {
-    return !isNonEditableProp(profile, prop)
+    return isRequiredProp(profile, prop)
+      || isIdentifyingProp(profile, prop)
+      || !isNonEditableProp(profile, prop)
       && !hasDoNotSubmitInPropComment(profile, prop)
       && !isAdminOrSystemProp(profile, prop)
   }
@@ -257,8 +283,15 @@ function setColorAndTooltipForHeaderProp(sheet, profile, prop, col) {
   setCellColor(sheet, HEADER_ROW, col, getColorForProp(profile, prop));
 
   if (!prop.startsWith("#")) {
+    var styles = [];
     if (isSearchableProp(profile, prop)) {
-      setCellFormat(sheet, HEADER_ROW, col, FORMAT_SEARCHABLE_PROP);
+      styles.push(FORMAT_SEARCHABLE_PROP)
+    }
+    if (isArrayProp(profile, prop)) {
+      styles.push(FORMAT_ARRAY_PROP)
+    }
+    if (styles) {
+      setCellFormat(sheet, HEADER_ROW, col, styles.join(","));
     }
   }
 }
