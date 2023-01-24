@@ -1,0 +1,84 @@
+<!-- Learn about this code on MDN: https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem/webkitGetAsEntry -->
+
+<p>Drag files and/or directories to the box below!</p>
+
+<div id="dropzone">
+  <div id="boxtitle">
+    Drop Root Folder Here
+  </div>
+</div>
+
+<h2>Directory tree:</h2>
+
+<ul id="listing">
+</ul>
+
+<button>Start uploading</button><br><br>
+<button>Apply result to sheet</button><br>
+
+<script>
+  let dropzone = document.getElementById("dropzone");
+  let listing = document.getElementById("listing");
+
+  function scanFiles(item, container) {
+    let elem = document.createElement("li");
+    elem.innerHTML = item.name;
+    container.appendChild(elem);
+   
+   if (item.isDirectory) {
+      let directoryReader = item.createReader();
+      let directoryContainer = document.createElement("ul");
+      container.appendChild(directoryContainer);
+      
+      directoryReader.readEntries(function(entries) {
+          entries.forEach(function(entry) {
+            scanFiles(entry, directoryContainer);
+        });
+      });
+    }
+  }
+  dropzone.addEventListener("dragover", function(event) {
+      event.preventDefault();
+  }, false);
+  dropzone.addEventListener("drop", function(event) {
+    let items = event.dataTransfer.items;
+
+    event.preventDefault();
+    listing.innerHTML = "";
+   
+    for (let i=0; i<items.length; i++) {
+      let item = items[i].webkitGetAsEntry();
+      
+      if (item) {
+          scanFiles(item, listing);
+      }
+    }
+  }, false);
+</script>
+
+
+<style type="text/css">
+  #dropzone {
+    text-align: center;
+    width: 200px;
+    height: 100px;
+    margin: 10px;
+    padding: 10px;
+    border: 4px dashed red;
+    border-radius: 10px;
+  }
+
+  #boxtitle {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    color: black;
+    font: bold 2em "Arial", sans-serif;
+    width: 300px;
+    height: 100px;
+  }
+
+  body {
+    font: 14px "Arial", sans-serif;
+  }
+</style>

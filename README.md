@@ -3,6 +3,10 @@
 IGVF metadata submitter based on Google Sheet + Google Apps Script.
 
 
+## Limitation
+
+This script is heavily based on Google Apps Script(GAP)'s URL fetch call to communicate with the portal. GAP is free but has some limit/quota. Check quota [here](https://developers.google.com/apps-script/guides/services/quotas). It's limited to `20,000` URL fetch calls a day. It's `100,000` for Google Workspace users (it costs $6 per month).
+
 ## Installation
 
 You can install it from code or make a copy from a portable version.
@@ -34,7 +38,6 @@ Deploy the script to the created sheet. Whenver you make changes to the code, ru
 $ npm run deploy
 ```
 
-
 ## Cloning a portable version (user)
 
 Make a copy of this portable version and grant any required permissions.
@@ -45,6 +48,7 @@ Make a copy of this portable version and grant any required permissions.
   - added new IGVF endpoints
   - hid dev endpoints
   - fixed POST issue. identifying value is not needed for POST
+-`v0.2.4`: https://docs.google.com/spreadsheets/d/1OGjZytJAu5B3VB5t8fG6QnqCD6YukyBbMRaUEQyhrt8/edit?usp=sharing
 
 
 ## Settings
@@ -104,3 +108,4 @@ Color and style represents a type of property.
 
 - <span style="text-decoration:underline">Underline</span>: Searchable property
 - ***Italic+Bold***: Array type property
+

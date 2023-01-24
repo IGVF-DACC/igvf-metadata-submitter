@@ -4,9 +4,10 @@ global.onOpen = () => {
 
   menu.addItem('Search', 'search');
   menu.addSeparator();
+  menu.addItem('Upload files', 'upload');
+  menu.addSeparator();
   menu.addItem('Show sheet info & header legend', 'showSheetInfoAndHeaderLegend');
   menu.addSeparator();
-
   menu.addItem('Validate', 'validateJsonWithSchema');
   menu.addSeparator();
   menu.addItem('Make new template row', 'makeTemplateForUser');
