@@ -3,6 +3,10 @@
 IGVF metadata submitter based on Google Sheet + Google Apps Script.
 
 
+## Limitation
+
+This script is heavily based on Google Apps Script(GAP)'s URL fetch call to communicate with the portal. GAP is free but has some limit/quota. Check quota [here](https://developers.google.com/apps-script/guides/services/quotas). It's limited to `20,000` URL fetch calls a day. It's `100,000` for Google Workspace users (it costs $6 per month).
+
 ## Installation
 
 You can install it from code or make a copy from a portable version.
@@ -24,7 +28,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.2" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.3" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -34,13 +38,13 @@ Deploy the script to the created sheet. Whenver you make changes to the code, ru
 $ npm run deploy
 ```
 
-
 ## Cloning a portable version (user)
 
 Make a copy of this portable version and grant any required permissions.
 
 -`v0.2.1`: https://docs.google.com/spreadsheets/d/1zEw5qilpKZdiMXCNv4n9hOXv9s3THWkwi7-WAC2sM7k/edit?usp=sharing
 -`v0.2.2`: https://docs.google.com/spreadsheets/d/12iLrhok81W4CqlOSJ2HD0S4B2vlKdiy3JbAS27awZkI/edit?usp=sharing
+-`v0.2.3`: https://docs.google.com/spreadsheets/d/1OGjZytJAu5B3VB5t8fG6QnqCD6YukyBbMRaUEQyhrt8/edit?usp=sharing
 
 
 ## Settings
@@ -100,3 +104,4 @@ Color and style represents a type of property.
 
 - <span style="text-decoration:underline">Underline</span>: Searchable property
 - ***Italic+Bold***: Array type property
+

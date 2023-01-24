@@ -546,3 +546,16 @@ function getProfileName() {
   var profileName = getCurrentSheetMetadata(KEY_PROFILE_NAME);
   return profileName ? profileName : getDefaultProfileName();
 }
+
+function upload() {
+  // var html = HtmlService.createHtmlOutput (
+  //   '<button onClick="google.script.run.CallFromSidebarButton();">Do It!</button>'
+  // ).setTitle ('My Sidebar') ;
+  // SpreadsheetApp.getUi().showSidebar(html);
+  var html = HtmlService.createTemplateFromFile("UploaderSideBar.html");
+  var htmlOutput = html
+    .evaluate();
+ 
+  SpreadsheetApp.getUi().showSidebar(htmlOutput);
+}
+
