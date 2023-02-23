@@ -13,19 +13,46 @@ const IGVF = "IGVF";
 const PROPERTY_DEFAULT_ENDPOINT_READ = "defaultEndpointRead";
 const PROPERTY_DEFAULT_ENDPOINT_WRITE = "defaultEndpointWrite";
 
+// These are API endpoints.
+// If there is a UI endpoint then add it to ENDPOINT_MAP_API_TO_UI below
+// Otherwise, the script will use the same endpoint for API and UI
+
 const ENDPOINT_ENCODE_PROD = "https://www.encodeproject.org";
 const ENDPOINT_ENCODE_TEST = "https://test.encodedcc.org";
+const ENCODE_ENDPOINTS = [
+  ENDPOINT_ENCODE_PROD,
+  ENDPOINT_ENCODE_TEST,
+];
+
 const ENDPOINT_IGVF_PROD = "https://igvfd-dev.demo.igvf.org";
 const ENDPOINT_IGVF_TEST = "https://igvfd-dev.demo.igvf.org";
-const ENCODE_ENDPOINTS = [ENDPOINT_ENCODE_PROD, ENDPOINT_ENCODE_TEST];
-const IGVF_ENDPOINTS = [ENDPOINT_IGVF_PROD, ENDPOINT_IGVF_TEST];
-const ALL_ENDPOINTS = ENCODE_ENDPOINTS.concat(IGVF_ENDPOINTS);
+const ENDPOINT_IGVF_SANDBOX = "https://api.sandbox.igvf.org";
+const ENDPOINT_IGVF_STAGING = "https://api.staging.igvf.org";
+const ENDPOINT_IGVF_DATA = "https://api.data.igvf.org";
+const IGVF_ENDPOINTS = [
+  ENDPOINT_IGVF_PROD,
+  ENDPOINT_IGVF_TEST,
+  ENDPOINT_IGVF_SANDBOX,
+  ENDPOINT_IGVF_STAGING,
+  ENDPOINT_IGVF_DATA,
+];
 
-// adhoc fix to have different endpoint for REST and Search on IGVF
-const ENDPOINT_IGVF_SEARCH_UI = "https://igvf-ui-dev.demo.igvf.org"
+const DEFAULT_ENDPOINT_READ = ENDPOINT_IGVF_PROD;
+const DEFAULT_ENDPOINT_WRITE = ENDPOINT_IGVF_TEST;
 
-const DEFAULT_ENDPOINT_READ = ENDPOINT_ENCODE_PROD;
-const DEFAULT_ENDPOINT_WRITE = ENDPOINT_ENCODE_TEST;
+const ALL_ENDPOINTS = [
+  ...ENCODE_ENDPOINTS,
+  ...IGVF_ENDPOINTS,
+];
+
+// Mapping from API to UI
+// Define only if API and UI endpoints are different
+const ENDPOINT_MAP_API_TO_UI = {
+  "https://igvfd-dev.demo.igvf.org": "https://igvf-ui-dev.demo.igvf.org",
+  "https://api.sandbox.igvf.org" : "https://sandbox.igvf.org",
+  "https://api.staging.igvf.org" : "https://staging.igvf.org",
+  "https://api.data.igvf.org" : "https://data.igvf.org",
+};
 
 const ALL_ENCODE_PROFILES = [
   "award",
@@ -237,4 +264,11 @@ function getAllProfiles(endpoint) {
   } else if (isIgvfEndpoint(endpoint)) {
     return ALL_IGVF_PROFILES;
   }
+}
+
+function getUIEndpoint(endpoint) {
+  if (ENDPOINT_MAP_API_TO_UI.hasOwnProperty(endpoint)) {
+    return ENDPOINT_MAP_API_TO_UI[endpoint];
+  }
+  return endpoint;
 }

@@ -98,13 +98,13 @@ function makeSearchUrlForProp(profile, prop, endpoint) {
   var linkTo = propInProfile.hasOwnProperty("linkTo") ?
     propInProfile["linkTo"] : propInProfile["items"]["linkTo"];
 
-  if (isEncodeEndpoint(endpoint)) {
-    return `${endpoint}/search/?type=${linkTo}`;
+  // Search uses UI endpoint so convert to UI endpoint if available
+  const uiEndpoint = getUIEndpoint(endpoint);
 
-  } else if (endpoint === ENDPOINT_IGVF_SEARCH_UI) {
-    // linkTo is a profile name in capitalized CamelCase
-    // convert it to IGVF's format: snakecase with - + "s"(plural)    
-    return `${endpoint}/${camelToSnake(uncapitalizeWord(linkTo)).replace(/_/g,"-") + "s"}`;
+  if (isEncodeEndpoint(endpoint)) {
+    return `${uiEndpoint}/search/?type=${linkTo}`;
+  } else {
+    return `${uiEndpoint}/search?type=${linkTo}`;
   }
 }
 

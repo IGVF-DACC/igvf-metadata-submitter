@@ -82,21 +82,15 @@ function search() {
   }
   var currentProp = getCellValue(sheet, HEADER_ROW, currentCol);
   var profile = getProfile(getProfileName(), getEndpointRead());
+  var endpoint = getEndpointRead();
 
-  var endpointForSearch = getEndpointRead();
-
-  // adhoc fix for having different endpoints for REST and search.
-  if (isIgvfEndpoint(endpointForSearch)) {
-    endpointForSearch = ENDPOINT_IGVF_SEARCH_UI;
-  }
-
-  var url = makeSearchUrlForProp(profile, currentProp, endpointForSearch);
+  var url = makeSearchUrlForProp(profile, currentProp, endpoint);
 
   if (url) {
     var propType = profile["properties"][currentProp]["type"];
     var selectedCellValue = SpreadsheetApp.getActiveSheet().getActiveCell().getValue();
     openSearch(
-      url, currentProp, propType, endpointForSearch, selectedCellValue,
+      url, currentProp, propType, getUIEndpoint(endpoint), selectedCellValue,
     );
   } else {
     alertBox("Couldn't find Search URL for selected column's property.");
