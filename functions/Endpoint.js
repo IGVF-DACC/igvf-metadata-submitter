@@ -24,20 +24,18 @@ const ENCODE_ENDPOINTS = [
   ENDPOINT_ENCODE_TEST,
 ];
 
-const ENDPOINT_IGVF_PROD = "https://igvfd-dev.demo.igvf.org";
 const ENDPOINT_IGVF_TEST = "https://igvfd-dev.demo.igvf.org";
 const ENDPOINT_IGVF_SANDBOX = "https://api.sandbox.igvf.org";
 const ENDPOINT_IGVF_STAGING = "https://api.staging.igvf.org";
 const ENDPOINT_IGVF_DATA = "https://api.data.igvf.org";
 const IGVF_ENDPOINTS = [
-  ENDPOINT_IGVF_PROD,
   ENDPOINT_IGVF_TEST,
   ENDPOINT_IGVF_SANDBOX,
   ENDPOINT_IGVF_STAGING,
   ENDPOINT_IGVF_DATA,
 ];
 
-const DEFAULT_ENDPOINT_READ = ENDPOINT_IGVF_PROD;
+const DEFAULT_ENDPOINT_READ = ENDPOINT_IGVF_DATA;
 const DEFAULT_ENDPOINT_WRITE = ENDPOINT_IGVF_TEST;
 
 const ALL_ENDPOINTS = [
