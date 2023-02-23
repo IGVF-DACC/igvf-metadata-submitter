@@ -24,7 +24,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.2" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.3" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -41,6 +41,8 @@ Make a copy of this portable version and grant any required permissions.
 
 -`v0.2.1`: https://docs.google.com/spreadsheets/d/1zEw5qilpKZdiMXCNv4n9hOXv9s3THWkwi7-WAC2sM7k/edit?usp=sharing
 -`v0.2.2`: https://docs.google.com/spreadsheets/d/12iLrhok81W4CqlOSJ2HD0S4B2vlKdiy3JbAS27awZkI/edit?usp=sharing
+-`v0.2.3`: https://docs.google.com/spreadsheets/d/1X5JuSm2hJosoIvDlhpLQNzkG7WPPjCdiIPgTuE7s19I/edit?usp=sharing
+  - added new IGVF endpoints
 
 
 ## Settings
