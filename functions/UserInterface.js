@@ -97,6 +97,10 @@ function search() {
   }
 }
 
+function uploadSidebar() {
+  openUploadSidebar()
+}
+
 function openProfilePage() {
   if (!checkProfile()) {
     return;
@@ -125,7 +129,7 @@ function showSheetInfoAndHeaderLegend() {
 
     "* Color legends for header properties\n" +
     "- red: required property\n" +
-    "- blue: indentifying property\n" +
+    "- blue: identifying property\n" +
     "- black: other editable property\n" +
     "- gray: ADMIN only property (readonly,nonSubmittable,'Do not sumit')\n\n" +
 
@@ -541,15 +545,27 @@ function getProfileName() {
   return profileName ? profileName : getDefaultProfileName();
 }
 
-function upload() {
-  // var html = HtmlService.createHtmlOutput (
-  //   '<button onClick="google.script.run.CallFromSidebarButton();">Do It!</button>'
-  // ).setTitle ('My Sidebar') ;
-  // SpreadsheetApp.getUi().showSidebar(html);
-  var html = HtmlService.createTemplateFromFile("UploaderSideBar.html");
-  var htmlOutput = html
-    .evaluate();
- 
-  SpreadsheetApp.getUi().showSidebar(htmlOutput);
-}
+// developer only (debugging purpose)
 
+function authorizeForAws() {
+  if (getAwsAccessKey() && getAwsSecretAccessKey()) {
+    if (!alertBoxOkCancel(
+      `(Developer only) AWS access key and secret access key pair already exists, are you sure to proceed?`)) {
+      return;
+    }
+  }
+
+  var awsAccessKey = Browser.inputBox(`Enter your AWS access key:`);
+  if (!awsAccessKey || awsAccessKey === "cancel") {
+    alertBox("Failed to update AWS access key.");
+    return;
+  }
+  setAwsAccessKey(awsAccessKey);
+
+  var awsSecretAccessKey = Browser.inputBox(`Enter your AWS secret access key:`);
+  if (!awsSecretAccessKey || awsSecretAccessKey === "cancel") {
+    alertBox("Failed to update AWS secret access key.");
+    return;
+  }
+  setAwsSecretAccessKey(awsSecretAccessKey);
+}

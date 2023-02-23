@@ -1,84 +1,184 @@
-<!-- Learn about this code on MDN: https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem/webkitGetAsEntry -->
+<!DOCTYPE html>
+<html>
 
-<p>Drag files and/or directories to the box below!</p>
+  <head>
+    <base target="_top">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 
-<div id="dropzone">
-  <div id="boxtitle">
-    Drop Root Folder Here
-  </div>
-</div>
-
-<h2>Directory tree:</h2>
-
-<ul id="listing">
-</ul>
-
-<button>Start uploading</button><br><br>
-<button>Apply result to sheet</button><br>
-
-<script>
-  let dropzone = document.getElementById("dropzone");
-  let listing = document.getElementById("listing");
-
-  function scanFiles(item, container) {
-    let elem = document.createElement("li");
-    elem.innerHTML = item.name;
-    container.appendChild(elem);
-   
-   if (item.isDirectory) {
-      let directoryReader = item.createReader();
-      let directoryContainer = document.createElement("ul");
-      container.appendChild(directoryContainer);
-      
-      directoryReader.readEntries(function(entries) {
-          entries.forEach(function(entry) {
-            scanFiles(entry, directoryContainer);
-        });
-      });
-    }
-  }
-  dropzone.addEventListener("dragover", function(event) {
-      event.preventDefault();
-  }, false);
-  dropzone.addEventListener("drop", function(event) {
-    let items = event.dataTransfer.items;
-
-    event.preventDefault();
-    listing.innerHTML = "";
-   
-    for (let i=0; i<items.length; i++) {
-      let item = items[i].webkitGetAsEntry();
-      
-      if (item) {
-          scanFiles(item, listing);
+    <style type="text/css">
+      #dropzone {
+        text-align: center;
+        width: 200px;
+        height: 100px;
+        margin: 10px;
+        padding: 10px;
+        border: 4px dashed red;
+        border-radius: 10px;
       }
-    }
-  }, false);
-</script>
 
+      #boxtitle {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        color: black;
+        font: bold 2em "Arial", sans-serif;
+        width: 300px;
+        height: 100px;
+      }
 
-<style type="text/css">
-  #dropzone {
-    text-align: center;
-    width: 200px;
-    height: 100px;
-    margin: 10px;
-    padding: 10px;
-    border: 4px dashed red;
-    border-radius: 10px;
-  }
+      body {
+        font: 14px "Arial", sans-serif;
+      }
+    </style>
+  </head>
 
-  #boxtitle {
-    display: table-cell;
-    vertical-align: middle;
-    text-align: center;
-    color: black;
-    font: bold 2em "Arial", sans-serif;
-    width: 300px;
-    height: 100px;
-  }
+  <body>
+    <div id="help-text">
+      <p>Please DO NOT CLOSE this side bar while uploading files. You can upload files on one sheet at a time.</p><br>
+      <p>Drag the root folder for your data and drop it to the zone below. File's relative path (including the root folder) should be defined in column <code>#upload_relpath</code></p>
+    </div>
 
-  body {
-    font: 14px "Arial", sans-serif;
-  }
-</style>
+    <div id="dropzone">
+      <div id="boxtitle">
+        Drop root folder here
+      </div>
+    </div>
+
+    <div id="root-folder-info">
+      <p>Dropped root folder: </p><label style="color:red" id="root-folder">None</label><br><br>
+    </div>
+
+    <div id="control-panel">
+      <button id=btn-init-upload>Initialize upload for this sheet</button><br><br>
+      <p>Sheet name: </p>
+      <label style="color:blue" id="sheet-name">None</label><br><br>
+
+      <button id=btn-start-upload>Start upload</button><br><br>
+      <button id=btn-abort-upload>Abort upload</button><br><br>
+
+      <p>Message: </p>
+      <label style="color:black" id="message">None</label><br><br>
+    </div>
+
+    <div id="upload-panel">
+    </div>
+
+    <script type="text/javascript">
+
+      function writeMessage(txt) {
+          document.getElementById("message").innerHTML = txt;
+      }
+
+      function onClickInitUpload() {
+        // document.getElementById("message").innerHTML = "onClickInitUpload";
+        const fileEntries = $(this).data(document.body, "fileEntries");
+        const fullPaths = fileEntries.map(entry => entry.fullPath);
+
+        google.script.run.withSuccessHandler(writeMessage).initUpload(JSON.stringify(fullPaths));
+      }
+
+      function onClickStartUpload() {
+        // document.getElementById("message").innerHTML = "onClickStartUpload";
+        google.script.run.withSuccessHandler(writeMessage).startUpload("start");
+      }
+
+      function onClickAbortUpload() {
+        // document.getElementById("message").innerHTML = "onClickAbortUpload";
+        google.script.run.withSuccessHandler(writeMessage).abortUpload("abort");
+      }
+
+      function createUploadElement() {
+        let uploadPanel = document.getElementById("upload-panel");
+
+      }
+
+      // Async. traverseDirectory (Code from Tom J Nowell)
+      // https://stackoverflow.com/a/50030399/8819536
+      function traverseDirectory(entry) {
+        const reader = entry.createReader();
+        // Resolved when the entire directory is traversed
+        return new Promise((resolve, reject) => {
+          const iterationAttempts = [];
+          function readEntries() {
+            // According to the FileSystem API spec, readEntries() must be called until
+            // it calls the callback with an empty array.  Seriously??
+            reader.readEntries((entries) => {
+              if (!entries.length) {
+                // Done iterating this particular directory
+                resolve(Promise.all(iterationAttempts));
+              } else {
+                // Add a list of promises for each directory entry. If the entry is itself
+                // a directory, then that promise won't resolve until it is fully traversed.
+                iterationAttempts.push(Promise.all(entries.map((ientry) => {
+                  if (ientry.isFile) {
+                    // DO SOMETHING WITH FILES
+                    return ientry;
+                  }
+                  // DO SOMETHING WITH DIRECTORIES
+                  return traverseDirectory(ientry);
+                })));
+                // Try calling readEntries() again for the same dir, according to spec
+                readEntries();
+              }
+            }, error => reject(error));
+          }
+          readEntries();
+        });
+      }
+
+      function recurseEntry(entry) {
+        let entries = [];
+        if (Array.isArray(entry)) {
+          for (let j = 0; j < entry.length; ++j) {
+            entries = entries.concat(recurseEntry(entry[j]));
+          }
+        } else {
+          // console.log(entry);
+          entries.push(entry);
+        }
+        return entries;
+      }
+
+      let btnInitUpload = document.getElementById("btn-init-upload");
+      let btnStartUpload = document.getElementById("btn-start-upload");
+      let btnAbortUpload = document.getElementById("btn-abort-upload");
+      let dropzone = document.getElementById("dropzone");
+
+      // buttons
+      btnInitUpload.addEventListener("click", onClickInitUpload, false);
+      btnStartUpload.addEventListener("click", onClickStartUpload, false);
+      btnAbortUpload.addEventListener("click", onClickAbortUpload, false);
+
+      // drag-n-drop
+      dropzone.addEventListener("dragover", function(event) {
+          event.preventDefault();
+      }, false);
+
+      dropzone.addEventListener("drop", function(event) {
+        event.preventDefault();
+        const data = event.dataTransfer.items;
+
+        // let fileEntries = $(this).data(document.body, "fileEntries");
+        // if (!fileEntries) {
+        let fileEntries = [];
+        // }
+
+        for (let i = 0; i < data.length; i += 1) {
+          const entry = data[i].webkitGetAsEntry();
+
+          traverseDirectory(entry).then(result => {
+            fileEntries = recurseEntry(result);
+          });
+        }
+        console.log("A");
+        console.log(fileEntries);
+        // store data on body
+        $(this).data(document.body, "fileEntries", fileEntries);
+        const fileEntries2 = $(this).data(document.body, "fileEntries");
+        console.log("B");
+        console.log(fileEntries2);
+      }, false);
+
+    </script>
+  </body>
+</html>
