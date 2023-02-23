@@ -4,7 +4,7 @@ global.onOpen = () => {
 
   menu.addItem('Search', 'search');
   menu.addSeparator();
-  menu.addItem('Upload files', 'upload');
+  menu.addItem('Upload sidebar', 'uploadSidebar');
   menu.addSeparator();
   menu.addItem('Show sheet info & header legend', 'showSheetInfoAndHeaderLegend');
   menu.addSeparator();
@@ -37,6 +37,7 @@ global.onOpen = () => {
   const submenuAuth = SpreadsheetApp.getUi().createMenu('⚙️ Authorization');
   submenuAuth.addItem('Authorize for ENCODE', 'authorizeForEncode');
   submenuAuth.addItem('Authorize for IGVF', 'authorizeForIgvf');
+  submenuAuth.addItem('Authorize for AWS (for debugging)', 'authorizeForAws');
   menu.addSubMenu(submenuAuth);
 
   const submenuSettingsGlobal = SpreadsheetApp.getUi().createMenu('⚙️ Settings (Global)');

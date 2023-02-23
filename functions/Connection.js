@@ -71,3 +71,30 @@ function restSubmit(url, payloadJson, method) {
   params["payload"] = JSON.stringify(payloadJson);
   return UrlFetchApp.fetch(url, params);
 }
+
+//////////// developer only (for debugging purpose) //////////
+
+const PROPERTY_AWS_ACCESS_KEY = "awsAccessKey";
+const PROPERTY_AWS_SECRET_ACCESS_KEY = "awsSecretAccessKey";
+
+
+function getAwsAccessKey() {
+  var userProperties = PropertiesService.getUserProperties();
+  return userProperties.getProperty(PROPERTY_AWS_ACCESS_KEY);
+}
+
+function setAwsAccessKey(key) {
+  var userProperties = PropertiesService.getUserProperties();
+  return userProperties.setProperty(PROPERTY_AWS_ACCESS_KEY, key);
+}
+
+function getAwsSecretAccessKey() {
+  var userProperties = PropertiesService.getUserProperties();
+  return userProperties.getProperty(PROPERTY_AWS_SECRET_ACCESS_KEY);
+}
+
+function setAwsSecretAccessKey(key) {
+  var userProperties = PropertiesService.getUserProperties();
+  return userProperties.setProperty(PROPERTY_AWS_SECRET_ACCESS_KEY, key);
+}
+

@@ -23,10 +23,10 @@ function getTooltipForCommentedProp(prop) {
   }
 }
 
-function makeMetadataUrl(method, profileName, endpoint, identifyingVal) {
+function makeMetadataUrl(method, profileName, endpoint, identifyingVal, getSuffix="") {
   switch(method) {
     case "GET":
-      return `${endpoint}/${profileName}/${identifyingVal}/?format=json&frame=object`;
+      return `${endpoint}/${profileName}/${identifyingVal}/${getSuffix}?format=json&frame=object`;
     case "PUT":
     case "PATCH":
       return `${endpoint}/${profileName}/${identifyingVal}`;

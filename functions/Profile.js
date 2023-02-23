@@ -4,6 +4,7 @@ const HEADER_PROP_NAME = "name";
 const HEADER_PROP_ALIASES = "aliases";
 const HEADER_PROP_AWARD = "award";
 const HEADER_PROP_LAB = "lab";
+const HEADER_PROP_S3_URI = "s3_uri";
 
 // determines the column order of properties in the header
 const DEFAULT_PROP_PRIORITY = [
