@@ -36,7 +36,7 @@ const IGVF_ENDPOINTS = [
 ];
 
 const DEFAULT_ENDPOINT_READ = ENDPOINT_IGVF_DATA;
-const DEFAULT_ENDPOINT_WRITE = ENDPOINT_IGVF_TEST;
+const DEFAULT_ENDPOINT_WRITE = ENDPOINT_IGVF_STAGING;
 
 const ALL_ENDPOINTS = [
   ...ENCODE_ENDPOINTS,
@@ -270,3 +270,9 @@ function getUIEndpoint(endpoint) {
   }
   return endpoint;
 }
+
+function getIgvfEndpointsAvailableForUsers() {
+  // hide ENDPOINT_IGVF_TEST from users
+  return IGVF_ENDPOINTS.filter(e => e !== ENDPOINT_IGVF_TEST);
+}
+
