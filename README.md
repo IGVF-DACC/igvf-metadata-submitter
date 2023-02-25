@@ -41,9 +41,10 @@ Make a copy of this portable version and grant any required permissions.
 
 -`v0.2.1`: https://docs.google.com/spreadsheets/d/1zEw5qilpKZdiMXCNv4n9hOXv9s3THWkwi7-WAC2sM7k/edit?usp=sharing
 -`v0.2.2`: https://docs.google.com/spreadsheets/d/12iLrhok81W4CqlOSJ2HD0S4B2vlKdiy3JbAS27awZkI/edit?usp=sharing
--`v0.2.3a`: https://docs.google.com/spreadsheets/d/1X5JuSm2hJosoIvDlhpLQNzkG7WPPjCdiIPgTuE7s19I/edit?usp=sharing
+-`v0.2.3b`: https://docs.google.com/spreadsheets/d/1X5JuSm2hJosoIvDlhpLQNzkG7WPPjCdiIPgTuE7s19I/edit?usp=sharing
   - added new IGVF endpoints
   - hid dev endpoints
+  - fixed POST issue. identifying value is not needed for POST
 
 
 ## Settings
