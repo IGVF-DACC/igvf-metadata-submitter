@@ -199,12 +199,6 @@ function submitSheetToPortal(
         continue;
       }
     }
-    var [identifyingProp, identifyingVal, identifyingCol] =
-      findIdentifyingPropValColInRow(sheet, row, profile);
-
-    if (!identifyingProp || !identifyingVal) {
-      continue;
-    }
 
     var json = typeCastJsonValuesByProfile(
       profile, jsonBeforeTypeCast, keepCommentedProps=false
@@ -228,6 +222,13 @@ function submitSheetToPortal(
     switch(method) {
       case "PUT":
       case "PATCH":
+        var [identifyingProp, identifyingVal, identifyingCol] =
+          findIdentifyingPropValColInRow(sheet, row, profile);
+
+        if (!identifyingProp || !identifyingVal) {
+          continue;
+        }
+
         var url = makeMetadataUrl(method, profileName, endpointForPut, identifyingVal);
         var response = restSubmit(url, payloadJson=payloadJson, method=method);
         break;

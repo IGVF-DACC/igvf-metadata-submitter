@@ -13,7 +13,7 @@ function setDefaultEndpointRead() {
     "* Supported ENCODE endpoints:\\n" +
     `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
-    `${IGVF_ENDPOINTS.join("\\n")}\\n\\n` +
+    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     "Enter a new endpoint:"
   );
   if (endpoint) {
@@ -36,7 +36,7 @@ function setDefaultEndpointWrite() {
     "* Supported ENCODE endpoints:\\n" +
     `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
-    `${IGVF_ENDPOINTS.join("\\n")}\\n\\n` +
+    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     'Enter a new endpoint:'
   );
   if (endpoint) {
@@ -82,21 +82,15 @@ function search() {
   }
   var currentProp = getCellValue(sheet, HEADER_ROW, currentCol);
   var profile = getProfile(getProfileName(), getEndpointRead());
+  var endpoint = getEndpointRead();
 
-  var endpointForSearch = getEndpointRead();
-
-  // adhoc fix for having different endpoints for REST and search.
-  if (isIgvfEndpoint(endpointForSearch)) {
-    endpointForSearch = ENDPOINT_IGVF_SEARCH_UI;
-  }
-
-  var url = makeSearchUrlForProp(profile, currentProp, endpointForSearch);
+  var url = makeSearchUrlForProp(profile, currentProp, endpoint);
 
   if (url) {
     var propType = profile["properties"][currentProp]["type"];
     var selectedCellValue = SpreadsheetApp.getActiveSheet().getActiveCell().getValue();
     openSearch(
-      url, currentProp, propType, endpointForSearch, selectedCellValue,
+      url, currentProp, propType, getUIEndpoint(endpoint), selectedCellValue,
     );
   } else {
     alertBox("Couldn't find Search URL for selected column's property.");
@@ -345,7 +339,7 @@ function patchAll() {
   if (numData === 0) {
     alertBox(`Found no data to submit to the portal.`);
     return;
-  }  
+  }
   if (!alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` + 
     "PATCH action will REPLACE properties on the portal with data on the sheet.\n\n" +
@@ -444,7 +438,7 @@ function setEndpointRead() {
     "* Supported ENCODE endpoints:\\n" +
     `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
-    `${IGVF_ENDPOINTS.join("\\n")}\\n\\n` +
+    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     "Enter a new endpoint:"
   );
   if (endpoint) {
@@ -465,7 +459,7 @@ function setEndpointWrite() {
     "* Supported ENCODE endpoints:\\n" +
     `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
-    `${IGVF_ENDPOINTS.join("\\n")}\\n\\n` +
+    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     'Enter a new endpoint:'
   );
   if (endpoint) {
