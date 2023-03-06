@@ -33,9 +33,11 @@
   </head>
 
   <body>
-    <div id="help-text">
+    <div id="help-text-dropzone">
       <p>Please DO NOT CLOSE this side bar while uploading files. You can upload files on one sheet at a time.</p><br>
       <p>Drag the root folder for your data and drop it to the zone below. File's relative path (including the root folder) should be defined in column <code>#upload_relpath</code></p>
+
+      <p>Dropped root folder: </p><label style="color:red" id="root-folder">None</label><br><br>
     </div>
 
     <div id="dropzone">
@@ -44,18 +46,18 @@
       </div>
     </div>
 
-    <div id="root-folder-info">
-      <p>Dropped root folder: </p><label style="color:red" id="root-folder">None</label><br><br>
+    <div id="help-text-init">
+      <p>Drag-n-drop a root folder first to enable the initialize button.</p><br>
     </div>
 
     <div id="control-panel">
-      <button id=btn-init-upload>Initialize upload for this sheet</button><br><br>
+      <button id=btn-init-upload disabled>Initialize upload for this sheet</button><br><br>
       <p>Sheet name: </p>
       <label style="color:blue" id="sheet-name">None</label><br><br>
 
-      <button id=btn-start-upload>Start upload</button><br><br>
+<!--       <button id=btn-start-upload>Start upload</button><br><br>
       <button id=btn-abort-upload>Abort upload</button><br><br>
-
+ -->
       <p>Message: </p>
       <label style="color:black" id="message">None</label><br><br>
     </div>
@@ -77,19 +79,18 @@
         google.script.run.withSuccessHandler(writeMessage).initUpload(JSON.stringify(fullPaths));
       }
 
-      function onClickStartUpload() {
-        // document.getElementById("message").innerHTML = "onClickStartUpload";
-        google.script.run.withSuccessHandler(writeMessage).startUpload("start");
-      }
+      // function onClickStartUpload() {
+      //   // document.getElementById("message").innerHTML = "onClickStartUpload";
+      //   google.script.run.withSuccessHandler(writeMessage).startUpload("start");
+      // }
 
-      function onClickAbortUpload() {
-        // document.getElementById("message").innerHTML = "onClickAbortUpload";
-        google.script.run.withSuccessHandler(writeMessage).abortUpload("abort");
-      }
+      // function onClickAbortUpload() {
+      //   // document.getElementById("message").innerHTML = "onClickAbortUpload";
+      //   google.script.run.withSuccessHandler(writeMessage).abortUpload("abort");
+      // }
 
       function createUploadElement() {
         let uploadPanel = document.getElementById("upload-panel");
-
       }
 
       // Async. traverseDirectory (Code from Tom J Nowell)
@@ -140,14 +141,14 @@
       }
 
       let btnInitUpload = document.getElementById("btn-init-upload");
-      let btnStartUpload = document.getElementById("btn-start-upload");
-      let btnAbortUpload = document.getElementById("btn-abort-upload");
+      // let btnStartUpload = document.getElementById("btn-start-upload");
+      // let btnAbortUpload = document.getElementById("btn-abort-upload");
       let dropzone = document.getElementById("dropzone");
 
       // buttons
       btnInitUpload.addEventListener("click", onClickInitUpload, false);
-      btnStartUpload.addEventListener("click", onClickStartUpload, false);
-      btnAbortUpload.addEventListener("click", onClickAbortUpload, false);
+      // btnStartUpload.addEventListener("click", onClickStartUpload, false);
+      // btnAbortUpload.addEventListener("click", onClickAbortUpload, false);
 
       // drag-n-drop
       dropzone.addEventListener("dragover", function(event) {
@@ -177,6 +178,8 @@
         const fileEntries2 = $(this).data(document.body, "fileEntries");
         console.log("B");
         console.log(fileEntries2);
+        let dropzone = document.getElementById("btn-init-upload");
+        dropzone.removeAttribute("disabled");
       }, false);
 
     </script>
