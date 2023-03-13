@@ -1,6 +1,9 @@
 const HEADER_COMMENTED_PROP_UPLOAD_RELPATH = "#upload_relpath";
 const HEADER_COMMENTED_PROP_UPLOAD_ERROR = "#upload_error";
 
+const UPLOAD_CREDENTIALS = "upload_credentials";
+const IDENTIFYING_VAL = "identifying_val";
+
 
 function openUploadSidebar() {
   var html = HtmlService.createTemplateFromFile("UploaderSideBar.html");
@@ -46,13 +49,8 @@ function getUploadCredentialsFromIdentifyingVal(identifyingVal) {
   return getUploadCredentialsFromFileId(fileId);
 }
 
-function initUpload(fileEntries) {
+function initUpload() {
   if (!checkProfile()) {
-    return;
-  }
-
-  if (!fileEntries) {
-    alertBox("No file/directory dropped.");
     return;
   }
 
@@ -69,17 +67,12 @@ function initUpload(fileEntries) {
     );
     return;
   }
-  var profileName = getProfileName();
-  var endpointForProfile = getEndpointRead();
-  var endpointForUpload = getEndpointWrite();
-
-  var profile = getProfile(profileName, endpointForProfile);
 
   const numData = getNumMetadataInSheet(sheet);
-  var numSubmitted = 0;
+  var results = [];
 
   for (var row = HEADER_ROW + 1; row <= numData + HEADER_ROW; row++) {
-    var jsonBeforeTypeCast = rowToJson(
+    var json = rowToJson(
       sheet, row, keepCommentedProps=true, bypassGoogleAutoParsing=true,
     );
 
@@ -88,8 +81,8 @@ function initUpload(fileEntries) {
       continue;
     }
     // if has #skip and it is 1 then skip
-    if (jsonBeforeTypeCast.hasOwnProperty(HEADER_COMMENTED_PROP_SKIP)) {
-      if (toBoolean(jsonBeforeTypeCast[HEADER_COMMENTED_PROP_SKIP])) {
+    if (json.hasOwnProperty(HEADER_COMMENTED_PROP_SKIP)) {
+      if (toBoolean(json[HEADER_COMMENTED_PROP_SKIP])) {
         continue;
       }
     }
@@ -98,7 +91,7 @@ function initUpload(fileEntries) {
 
     if (!identifyingProp || !identifyingVal) {
       json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Missing identifying val.";
-      writeJsonToRow(sheet, jsonBeforeTypeCast, row);
+      writeJsonToRow(sheet, json, row);
       continue;
     }
 
@@ -107,35 +100,35 @@ function initUpload(fileEntries) {
 
     if (!uploadRelpath) {
       json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Missing #upload_relpath.";
-      writeJsonToRow(sheet, jsonBeforeTypeCast, row);
+      writeJsonToRow(sheet, json, row);
       continue;
-    }
-
-    console.log(row);
-    // check if there is a matched local file
-    // compare relpath and files in user dropped directory
-    for (let j = 0; j < fileEntries.length; ++j) {
-      const fileEntry = fileEntrys[j];
-      console.log(fileEntry);
     }
 
     // get upload credentials from portal
-    var uploadCredentials = getUploadCredentialsFromIdentifyingVal(identifyingVal);
+    // var uploadCredentials = getUploadCredentialsFromIdentifyingVal(identifyingVal);
+    // for testing only (dev)
+    var uploadCredentials = {
+      "session_token": "TEST_SESSION_TOKEN",
+      "access_key": getAwsAccessKey(),
+      "secret_key": getAwsSecretAccessKey(),
+      "upload_url": "s3://igvf-metadata-submitter-test-uploading/" + uploadRelpath,
+    };
 
     if (!uploadCredentials) {
       json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Failed to get upload crentials.";
-      writeJsonToRow(sheet, jsonBeforeTypeCast, row);
+      writeJsonToRow(sheet, json, row);
       continue;
     }
-
     // rewrite data, with commented headers such as error and text, on the sheet
-    json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Upload ready.";
+    json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Ready for uploading.";
     writeJsonToRow(sheet, json, row);
-    numSubmitted++;
+
+    json[UPLOAD_CREDENTIALS] = uploadCredentials;
+    json[IDENTIFYING_VAL] = identifyingVal;
+    results.push(json);
   }
-  // {identifyingProp, identifyingVal, credentials, File input object}
-  // return numSubmitted;
-  return a + ":init";
+
+  return [sheet.getName(), JSON.stringify(results)];
 }
 
 function startUpload(a) {

@@ -97,4 +97,3 @@ function setAwsSecretAccessKey(key) {
   var userProperties = PropertiesService.getUserProperties();
   return userProperties.setProperty(PROPERTY_AWS_SECRET_ACCESS_KEY, key);
 }
-
