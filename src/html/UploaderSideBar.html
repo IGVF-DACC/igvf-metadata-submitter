@@ -122,6 +122,7 @@
 
           for (let j=0; j<fileEntries.length; j++) {
             const fileEntry = fileEntries[j];
+            let foundMatchingfile = false;
 
             if (!fileEntry) {
               // weird bug, need to ignore undefined element
@@ -131,13 +132,13 @@
 
             // if both (on sheet, in drag-n-dropped folder) paths match then make an upload item
             if (trimmedRelpath === trimmedFullPath) {
+              foundMatchingfile = true;
 
               // AWS stuffs
               // authenticate and get S3 client
               var s3Client = new AWS.S3({
                 accessKeyId: uploadCredential["access_key"],
                 secretAccessKey: uploadCredential["secret_key"],
-                // sessionToken: uploadCredential["session_token"],
               });
 
               // parse bucket, key from s3 URI to define upload params
@@ -261,6 +262,12 @@
               uploadPanel.appendChild(br4);
               // console.log(fileEntry.fullPath);
             }
+          }
+
+          if (!foundMatchingfile) {
+            // if there is no matching file in the dropped folder
+            // report back to the sheet
+            
           }
         }
         document.getElementById("btn-init-upload").innerHTML = "Done reading from sheet.";
