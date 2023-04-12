@@ -28,7 +28,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.3" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.4" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -109,3 +109,14 @@ Color and style represents a type of property.
 - <span style="text-decoration:underline">Underline</span>: Searchable property
 - ***Italic+Bold***: Array type property
 
+### Upload sidebar
+
+You can directly upload local files to portal's S3 bucket on the upload sidebar. Use it after POSTing metadata to the portal. Make sure that there is at least one identifying property in the header (e.g. `accession`, `uuid`).
+
+Add two commented columns `#upload_status` and `#upload_relpath` to the sheet. `#upload_status` will be automatically updated while uploading. `#upload_relpath` is to define relative path of files to be uploaded.
+
+Click on menu `IGVF/ENCODE` - `Upload sidebar` and read the instruction carefully. 
+
+You need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory. Then the uploader will recursively parse all files in a dropped root directory and compare them with `#upload_relpath` for each row on the sheet.
+
+For example, you drop a root folder `/users/USER_NAME/data/test-folder` and then a file `test-folder/1/2/3.fastq.gz` should be defined under `#upload_relpath` on the sheet. Only files matching relative paths will be available for uploading.
