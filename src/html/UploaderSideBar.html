@@ -93,6 +93,23 @@
         return document.getElementById(`status-${idSuffix}`);
       }
 
+      function updateStatusLabel(id, status) {
+        // update status on both DOM label and #upload_status on sheet
+        // id is used to find paired status label from id
+        getPairedStatusLabel(id).innerHTML = status;
+      }
+
+      function updateStatusLabelAndSheet(id, status) {
+        updateStatusLabel(id, status);
+
+        // identifyingProp and identifyingVal are stored in button object
+        var button = getPairedButton(id);
+        const identifyingProp = button.identifyingProp;
+        const identifyingVal = button.identifyingVal;
+
+        updateStatusOnSheet(identifyingProp, identifyingVal, status);
+      }
+
       function createUploadItems(inputFromSheet) {
         // parse sheet name and rows
         const sheetName = inputFromSheet[0];
@@ -185,14 +202,15 @@
                   // button is "abort", so abort the upload
                   event.currentTarget.upload.abort();
 
-                  getPairedStatusLabel(event.currentTarget.id).innerHTML = "Aborted.";
-                  updateStatusOnSheet(event.currentTarget.identifyingProp, event.currentTarget.identifyingVal, "Aborted.");
+                  updateStatusLabelAndSheet(event.currentTarget.id, "Aborted.");
 
                   event.currentTarget.innerHTML = "Start";
 
                 } else {
                   const uploadCredential = event.currentTarget.uploadCredential;
                   const buttonId = event.currentTarget.id;
+
+                  updateStatusLabel(buttonId, "Started uploading.");
 
                   // button is "start", so get file object and pass it to s3 uploader
                   getFile(fileEntry).then(function(file) {
@@ -210,28 +228,28 @@
                     var upload = s3Client.upload(
                         {Bucket: bucket, Key: key, Body: file},
                         function(err, data) {
-                          console.log(err);
-                          console.log(data);
+                          if (err) {
+                            console.log(err);
+                            updateStatusLabelAndSheet(buttonId, `${err.name}: ${err.message}`);
+                          } else {
+                            updateStatusLabelAndSheet(buttonId, "Done.");
+                            getPairedButton(buttonId).disabled = true;
+                          }
                         });
 
                     upload.on("httpUploadProgress", (progress) => {
                         const progressPct = (100.0*progress.loaded/progress.total).toFixed(1);
                         getPairedProgressLabel(buttonId).innerHTML = `${progressPct}%`;
-
-                        if (progressPct === "100.0") {
-                          // report back to the sheet
-                          getPairedStatusLabel(buttonId).innerHTML = "Done.";
-                          var button = getPairedButton(buttonId);
-                          updateStatusOnSheet(button.identifyingProp, button.identifyingVal, "Done.");
-                          button.disabled = true;
-                        }
+                        // if (progressPct === "100.0") {
+                        //   updateStatusLabelAndSheet(buttonId, "Done.");
+                        //   button.disabled = true;
+                        // }
                       });
 
                     // save upload object to button DOM
                     document.getElementById(buttonId).upload = upload;
                   });
 
-                  getPairedStatusLabel(buttonId).innerHTML = "Started uploading.";
                   event.currentTarget.innerHTML = "Abort";
                 }
 
@@ -272,7 +290,6 @@
         const sheetName = document.getElementById("sheet-name").innerHTML;
         google.script.run.withSuccessHandler().updateStatusOnSheet(
          sheetName, identifyingProp, identifyingVal, status
-          // sheetName, "accession", "TSTFF103412", "test"
         );
       }
 
