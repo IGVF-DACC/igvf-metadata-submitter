@@ -129,9 +129,9 @@ function getLastColumn(sheet) {
 
 function findColumnByHeaderValue(sheet, val) {
   for (var [i, headerVal] of getCellValuesInRow(sheet, HEADER_ROW).entries()) {
-    var row = i + 1;
+    var col = i + 1;
     if (headerVal === val) {
-      return row;
+      return col;
     }
   }
 }
@@ -207,6 +207,10 @@ function writeRangeToCells(sheet, startRow, startCol, vals) {
   sheet.getRange(startRow, startCol, rowLen, colLen).setValues(vals);
 }
 
+function writeToCell(sheet, row, col, val) {
+  writeRangeToCells(sheet, row, col, [[val]]);
+}
+
 function updateHeaderWithArray(sheet, arr) {
   // returns re-ordered array:
   // props in current header + new props in arr
@@ -215,6 +219,10 @@ function updateHeaderWithArray(sheet, arr) {
 
   writeRangeToCells(sheet, HEADER_ROW, currentProps.length + 1, [newProps]);
   return currentProps.concat(newProps);
+}
+
+function updateCellByHeaderAndRow(header, row, value) {
+  // find column by header and update
 }
 
 function writeJsonToRow(sheet, json, row, props) {

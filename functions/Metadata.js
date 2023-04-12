@@ -3,6 +3,8 @@ const EXPORTED_JSON_INDENT = 2;
 const HEADER_COMMENTED_PROP_SKIP = "#skip";
 const HEADER_COMMENTED_PROP_RESPONSE = "#response";
 const HEADER_COMMENTED_PROP_RESPONSE_TIME = "#response_time";
+const HEADER_COMMENTED_PROP_UPLOAD_RELPATH = "#upload_relpath";
+const HEADER_COMMENTED_PROP_UPLOAD_STATUS = "#upload_status";
 const DEFAULT_EXPORTED_JSON_FILE_PREFIX = "encode-metadata-submitter.exported";
 const TOOLTIP_FOR_PROP_SKIP = "Set as 1 to skip any READ/WRITE actions for a row, which is equivalent to hiding a row."
 const TOOLTIP_FOR_PROP_RESPONSE = "Action + HTTP error code + JSON response\n\n" +
@@ -159,7 +161,14 @@ function findIdentifyingPropValColInRow(sheet, row, profile) {
   //
   // returns prop, value, col
 
-  for (var identifyingProp of profile["identifyingProperties"]) {
+  // sorted based on identifying prop priority
+  // e.g. "accession" has highest priority
+  var sortedIdProp = [...profile["identifyingProperties"]];
+  sortedIdProp.sort(
+    (a,b) => getIdentifyingPropPriority(a) - getIdentifyingPropPriority(b),
+  );
+
+  for (var identifyingProp of sortedIdProp) {
     var identifyingCol = findColumnByHeaderValue(sheet, identifyingProp);
     var identifyingVal = identifyingCol ? getCellValue(sheet, row, identifyingCol) : undefined;
 

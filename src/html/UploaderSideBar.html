@@ -4,6 +4,8 @@
   <head>
     <base target="_top">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1337.0.min.js"></script>
+
     <style type="text/css">
       #dropzone {
         text-align: center;
@@ -32,121 +34,254 @@
   </head>
 
   <body>
-    <div id="help-text">
-      <p>Please DO NOT CLOSE this side bar while uploading files. You can upload files on one sheet at a time.</p><br>
-      <p>Drag the root folder for your data and drop it to the zone below. File's relative path (including the root folder) should be defined in column <code>#upload_relpath</code></p>
-    </div>
+    <div id="help-text-dropzone">
+      <p>You can upload local files to the portal directly.</p>
+      <p>Drag and drop a root folder that contains all of your files to be submitted. You cannot drop multiple folders or files.</p>
+      <p>For each file, define <code>#upload_relpath</code> (including the root folder) on the sheet.</p>
+      <p>For example, you drop a root folder <code>test-folder</code> then a file <code>test-folder/1/2/3.fastq.gz</code> should be defined under <code>#upload_relpath</code> on the sheet.</p>
+      <p>Only files matching relative paths will be available for uploading. </p>
+      <p>DO NOT CLOSE this side bar while uploading files. You can upload fil es on one sheet at a time.</p>
+    </div><br>
 
     <div id="dropzone">
       <div id="boxtitle">
         Drop root folder here
       </div>
-    </div>
-
-    <div id="root-folder-info">
-      <p>Dropped root folder: </p><label style="color:red" id="root-folder">None</label><br><br>
-    </div>
+    </div><br>
 
     <div id="control-panel">
-      <button id=btn-init-upload>Initialize upload for this sheet</button><br><br>
-      <p>Sheet name: </p>
-      <label style="color:blue" id="sheet-name">None</label><br><br>
-
-      <button id=btn-start-upload>Start upload</button><br><br>
-      <button id=btn-abort-upload>Abort upload</button><br><br>
-
-      <p>Message: </p>
-      <label style="color:black" id="message">None</label><br><br>
+      <button id=btn-init-upload disabled>Initialize uploads for current sheet</button><br><br>
+      Sheet name: <label style="color:blue" id="sheet-name"></label><br>
     </div>
 
+    <h3>Upload panel</h3>
     <div id="upload-panel">
     </div>
+    <br>
 
     <script type="text/javascript">
+      // constants with the same name as in the server side
+      const S3_BUCKET_DEFAULT_REGION = "us-west-2";
+      const HEADER_COMMENTED_PROP_UPLOAD_RELPATH = "#upload_relpath";
+      const UPLOAD_CREDENTIALS = "upload_credentials";
+      const IDENTIFYING_VAL = "identifying_val";
+      const IDENTIFYING_PROP = "identifying_prop";
+      const ROW = "row";
 
-      function writeMessage(txt) {
-          document.getElementById("message").innerHTML = txt;
+      // store drag-n-dropped folder info
+      var fileEntries = [];
+
+      async function getFile(fileEntry) {
+        try {
+          return new Promise((resolve, reject) => fileEntry.file(resolve, reject));
+        } catch (err) {
+          console.log(err);
+        }
       }
 
-      function onClickInitUpload() {
-        // document.getElementById("message").innerHTML = "onClickInitUpload";
-        const fileEntries = $(this).data(document.body, "fileEntries");
-        const fullPaths = fileEntries.map(entry => entry.fullPath);
-
-        google.script.run.withSuccessHandler(writeMessage).initUpload(JSON.stringify(fullPaths));
+      function getPairedButton(id) {
+        const idSuffix = id.match(new RegExp(/^.*\-(.*)/))[1];
+        return document.getElementById(`button-${idSuffix}`);
       }
 
-      function onClickStartUpload() {
-        // document.getElementById("message").innerHTML = "onClickStartUpload";
-        google.script.run.withSuccessHandler(writeMessage).startUpload("start");
+      function getPairedProgressLabel(id) {
+        const idSuffix = id.match(new RegExp(/^.*\-(.*)/))[1];
+        return document.getElementById(`progress-${idSuffix}`);
       }
 
-      function onClickAbortUpload() {
-        // document.getElementById("message").innerHTML = "onClickAbortUpload";
-        google.script.run.withSuccessHandler(writeMessage).abortUpload("abort");
+      function getPairedStatusLabel(id) {
+        const idSuffix = id.match(new RegExp(/^.*\-(.*)/))[1];
+        return document.getElementById(`status-${idSuffix}`);
       }
 
-      function createUploadElement() {
+      function createUploadItems(inputFromSheet) {
+        // parse sheet name and rows
+        const sheetName = inputFromSheet[0];
+        const rowsString = inputFromSheet[1];
+
+        document.getElementById("sheet-name").innerHTML = sheetName;
+
+        // rowsString is a stringified list of JSON objects (rows on sheet)
+        var rows = JSON.parse(rowsString);
+
+        // each upload item (button, progress bar) will be dynalically added upload panel div
         let uploadPanel = document.getElementById("upload-panel");
 
-      }
+        // remove all DOM elements in upload panel
+        uploadPanel.innerHTML = "";
 
-      // Async. traverseDirectory (Code from Tom J Nowell)
-      // https://stackoverflow.com/a/50030399/8819536
-      function traverseDirectory(entry) {
-        const reader = entry.createReader();
-        // Resolved when the entire directory is traversed
-        return new Promise((resolve, reject) => {
-          const iterationAttempts = [];
-          function readEntries() {
-            // According to the FileSystem API spec, readEntries() must be called until
-            // it calls the callback with an empty array.  Seriously??
-            reader.readEntries((entries) => {
-              if (!entries.length) {
-                // Done iterating this particular directory
-                resolve(Promise.all(iterationAttempts));
-              } else {
-                // Add a list of promises for each directory entry. If the entry is itself
-                // a directory, then that promise won't resolve until it is fully traversed.
-                iterationAttempts.push(Promise.all(entries.map((ientry) => {
-                  if (ientry.isFile) {
-                    // DO SOMETHING WITH FILES
-                    return ientry;
-                  }
-                  // DO SOMETHING WITH DIRECTORIES
-                  return traverseDirectory(ientry);
-                })));
-                // Try calling readEntries() again for the same dir, according to spec
-                readEntries();
-              }
-            }, error => reject(error));
-          }
-          readEntries();
-        });
-      }
+        // find files matching relpath in user's drag-n-dropped folder
+        for(let i=0; i<rows.length; i++) {
+          const relpath = rows[i][HEADER_COMMENTED_PROP_UPLOAD_RELPATH];
+          const identifyingVal = rows[i][IDENTIFYING_VAL];
+          const identifyingProp = rows[i][IDENTIFYING_PROP];
+          const uploadCredential = rows[i][UPLOAD_CREDENTIALS];
 
-      function recurseEntry(entry) {
-        let entries = [];
-        if (Array.isArray(entry)) {
-          for (let j = 0; j < entry.length; ++j) {
-            entries = entries.concat(recurseEntry(entry[j]));
+          // trim relpath to ignore leading/trailing slashes in paths
+          // also replace backslash with slash (for Windows file system)
+          const trimmedRelpath = relpath.replace(/^\/|\/$/g, "").replace(/\\/g,"/");
+
+          for (let j=0; j<fileEntries.length; j++) {
+            const fileEntry = fileEntries[j];
+
+            if (!fileEntry) {
+              // weird bug, need to ignore undefined element
+              continue;
+            }
+            const trimmedFullPath = fileEntry.fullPath.replace(/^\/|\/$/g, "");
+
+            // if both (on sheet, in drag-n-dropped folder) paths match then make an upload item
+            if (trimmedRelpath === trimmedFullPath) {
+
+              // dynamic creation of upload items
+              const idSuffix = window.btoa(fileEntry.fullPath);
+
+              // upload item UI
+              var fileInfo = document.createElement("label");
+              fileInfo.innerHTML = `<span style='color: blue;'>${identifyingVal}</span>: ${fileEntry.fullPath}`;
+
+              var br1 = document.createElement("br");
+
+              // label to show "identifying value : file fullpath"
+              var progressLabel = document.createElement("label");
+              progressLabel.setAttribute("id", "progress-" + idSuffix);
+              progressLabel.style["color"] = "red";
+              progressLabel.innerHTML = "0.0%";
+
+              var nbsp = document.createTextNode("\u00A0");
+
+              var statusLabel = document.createElement("label");
+              statusLabel.setAttribute("id", "status-" + idSuffix);
+              statusLabel.style["color"] = "darkgray";
+              statusLabel.relpath = relpath;
+              statusLabel.innerHTML = "Ready for uploading.";
+
+              var br2 = document.createElement("br");
+              var button = document.createElement("button");
+              var br3 = document.createElement("br");
+              var br4 = document.createElement("br");
+
+              uploadPanel.appendChild(fileInfo);
+              uploadPanel.appendChild(br1);
+              uploadPanel.appendChild(progressLabel);
+              uploadPanel.appendChild(nbsp);
+              uploadPanel.appendChild(statusLabel);
+              uploadPanel.appendChild(br2);
+              uploadPanel.appendChild(button);
+              uploadPanel.appendChild(br3);
+              uploadPanel.appendChild(br4);
+
+              // button can be either Start or Abort
+              button.setAttribute("id", "button-" + idSuffix);
+              button.innerHTML = "Start";
+              button.identifyingVal = identifyingVal;
+              button.identifyingProp = identifyingProp;
+              button.uploadCredential = uploadCredential;
+
+              button.addEventListener("click", function(event) {
+
+                event.currentTarget.disabled = true;
+
+                if (event.currentTarget.classList.contains("abort")) {
+                  // button is "abort", so abort the upload
+                  event.currentTarget.upload.abort();
+
+                  getPairedStatusLabel(event.currentTarget.id).innerHTML = "Aborted.";
+                  updateStatusOnSheet(event.currentTarget.identifyingProp, event.currentTarget.identifyingVal, "Aborted.");
+
+                  event.currentTarget.innerHTML = "Start";
+
+                } else {
+                  const uploadCredential = event.currentTarget.uploadCredential;
+                  const buttonId = event.currentTarget.id;
+
+                  // button is "start", so get file object and pass it to s3 uploader
+                  getFile(fileEntry).then(function(file) {
+                    var s3Client = new AWS.S3({
+                      accessKeyId: uploadCredential["access_key"],
+                      secretAccessKey: uploadCredential["secret_key"],
+                      sessionToken: uploadCredential["session_token"],
+                      region: S3_BUCKET_DEFAULT_REGION
+                    });
+
+                    // parse bucket, key from s3 URI to define upload params
+                    const [,,bucket,] = uploadCredential["upload_url"].split("/");
+                    const key = uploadCredential["upload_url"].split("/").splice(3).join("/");
+
+                    var upload = s3Client.upload(
+                        {Bucket: bucket, Key: key, Body: file},
+                        function(err, data) {
+                          console.log(err);
+                          console.log(data);
+                        });
+
+                    upload.on("httpUploadProgress", (progress) => {
+                        const progressPct = (100.0*progress.loaded/progress.total).toFixed(1);
+                        getPairedProgressLabel(buttonId).innerHTML = `${progressPct}%`;
+
+                        if (progressPct === "100.0") {
+                          // report back to the sheet
+                          getPairedStatusLabel(buttonId).innerHTML = "Done.";
+                          var button = getPairedButton(buttonId);
+                          updateStatusOnSheet(button.identifyingProp, button.identifyingVal, "Done.");
+                          button.disabled = true;
+                        }
+                      });
+
+                    // save upload object to button DOM
+                    document.getElementById(buttonId).upload = upload;
+                  });
+
+                  getPairedStatusLabel(buttonId).innerHTML = "Started uploading.";
+                  event.currentTarget.innerHTML = "Abort";
+                }
+
+                event.currentTarget.classList.toggle("abort");
+                event.currentTarget.disabled = false;
+              });
+
+              break;
+            }
           }
-        } else {
-          // console.log(entry);
-          entries.push(entry);
         }
-        return entries;
+        document.getElementById("btn-init-upload").innerHTML = "Done reading from sheet.";
+      }
+
+      function traverseFileTree(item) {
+        if (item.isFile) {
+          item.file2 = getFile(item);
+          fileEntries.push(item);
+        } else if (item.isDirectory) {
+          // Get folder contents
+          var dirReader = item.createReader();
+          dirReader.readEntries(function(entries) {
+            for (var i = 0; i < entries.length; i++) {
+              traverseFileTree(entries[i]);
+            }
+          });
+        }
+      };
+
+      function onClickInitUpload() {
+        let btnInitUpload = document.getElementById("btn-init-upload");
+        btnInitUpload.disabled = true;
+        btnInitUpload.innerHTML = "Reading from sheet...";
+        google.script.run.withSuccessHandler(createUploadItems).initUpload();
+      }
+
+      function updateStatusOnSheet(identifyingProp, identifyingVal, status) {
+        const sheetName = document.getElementById("sheet-name").innerHTML;
+        google.script.run.withSuccessHandler().updateStatusOnSheet(
+         sheetName, identifyingProp, identifyingVal, status
+          // sheetName, "accession", "TSTFF103412", "test"
+        );
       }
 
       let btnInitUpload = document.getElementById("btn-init-upload");
-      let btnStartUpload = document.getElementById("btn-start-upload");
-      let btnAbortUpload = document.getElementById("btn-abort-upload");
       let dropzone = document.getElementById("dropzone");
 
       // buttons
       btnInitUpload.addEventListener("click", onClickInitUpload, false);
-      btnStartUpload.addEventListener("click", onClickStartUpload, false);
-      btnAbortUpload.addEventListener("click", onClickAbortUpload, false);
 
       // drag-n-drop
       dropzone.addEventListener("dragover", function(event) {
@@ -155,27 +290,15 @@
 
       dropzone.addEventListener("drop", function(event) {
         event.preventDefault();
+        fileEntries = [];
         const data = event.dataTransfer.items;
-
-        // let fileEntries = $(this).data(document.body, "fileEntries");
-        // if (!fileEntries) {
-        let fileEntries = [];
-        // }
-
-        for (let i = 0; i < data.length; i += 1) {
-          const entry = data[i].webkitGetAsEntry();
-
-          traverseDirectory(entry).then(result => {
-            fileEntries = recurseEntry(result);
-          });
+        for (let i = 0; i < data.length; i++) {
+          // recursive directory search
+          traverseFileTree(data[i].webkitGetAsEntry());
         }
-        console.log("A");
-        console.log(fileEntries);
-        // store data on body
-        $(this).data(document.body, "fileEntries", fileEntries);
-        const fileEntries2 = $(this).data(document.body, "fileEntries");
-        console.log("B");
-        console.log(fileEntries2);
+        dropzone.classList.remove('hover');
+        let btnInit = document.getElementById("btn-init-upload");
+        btnInit.removeAttribute("disabled");
       }, false);
 
     </script>
