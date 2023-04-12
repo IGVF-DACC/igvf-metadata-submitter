@@ -4,7 +4,6 @@ const HEADER_COMMENTED_PROP_UPLOAD_ERROR = "#upload_error";
 const UPLOAD_CREDENTIALS = "upload_credentials";
 const IDENTIFYING_VAL = "identifying_val";
 
-
 function openUploadSidebar() {
   var html = HtmlService.createTemplateFromFile("UploaderSideBar.html");
   var htmlOutput = html
@@ -18,10 +17,10 @@ function getUploadCredentialsFromFileId(fileId) {
   // Get AWS temporary credentials from the portal  //
   // Example query: https://test.encodedcc.org/files/ENCFF924JFB/@@upload?format=json
   // {
-  //   "session_token": "XXXXXXXXXXXXXXXXX",
-  //   "access_key": "XXXXXXXXXXXXXXXXX",
+  //   "session_token": "FwoGZXIvYXdzXXXXXXXX",
+  //   "access_key": "ASIATGZNGCNX7FX362W5",
   //   "expiration": "2022-05-12T14:31:33+00:00",
-  //   "secret_key": "XXXXXXXXXXXXXXXXX",
+  //   "secret_key": "Az8YWtmAnDKOR4/CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
   //   "upload_url": "s3://encode-files/2022/05/11/5f602344-9e92-4541-99ea-a397bb0ca093/ENCFF924JFB.fastq.gz",
   //   "federated_user_arn": "arn:aws:sts::220748714863:federated-user/up1652236293.410004-ENCFF924JFB",
   //   "federated_user_id": "220748714863:up1652236293.410004-ENCFF924JFB",
@@ -48,11 +47,11 @@ function getUploadCredentialsFromIdentifyingVal(identifyingVal) {
   return getUploadCredentialsFromFileId(fileId);
 }
 
-function initUpload() {
-  if (!checkProfile()) {
+function initUpload(fileEntries) {
+  if (!fileEntries) {
+    alertBox("No file/directory dropped.");
     return;
   }
-
   var sheet = getCurrentSheet();
   var profile = getProfile(getProfileName(), getEndpointRead());
 
@@ -66,12 +65,17 @@ function initUpload() {
     );
     return;
   }
+  var profileName = getProfileName();
+  var endpointForProfile = getEndpointRead();
+  var endpointForUpload = getEndpointWrite();
+
+  var profile = getProfile(profileName, endpointForProfile);
 
   const numData = getNumMetadataInSheet(sheet);
-  var results = [];
+  var numSubmitted = 0;
 
   for (var row = HEADER_ROW + 1; row <= numData + HEADER_ROW; row++) {
-    var json = rowToJson(
+    var jsonBeforeTypeCast = rowToJson(
       sheet, row, keepCommentedProps=true, bypassGoogleAutoParsing=true,
     );
 
@@ -80,8 +84,8 @@ function initUpload() {
       continue;
     }
     // if has #skip and it is 1 then skip
-    if (json.hasOwnProperty(HEADER_COMMENTED_PROP_SKIP)) {
-      if (toBoolean(json[HEADER_COMMENTED_PROP_SKIP])) {
+    if (jsonBeforeTypeCast.hasOwnProperty(HEADER_COMMENTED_PROP_SKIP)) {
+      if (toBoolean(jsonBeforeTypeCast[HEADER_COMMENTED_PROP_SKIP])) {
         continue;
       }
     }
@@ -90,7 +94,7 @@ function initUpload() {
 
     if (!identifyingProp || !identifyingVal) {
       json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Missing identifying val.";
-      writeJsonToRow(sheet, json, row);
+      writeJsonToRow(sheet, jsonBeforeTypeCast, row);
       continue;
     }
 
@@ -99,44 +103,35 @@ function initUpload() {
 
     if (!uploadRelpath) {
       json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Missing #upload_relpath.";
-      writeJsonToRow(sheet, json, row);
+      writeJsonToRow(sheet, jsonBeforeTypeCast, row);
       continue;
+    }
+
+    console.log(row);
+    // check if there is a matched local file
+    // compare relpath and files in user dropped directory
+    for (let j = 0; j < fileEntries.length; ++j) {
+      const fileEntry = fileEntrys[j];
+      console.log(fileEntry);
     }
 
     // get upload credentials from portal
     var uploadCredentials = getUploadCredentialsFromIdentifyingVal(identifyingVal);
 
-    // // for testing only (dev)
-    // var uploadCredentials = {
-    //   "session_token": "TEST_SESSION_TOKEN",
-    //   "access_key": getAwsAccessKey(),
-    //   "secret_key": getAwsSecretAccessKey(),
-    //   "upload_url": "s3://igvf-metadata-submitter-test-uploading/" + uploadRelpath,
-    // };
-
     if (!uploadCredentials) {
-      json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Failed to get upload credentials.";
-      writeJsonToRow(sheet, json, row);
+      json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Failed to get upload crentials.";
+      writeJsonToRow(sheet, jsonBeforeTypeCast, row);
       continue;
     }
 
-    // var fileExistsOnBucket = checkS3BucketFileExists(uploadCredentials);
-    // if (!fileExistsOnBucket) {
-    //   json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "File already exists on bucket.";
-    //   writeJsonToRow(sheet, json, row);
-    //   continue;
-    // }
-
     // rewrite data, with commented headers such as error and text, on the sheet
-    json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Ready for uploading.";
+    json[HEADER_COMMENTED_PROP_UPLOAD_ERROR] = "Upload ready.";
     writeJsonToRow(sheet, json, row);
-
-    json[UPLOAD_CREDENTIALS] = uploadCredentials;
-    json[IDENTIFYING_VAL] = identifyingVal;
-    results.push(json);
+    numSubmitted++;
   }
-
-  return [sheet.getName(), JSON.stringify(results)];
+  // {identifyingProp, identifyingVal, credentials, File input object}
+  // return numSubmitted;
+  return a + ":init";
 }
 
 function startUpload(a) {
