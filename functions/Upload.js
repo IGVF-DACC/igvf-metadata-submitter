@@ -7,15 +7,19 @@ function openUploadSidebar() {
 
   if ( !findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_UPLOAD_RELPATH) ) {
     alertBox(
-      `Couldn't find commented property ${HEADER_COMMENTED_PROP_UPLOAD_RELPATH} in header row ${HEADER_ROW}\n\n` +
-      `Add a new column with such header and follow instruction on the upload sidebar.`
+      `Add a column ${HEADER_COMMENTED_PROP_UPLOAD_RELPATH} to the header row and try again.`
     );
     return
   }
   if ( !findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_UPLOAD_STATUS) ) {
     alertBox(
-      `Couldn't find commented property ${HEADER_COMMENTED_PROP_UPLOAD_STATUS} in header row ${HEADER_ROW}\n\n` +
-      `Add a new column with such header and follow instruction on the upload sidebar.`
+      `Add a column ${HEADER_COMMENTED_PROP_UPLOAD_STATUS} to the header row and try again.`
+    );
+    return
+  }
+  if ( !findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_UPLOAD_CMD) ) {
+    alertBox(
+      `Add a column ${HEADER_COMMENTED_PROP_UPLOAD_CMD} to the header row and try again.`
     );
     return
   }
@@ -111,11 +115,22 @@ function initUpload() {
       writeJsonToRow(sheet, json, row);
       continue;
     }
+    const accessKeyId = uploadCredentials["access_key"];
+    const secretAccessKey = uploadCredentials["secret_key"];
+    const sessionToken = uploadCredentials["session_token"];
+    const [,,bucket,] = uploadCredentials["upload_url"].split("/");
+    const key = uploadCredentials["upload_url"].split("/").splice(3).join("/");
+
+    const cmd =
+      `AWS_ACCESS_KEY_ID="${accessKeyId}" AWS_SECRET_ACCESS_KEY="${secretAccessKey}" AWS_SESSION_TOKEN="${sessionToken}" ` +
+      `aws s3api put-object --bucket "${bucket}" --key "${key}" --body "${uploadRelpath}"`;
+    json[HEADER_COMMENTED_PROP_UPLOAD_CMD] = cmd;
 
     // rewrite data, with commented headers such as error and text, on the sheet
     json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = "Ready for uploading.";
     writeJsonToRow(sheet, json, row);
 
+    // additional info to be passed to sidebar
     json[UPLOAD_CREDENTIALS] = uploadCredentials;
     json[IDENTIFYING_VAL] = identifyingVal;
     json[IDENTIFYING_PROP] = identifyingProp;

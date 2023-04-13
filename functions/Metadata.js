@@ -5,6 +5,7 @@ const HEADER_COMMENTED_PROP_RESPONSE = "#response";
 const HEADER_COMMENTED_PROP_RESPONSE_TIME = "#response_time";
 const HEADER_COMMENTED_PROP_UPLOAD_RELPATH = "#upload_relpath";
 const HEADER_COMMENTED_PROP_UPLOAD_STATUS = "#upload_status";
+const HEADER_COMMENTED_PROP_UPLOAD_CMD = "#upload_cmd";
 const DEFAULT_EXPORTED_JSON_FILE_PREFIX = "encode-metadata-submitter.exported";
 const TOOLTIP_FOR_PROP_SKIP = "Set as 1 to skip any READ/WRITE actions for a row, which is equivalent to hiding a row."
 const TOOLTIP_FOR_PROP_RESPONSE = "Action + HTTP error code + JSON response\n\n" +
