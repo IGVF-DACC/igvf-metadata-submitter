@@ -53,7 +53,12 @@ global.onOpen = () => {
   menu.addSubMenu(submenuSettingsSheet);
 
   menu.addSeparator();
-
   menu.addItem("Open tool's github page for README", 'openToolGithubPage');
+  menu.addSeparator();
+
+  const submenuDeveloper = SpreadsheetApp.getUi().createMenu('🛠 Developer (for debugging)');
+  submenuDeveloper.addItem('Show sheet developer metadata', 'showSheetDeveloperMetadata');
+  menu.addSubMenu(submenuDeveloper);
+
   menu.addToUi();
 };

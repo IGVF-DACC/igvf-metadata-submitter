@@ -28,6 +28,12 @@ function getSheetMetadata(sheet, key) {
 }
 
 function getSheetAllMetadata(sheet) {
+  var metadataFinder = sheet.createDeveloperMetadataFinder();
+  results = metadataFinder.find();
+  for (var i = 0; i < results.length; i++) {
+     Logger.log('id: ' + results[i].getId() + ', key: ' + results[i].getKey());
+  }
+
   return sheet.createDeveloperMetadataFinder().find().map(
     item => {
       return {[item.getKey()]: item.getValue()};

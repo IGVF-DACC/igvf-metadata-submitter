@@ -569,3 +569,9 @@ function authorizeForAws() {
   }
   setAwsSecretAccessKey(awsSecretAccessKey);
 }
+
+function showSheetDeveloperMetadata() {
+  var sheet = getCurrentSheet();
+  var allMetadata = getSheetAllMetadata(sheet);
+  alertBox(JSON.stringify(allMetadata, null, 4));
+}
