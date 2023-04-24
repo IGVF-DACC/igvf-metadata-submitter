@@ -25,9 +25,7 @@ function setDefaultEndpointRead() {
     }
     return;
   }
-
-  var userProperties = PropertiesService.getUserProperties();
-  return userProperties.setProperty(PROPERTY_DEFAULT_ENDPOINT_READ, endpoint);
+  setSpreadsheetDevMetadata(KEY_ENDPOINT_READ, endpoint);
 }
 
 function setDefaultEndpointWrite() {
@@ -49,8 +47,7 @@ function setDefaultEndpointWrite() {
     return;
   }
 
-  var userProperties = PropertiesService.getUserProperties();
-  return userProperties.setProperty(PROPERTY_DEFAULT_ENDPOINT_WRITE, endpoint);
+  setSpreadsheetDevMetadata(KEY_ENDPOINT_WRITE, endpoint);
 }
 
 function checkProfile() {
@@ -454,7 +451,7 @@ function setEndpointRead() {
     }
     return;
   }
-  setCurrentSheetMetadata(KEY_ENDPOINT_READ, endpoint);
+  setCurrentSheetDevMetadata(KEY_ENDPOINT_READ, endpoint);
 }
 
 function setEndpointWrite() {
@@ -475,7 +472,7 @@ function setEndpointWrite() {
     }
     return;
   }
-  setCurrentSheetMetadata(KEY_ENDPOINT_WRITE, endpoint);
+  setCurrentSheetDevMetadata(KEY_ENDPOINT_WRITE, endpoint);
 }
 
 function setProfileName() {    
@@ -492,12 +489,11 @@ function setProfileName() {
     }
     return;
   }
-  setCurrentSheetMetadata(KEY_PROFILE_NAME, profileName);
+  setCurrentSheetDevMetadata(KEY_PROFILE_NAME, profileName);
 }
 
 function getDefaultProfileName() {
-  var userProperties = PropertiesService.getUserProperties();
-  return userProperties.getProperty(PROPERTY_DEFAULT_PROFILE_NAME);
+  return getSpreadsheetDevMetadata(KEY_PROFILE_NAME);
 }
 
 function setDefaultProfileName() {    
@@ -514,34 +510,31 @@ function setDefaultProfileName() {
     }
     return;
   }
-  var userProperties = PropertiesService.getUserProperties();
-  return userProperties.setProperty(PROPERTY_DEFAULT_PROFILE_NAME, profileName);
+  setSpreadsheetDevMetadata(KEY_PROFILE_NAME, profileName);
 }
 
 function getDefaultEndpointRead() {
-  var userProperties = PropertiesService.getUserProperties();
-  var defaultEndpointRead = userProperties.getProperty(PROPERTY_DEFAULT_ENDPOINT_READ);
+  var defaultEndpointRead = getSpreadsheetDevMetadata(KEY_ENDPOINT_READ);
   return defaultEndpointRead ? defaultEndpointRead : DEFAULT_ENDPOINT_READ
 }
 
 function getDefaultEndpointWrite() {
-  var userProperties = PropertiesService.getUserProperties();
-  var defaultEndpointWrite = userProperties.getProperty(PROPERTY_DEFAULT_ENDPOINT_WRITE);
+  var defaultEndpointWrite = getSpreadsheetDevMetadata(KEY_ENDPOINT_WRITE);
   return defaultEndpointWrite ? defaultEndpointWrite : DEFAULT_ENDPOINT_WRITE
 }
 
 function getEndpointRead() {
-  var endpoint = getCurrentSheetMetadata(KEY_ENDPOINT_READ);
+  var endpoint = getCurrentSheetDevMetadata(KEY_ENDPOINT_READ);
   return endpoint ? endpoint : getDefaultEndpointRead();
 }
 
 function getEndpointWrite() {
-  var endpoint = getCurrentSheetMetadata(KEY_ENDPOINT_WRITE);
+  var endpoint = getCurrentSheetDevMetadata(KEY_ENDPOINT_WRITE);
   return endpoint ? endpoint : getDefaultEndpointWrite();
 }
 
 function getProfileName() {
-  var profileName = getCurrentSheetMetadata(KEY_PROFILE_NAME);
+  var profileName = getCurrentSheetDevMetadata(KEY_PROFILE_NAME);
   return profileName ? profileName : getDefaultProfileName();
 }
 
@@ -570,8 +563,13 @@ function authorizeForAws() {
   setAwsSecretAccessKey(awsSecretAccessKey);
 }
 
-function showSheetDeveloperMetadata() {
+function showSheetAllDevMetadata() {
   var sheet = getCurrentSheet();
-  var allMetadata = getSheetAllMetadata(sheet);
+  var allMetadata = getSheetAllDevMetadata(sheet);
+  alertBox(JSON.stringify(allMetadata, null, 4));
+}
+
+function showSpreadsheetAllDevMetadata() {
+  var allMetadata = getSpreadsheetAllDevMetadata();
   alertBox(JSON.stringify(allMetadata, null, 4));
 }

@@ -1,25 +1,22 @@
 const HEADER_ROW = 1;
 
-function getCurrentSheet() {
-  return SpreadsheetApp.getActive().getActiveSheet();
-}
 
-function setSheetMetadata(sheet, key, val) {
-  var currentVal = getSheetMetadata(sheet, key);
+function setDevMetadata(scope, key, val) {
+  var currentVal = getDevMetadata(scope, key);
   if (currentVal) {
     // delete existing metadata
-    var finder = sheet.createDeveloperMetadataFinder().withKey(key).find();
+    var finder = scope.createDeveloperMetadataFinder().withKey(key).find();
     finder[0].remove();
   }
   // DeveloperMetadataVisibility.DOCUMENT allows sharing of metadata properties
-  sheet.addDeveloperMetadata(
+  scope.addDeveloperMetadata(
     key, val, SpreadsheetApp.DeveloperMetadataVisibility.DOCUMENT
   );
 }
 
-function getSheetMetadata(sheet, key) {
+function getDevMetadata(scope, key) {
   // assume uniqueness
-  const metadataFinder = sheet.createDeveloperMetadataFinder();
+  const metadataFinder = scope.createDeveloperMetadataFinder();
   var metadata = metadataFinder.withKey(key).find();
   if (metadata.length) {
     var val = metadata[0].getValue();
@@ -27,26 +24,57 @@ function getSheetMetadata(sheet, key) {
   }
 }
 
-function getSheetAllMetadata(sheet) {
+function getCurrentSheet() {
+  return SpreadsheetApp.getActive().getActiveSheet();
+}
+
+function setSheetDevMetadata(sheet, key, val) {
+  setDevMetadata(sheet, key, val);
+}
+
+function getSheetDevMetadata(sheet, key) {
+  return getDevMetadata(sheet, key);
+}
+
+function getAllDevMetadata(sheet, filtKeyPrefix) {
   var metadataFinder = sheet.createDeveloperMetadataFinder();
-  results = metadataFinder.find();
+  var results = metadataFinder.find();
+  var devMetadata = [];
   for (var i = 0; i < results.length; i++) {
-     Logger.log('id: ' + results[i].getId() + ', key: ' + results[i].getKey());
-  }
-
-  return sheet.createDeveloperMetadataFinder().find().map(
-    item => {
-      return {[item.getKey()]: item.getValue()};
+    if (!filtKeyPrefix || results[i].getKey().startsWith(filtKeyPrefix)) {
+      Logger.log('id: ' + results[i].getId() + ', key: ' + results[i].getKey());
+      devMetadata.push({[results[i].getKey()]: results[i].getValue()});
     }
-  );
+  }
+  return devMetadata;
 }
 
-function setCurrentSheetMetadata(key, val) {
-  setSheetMetadata(getCurrentSheet(), key, val);
+function getSheetAllDevMetadata(sheet) {
+  return getAllDevMetadata(sheet);
 }
 
-function getCurrentSheetMetadata(key) {
-  return getSheetMetadata(getCurrentSheet(), key);
+function setCurrentSheetDevMetadata(key, val) {
+  setSheetDevMetadata(getCurrentSheet(), key, val);
+}
+
+function getCurrentSheetDevMetadata(key) {
+  return getSheetDevMetadata(getCurrentSheet(), key);
+}
+
+function setSpreadsheetDevMetadata(key, val) {
+  // adhoc method to separate two different scopes (spreadsheet and sheet)
+  // add prefix "spreadsheet" to key for spreadsheet one
+  setDevMetadata(SpreadsheetApp.getActive(), "spreadsheet-" + key, val);
+}
+
+function getSpreadsheetDevMetadata(key) {
+  // adhoc method to separate two different scopes (spreadsheet and sheet)
+  // add prefix "spreadsheet" to key for spreadsheet one
+  return getDevMetadata(SpreadsheetApp.getActiveSpreadsheet(), "spreadsheet-" + key);
+}
+
+function getSpreadsheetAllDevMetadata() {
+  return getAllDevMetadata(SpreadsheetApp.getActiveSpreadsheet(), filtKeyPrefix="spreadsheet-");
 }
 
 function getNumMetadataInSheet(sheet, ignoreHiddenRows=false) {

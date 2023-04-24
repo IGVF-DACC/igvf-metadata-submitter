@@ -57,7 +57,8 @@ global.onOpen = () => {
   menu.addSeparator();
 
   const submenuDeveloper = SpreadsheetApp.getUi().createMenu('🛠 Developer (for debugging)');
-  submenuDeveloper.addItem('Show sheet developer metadata', 'showSheetDeveloperMetadata');
+  submenuDeveloper.addItem('Show sheet developer metadata', 'showSheetAllDevMetadata');
+  submenuDeveloper.addItem('Show spreadsheet developer metadata', 'showSpreadsheetAllDevMetadata');
   menu.addSubMenu(submenuDeveloper);
 
   menu.addToUi();
