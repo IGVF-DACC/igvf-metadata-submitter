@@ -93,7 +93,7 @@ function initUpload() {
       findIdentifyingPropValColInRow(sheet, row, profile);
 
     if (!identifyingProp || !identifyingVal) {
-      json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = "Missing identifying val.";
+      json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = "Missing identifying value (e.g. accession, uuid).";
       writeJsonToRow(sheet, json, row);
       continue;
     }
