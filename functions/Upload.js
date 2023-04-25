@@ -2,6 +2,7 @@ const UPLOAD_CREDENTIALS = "upload_credentials";
 const IDENTIFYING_VAL = "identifying_val";
 const IDENTIFYING_PROP = "identifying_prop";
 
+
 function openUploadSidebar() {
   var sheet = getCurrentSheet();
 
@@ -52,6 +53,30 @@ function getUploadCredentialsFromIdentifyingVal(identifyingVal) {
   return getUploadCredentialsFromFileId(fileId);
 }
 
+function getFileStatusAndErrorFromFileId(fileId) {
+  var endPoint = getEndpointWrite();
+
+  var url = `${endPoint}/${fileId}?format=json&frame=object`;
+  var response = restGet(url);
+  var error = response.getResponseCode();
+
+  if (error === 200) {
+    var responseJson = JSON.parse(response.getContentText());
+    var status = responseJson["status"];
+    var contentError = status === "content error" ? responseJson["content_error_detail"]: null;
+
+    return {status: status, contentError: contentError};
+
+  } else {
+    Logger.log(`HTTP error ${error}: Failed to get status and content_error from endpoint ${endPoint} for file ID ${fileId}`);
+  }
+}
+
+function getFileStatusAndErrorFromIdentifyingVal(identifyingVal) {
+  var fileId = `files/${identifyingVal}/`;
+  return getFileStatusAndErrorFromFileId(fileId);
+}
+
 function initUpload() {
   if (!checkProfile()) {
     return;
@@ -98,6 +123,16 @@ function initUpload() {
       continue;
     }
 
+    // check status of file
+    var {status, contentError} = getFileStatusAndErrorFromIdentifyingVal(identifyingVal);
+
+    // prevent re-uploading to a released object
+    if (status == "released") {
+      json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = "error: uploading to a released accession is not allowed.";
+      writeJsonToRow(sheet, json, row);
+      continue;
+    }
+
     var uploadRelpathCol = findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_UPLOAD_RELPATH);
     var uploadRelpath = uploadRelpathCol ? getCellValue(sheet, row, uploadRelpathCol) : undefined;
 
@@ -109,7 +144,6 @@ function initUpload() {
 
     // get upload credentials from portal
     var uploadCredentials = getUploadCredentialsFromIdentifyingVal(identifyingVal);
-
     if (!uploadCredentials) {
       json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = "Failed to get upload credentials.";
       writeJsonToRow(sheet, json, row);
@@ -126,8 +160,13 @@ function initUpload() {
       `aws s3api put-object --bucket "${bucket}" --key "${key}" --body "${uploadRelpath}"`;
     json[HEADER_COMMENTED_PROP_UPLOAD_CMD] = cmd;
 
-    // rewrite data, with commented headers such as error and text, on the sheet
-    json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = "Ready for uploading.";
+    // to report status on both sheet and upload sidebar
+    // this json object will be passed to the upload sidebar
+    if (contentError) {
+      json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = `status: ${status}: ${contentError}.`;
+    } else {
+      json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = `status: ${status}.`;
+    }
     writeJsonToRow(sheet, json, row);
 
     // additional info to be passed to sidebar

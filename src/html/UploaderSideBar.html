@@ -62,6 +62,7 @@
       // constants with the same name as in the server side
       const S3_BUCKET_DEFAULT_REGION = "us-west-2";
       const HEADER_COMMENTED_PROP_UPLOAD_RELPATH = "#upload_relpath";
+      const HEADER_COMMENTED_PROP_UPLOAD_STATUS = "#upload_status";
       const UPLOAD_CREDENTIALS = "upload_credentials";
       const IDENTIFYING_VAL = "identifying_val";
       const IDENTIFYING_PROP = "identifying_prop";
@@ -132,6 +133,7 @@
           const identifyingVal = rows[i][IDENTIFYING_VAL];
           const identifyingProp = rows[i][IDENTIFYING_PROP];
           const uploadCredential = rows[i][UPLOAD_CREDENTIALS];
+          const status = rows[i][HEADER_COMMENTED_PROP_UPLOAD_STATUS];
 
           // trim relpath to ignore leading/trailing slashes in paths
           // also replace backslash with slash (for Windows file system)
@@ -170,7 +172,7 @@
               statusLabel.setAttribute("id", "status-" + idSuffix);
               statusLabel.style["color"] = "darkgray";
               statusLabel.relpath = relpath;
-              statusLabel.innerHTML = "Ready for uploading.";
+              statusLabel.innerHTML = status;
 
               var br2 = document.createElement("br");
               var button = document.createElement("button");
