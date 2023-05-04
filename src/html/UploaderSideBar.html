@@ -139,6 +139,7 @@
           // also replace backslash with slash (for Windows file system)
           const trimmedRelpath = relpath.replace(/^\/|\/$/g, "").replace(/\\/g,"/");
 
+          let foundMatchingFile = false;
           for (let j=0; j<fileEntries.length; j++) {
             const fileEntry = fileEntries[j];
 
@@ -150,6 +151,7 @@
 
             // if both (on sheet, in drag-n-dropped folder) paths match then make an upload item
             if (trimmedRelpath === trimmedFullPath) {
+              foundMatchingFile = true;
 
               // dynamic creation of upload items
               const idSuffix = window.btoa(fileEntry.fullPath);
@@ -261,6 +263,10 @@
 
               break;
             }
+          }
+          if (!foundMatchingFile) {
+            // found no matching file in the dropped folder
+            updateStatusOnSheet(identifyingProp, identifyingVal, "No matching file found in the dropped folder. wrong #upload_relpath?");
           }
         }
         document.getElementById("btn-init-upload").innerHTML = "Done reading from sheet.";
