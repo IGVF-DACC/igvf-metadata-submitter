@@ -4,7 +4,7 @@ global.onOpen = () => {
 
   menu.addItem('Search', 'search');
   menu.addSeparator();
-  menu.addItem('Upload sidebar', 'uploadSidebar');
+  menu.addItem('File upload sidebar', 'uploadSidebar');
   menu.addSeparator();
   menu.addItem('Show sheet info & header legend', 'showSheetInfoAndHeaderLegend');
   menu.addSeparator();
