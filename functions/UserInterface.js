@@ -51,13 +51,26 @@ function setDefaultEndpointWrite() {
 }
 
 function checkProfile() {
-  if (getProfileName() && getProfile(getProfileName(), getEndpointRead())) {
-    return true;
+  var profileName = getProfileName();
+
+  if (getProfileName()) {
+    var profile = getProfile(getProfileName(), getEndpointRead())
+
+    if (!profile) {
+      alertBox(
+        "Found profile name but couldn't get profile from portal. Wrong credentials?\n" +
+        "Go to the menu 'IGVF/ENCODE' -> 'Authorization'."
+      );
+    } else {
+      return true;
+    }
+
+  } else {
+    alertBox(
+      "No profile name found.\n" +
+      "Go to the menu 'IGVF/ENCODE' -> 'Settings & auth' to define it."
+    );
   }
-  alertBox(
-    "No profile name found.\n" + 
-    "Go to the menu 'IGVF/ENCODE' -> 'Settings & auth' to define it."
-  );
 }
 
 function search() {
