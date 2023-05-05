@@ -128,6 +128,8 @@
         uploadPanel.innerHTML = "";
 
         // find files matching relpath in user's drag-n-dropped folder
+        let numMatchingFiles = 0;
+
         for(let i=0; i<rows.length; i++) {
           const relpath = rows[i][HEADER_COMMENTED_PROP_UPLOAD_RELPATH];
           const identifyingVal = rows[i][IDENTIFYING_VAL];
@@ -137,7 +139,7 @@
 
           // trim relpath to ignore leading/trailing slashes in paths
           // also replace backslash with slash (for Windows file system)
-          const trimmedRelpath = relpath.replace(/^\/|\/$/g, "").replace(/\\/g,"/");
+          const trimmedRelpath = relpath.trim().replace(/^\/|\/$/g, "").replace(/\\/g,"/");
 
           let foundMatchingFile = false;
           for (let j=0; j<fileEntries.length; j++) {
@@ -152,6 +154,7 @@
             // if both (on sheet, in drag-n-dropped folder) paths match then make an upload item
             if (trimmedRelpath === trimmedFullPath) {
               foundMatchingFile = true;
+              numMatchingFiles++;
 
               // dynamic creation of upload items
               const idSuffix = window.btoa(fileEntry.fullPath);
@@ -269,7 +272,7 @@
             updateStatusOnSheet(identifyingProp, identifyingVal, "No matching file found in the dropped folder. wrong #upload_relpath?");
           }
         }
-        document.getElementById("btn-init-upload").innerHTML = "Done reading from sheet.";
+        document.getElementById("btn-init-upload").innerHTML = `Found ${numMatchingFiles} file(s) to upload.`;
       }
 
       function traverseFileTree(item) {
@@ -323,6 +326,8 @@
         dropzone.classList.remove('hover');
         let btnInit = document.getElementById("btn-init-upload");
         btnInit.removeAttribute("disabled");
+        document.getElementById("sheet-name").innerHTML = "";
+        document.getElementById("btn-init-upload").innerHTML = "Initialize uploads for current sheet";
       }, false);
 
     </script>

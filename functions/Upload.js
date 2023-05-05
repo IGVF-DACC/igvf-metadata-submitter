@@ -183,10 +183,14 @@ function updateStatusOnSheet(sheetName, identifyingProp, identifyingVal, status)
   var sheet = SpreadsheetApp.getActive().getSheetByName(sheetName);
   var identifyingCol = findColumnByHeaderValue(sheet, identifyingProp);
   var uploadStatusCol = findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_UPLOAD_STATUS);
+  var skipCol = findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_SKIP);
 
   const numData = getNumMetadataInSheet(sheet);
 
   for (var row = HEADER_ROW + 1; row <= numData + HEADER_ROW; row++) {
+    if (isRowHidden(sheet, row) || skipCol && toBoolean(getCellValue(sheet, row, skipCol))) {
+      continue;
+    }
     if (getCellValue(sheet, row, identifyingCol) == identifyingVal) {
       writeToCell(sheet, row, uploadStatusCol, status);
     }
