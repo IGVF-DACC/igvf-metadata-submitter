@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <base target="_top">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1337.0.min.js"></script>
+
+    <style type="text/css">
+      #dropzone {
+        text-align: center;
+        width: 200px;
+        height: 100px;
+        margin: 10px;
+        padding: 10px;
+        border: 4px dashed red;
+        border-radius: 10px;
+      }
+
+      #boxtitle {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        color: black;
+        font: bold 2em "Arial", sans-serif;
+        width: 300px;
+        height: 100px;
+      }
+
+      body {
+        font: 14px "Arial", sans-serif;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="help-text-dropzone">
+      <p>Drag and drop a root folder that contains all of your files to be submitted and click on the initialize button. You cannot drop multiple folders or files.</p>
+      <p>For each file, define <code>#upload_relpath</code> (including the root folder) on the sheet.</p>
+      <p>For example, you drop a root folder <code>test-folder</code> then a file <code>test-folder/1/2/3.fastq.gz</code> should be defined under <code>#upload_relpath</code> on the sheet.</p>
+      <p>Only files matching relative paths will be available for uploading. </p>
+      <p>DO NOT CLOSE this side bar while uploading files. You can upload files for one sheet at a time.</p>
+    </div><br>
+
+    <div id="dropzone">
+      <div id="boxtitle">
+        Drop root folder here
+      </div>
+    </div><br>
+
+    <div id="control-panel">
+      <button id=btn-init-upload disabled>Initialize uploads for current sheet</button><br><br>
+      Sheet name: <label style="color:blue" id="sheet-name"></label><br>
+    </div>
+
+    <h3>Upload panel</h3>
+    <div id="upload-panel">
+    </div>
+    <br>
+
+    <script type="text/javascript">
+      // constants with the same name as in the server side
+      const S3_BUCKET_DEFAULT_REGION = "us-west-2";
+      const HEADER_COMMENTED_PROP_UPLOAD_RELPATH = "#upload_relpath";
+      const HEADER_COMMENTED_PROP_UPLOAD_STATUS = "#upload_status";
+      const UPLOAD_CREDENTIALS = "upload_credentials";
+      const IDENTIFYING_VAL = "identifying_val";
+      const IDENTIFYING_PROP = "identifying_prop";
+      const ROW = "row";
+
+      // store drag-n-dropped folder info
+      var fileEntries = [];
+
+      async function getFile(fileEntry) {
+        try {
+          return new Promise((resolve, reject) => fileEntry.file(resolve, reject));
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+      function getPairedButton(id) {
+        const idSuffix = id.match(new RegExp(/^.*\-(.*)/))[1];
+        return document.getElementById(`button-${idSuffix}`);
+      }
+
+      function getPairedProgressLabel(id) {
+        const idSuffix = id.match(new RegExp(/^.*\-(.*)/))[1];
+        return document.getElementById(`progress-${idSuffix}`);
+      }
+
+      function getPairedStatusLabel(id) {
+        const idSuffix = id.match(new RegExp(/^.*\-(.*)/))[1];
+        return document.getElementById(`status-${idSuffix}`);
+      }
+
+      function updateStatusLabel(id, status) {
+        // update status on both DOM label and #upload_status on sheet
+        // id is used to find paired status label from id
+        getPairedStatusLabel(id).innerHTML = status;
+      }
+
+      function updateStatusLabelAndSheet(id, status) {
+        updateStatusLabel(id, status);
+
+        // identifyingProp and identifyingVal are stored in button object
+        var button = getPairedButton(id);
+        const identifyingProp = button.identifyingProp;
+        const identifyingVal = button.identifyingVal;
+
+        updateStatusOnSheet(identifyingProp, identifyingVal, status);
+      }
+
+      function createUploadItems(inputFromSheet) {
+        // parse sheet name and rows
+        const sheetName = inputFromSheet[0];
+        const rowsString = inputFromSheet[1];
+
+        document.getElementById("sheet-name").innerHTML = sheetName;
+
+        // rowsString is a stringified list of JSON objects (rows on sheet)
+        var rows = JSON.parse(rowsString);
+
+        // each upload item (button, progress bar) will be dynalically added upload panel div
+        let uploadPanel = document.getElementById("upload-panel");
+
+        // remove all DOM elements in upload panel
+        uploadPanel.innerHTML = "";
+
+        // find files matching relpath in user's drag-n-dropped folder
+        let numMatchingFiles = 0;
+
+        for(let i=0; i<rows.length; i++) {
+          const relpath = rows[i][HEADER_COMMENTED_PROP_UPLOAD_RELPATH];
+          const identifyingVal = rows[i][IDENTIFYING_VAL];
+          const identifyingProp = rows[i][IDENTIFYING_PROP];
+          const uploadCredential = rows[i][UPLOAD_CREDENTIALS];
+          const status = rows[i][HEADER_COMMENTED_PROP_UPLOAD_STATUS];
+
+          // trim relpath to ignore leading/trailing slashes in paths
+          // also replace backslash with slash (for Windows file system)
+          const trimmedRelpath = relpath.trim().replace(/^\/|\/$/g, "").replace(/\\/g,"/");
+
+          let foundMatchingFile = false;
+          for (let j=0; j<fileEntries.length; j++) {
+            const fileEntry = fileEntries[j];
+
+            if (!fileEntry) {
+              // weird bug, need to ignore undefined element
+              continue;
+            }
+            const trimmedFullPath = fileEntry.fullPath.replace(/^\/|\/$/g, "");
+
+            // if both (on sheet, in drag-n-dropped folder) paths match then make an upload item
+            if (trimmedRelpath === trimmedFullPath) {
+              foundMatchingFile = true;
+              numMatchingFiles++;
+
+              // dynamic creation of upload items
+              const idSuffix = window.btoa(fileEntry.fullPath);
+
+              // upload item UI
+              var fileInfo = document.createElement("label");
+              fileInfo.innerHTML = `<span style='color: blue;'>${identifyingVal}</span>: ${fileEntry.fullPath}`;
+
+              var br1 = document.createElement("br");
+
+              // label to show "identifying value : file fullpath"
+              var progressLabel = document.createElement("label");
+              progressLabel.setAttribute("id", "progress-" + idSuffix);
+              progressLabel.style["color"] = "red";
+              progressLabel.innerHTML = "0.0%";
+
+              var nbsp = document.createTextNode("\u00A0");
+
+              var statusLabel = document.createElement("label");
+              statusLabel.setAttribute("id", "status-" + idSuffix);
+              statusLabel.style["color"] = "darkgray";
+              statusLabel.relpath = relpath;
+              statusLabel.innerHTML = status;
+
+              var br2 = document.createElement("br");
+              var button = document.createElement("button");
+              var br3 = document.createElement("br");
+              var br4 = document.createElement("br");
+
+              uploadPanel.appendChild(fileInfo);
+              uploadPanel.appendChild(br1);
+              uploadPanel.appendChild(progressLabel);
+              uploadPanel.appendChild(nbsp);
+              uploadPanel.appendChild(statusLabel);
+              uploadPanel.appendChild(br2);
+              uploadPanel.appendChild(button);
+              uploadPanel.appendChild(br3);
+              uploadPanel.appendChild(br4);
+
+              // button can be either Start or Abort
+              button.setAttribute("id", "button-" + idSuffix);
+              button.innerHTML = "Start";
+              button.identifyingVal = identifyingVal;
+              button.identifyingProp = identifyingProp;
+              button.uploadCredential = uploadCredential;
+
+              button.addEventListener("click", function(event) {
+
+                event.currentTarget.disabled = true;
+
+                if (event.currentTarget.classList.contains("abort")) {
+                  // button is "abort", so abort the upload
+                  event.currentTarget.upload.abort();
+
+                  updateStatusLabelAndSheet(event.currentTarget.id, "Aborted.");
+
+                  event.currentTarget.innerHTML = "Start";
+
+                } else {
+                  const uploadCredential = event.currentTarget.uploadCredential;
+                  const buttonId = event.currentTarget.id;
+
+                  updateStatusLabel(buttonId, "Started uploading.");
+
+                  // button is "start", so get file object and pass it to s3 uploader
+                  getFile(fileEntry).then(function(file) {
+                    var s3Client = new AWS.S3({
+                      accessKeyId: uploadCredential["access_key"],
+                      secretAccessKey: uploadCredential["secret_key"],
+                      sessionToken: uploadCredential["session_token"],
+                      region: S3_BUCKET_DEFAULT_REGION
+                    });
+
+                    // parse bucket, key from s3 URI to define upload params
+                    const [,,bucket,] = uploadCredential["upload_url"].split("/");
+                    const key = uploadCredential["upload_url"].split("/").splice(3).join("/");
+
+                    var upload = s3Client.upload(
+                        {Bucket: bucket, Key: key, Body: file},
+                        function(err, data) {
+                          if (err) {
+                            console.log(err);
+                            updateStatusLabelAndSheet(buttonId, `${err.name}: ${err.message}`);
+                          } else {
+                            updateStatusLabelAndSheet(buttonId, "Done.");
+                            getPairedButton(buttonId).disabled = true;
+                          }
+                        });
+
+                    upload.on("httpUploadProgress", (progress) => {
+                        const progressPct = (100.0*progress.loaded/progress.total).toFixed(1);
+                        getPairedProgressLabel(buttonId).innerHTML = `${progressPct}%`;
+                        // if (progressPct === "100.0") {
+                        //   updateStatusLabelAndSheet(buttonId, "Done.");
+                        //   button.disabled = true;
+                        // }
+                      });
+
+                    // save upload object to button DOM
+                    document.getElementById(buttonId).upload = upload;
+                  });
+
+                  event.currentTarget.innerHTML = "Abort";
+                }
+
+                event.currentTarget.classList.toggle("abort");
+                event.currentTarget.disabled = false;
+              });
+
+              break;
+            }
+          }
+          if (!foundMatchingFile) {
+            // found no matching file in the dropped folder
+            updateStatusOnSheet(identifyingProp, identifyingVal, "No matching file found in the dropped folder. wrong #upload_relpath?");
+          }
+        }
+        document.getElementById("btn-init-upload").innerHTML = `Found ${numMatchingFiles} file(s) to upload.`;
+      }
+
+      function traverseFileTree(item) {
+        if (item.isFile) {
+          item.file2 = getFile(item);
+          fileEntries.push(item);
+        } else if (item.isDirectory) {
+          // Get folder contents
+          var dirReader = item.createReader();
+          dirReader.readEntries(function(entries) {
+            for (var i = 0; i < entries.length; i++) {
+              traverseFileTree(entries[i]);
+            }
+          });
+        }
+      };
+
+      function onClickInitUpload() {
+        let btnInitUpload = document.getElementById("btn-init-upload");
+        btnInitUpload.disabled = true;
+        btnInitUpload.innerHTML = "Reading from sheet...";
+        google.script.run.withSuccessHandler(createUploadItems).initUpload();
+      }
+
+      function updateStatusOnSheet(identifyingProp, identifyingVal, status) {
+        const sheetName = document.getElementById("sheet-name").innerHTML;
+        google.script.run.withSuccessHandler().updateStatusOnSheet(
+         sheetName, identifyingProp, identifyingVal, status
+        );
+      }
+
+      let btnInitUpload = document.getElementById("btn-init-upload");
+      let dropzone = document.getElementById("dropzone");
+
+      // buttons
+      btnInitUpload.addEventListener("click", onClickInitUpload, false);
+
+      // drag-n-drop
+      dropzone.addEventListener("dragover", function(event) {
+          event.preventDefault();
+      }, false);
+
+      dropzone.addEventListener("drop", function(event) {
+        event.preventDefault();
+        fileEntries = [];
+        const data = event.dataTransfer.items;
+        for (let i = 0; i < data.length; i++) {
+          // recursive directory search
+          traverseFileTree(data[i].webkitGetAsEntry());
+        }
+        dropzone.classList.remove('hover');
+        let btnInit = document.getElementById("btn-init-upload");
+        btnInit.removeAttribute("disabled");
+        document.getElementById("sheet-name").innerHTML = "";
+        document.getElementById("btn-init-upload").innerHTML = "Initialize uploads for current sheet";
+      }, false);
+
+    </script>
+  </body>
+</html>

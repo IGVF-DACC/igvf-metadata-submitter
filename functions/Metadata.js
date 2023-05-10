@@ -3,6 +3,9 @@ const EXPORTED_JSON_INDENT = 2;
 const HEADER_COMMENTED_PROP_SKIP = "#skip";
 const HEADER_COMMENTED_PROP_RESPONSE = "#response";
 const HEADER_COMMENTED_PROP_RESPONSE_TIME = "#response_time";
+const HEADER_COMMENTED_PROP_UPLOAD_RELPATH = "#upload_relpath";
+const HEADER_COMMENTED_PROP_UPLOAD_STATUS = "#upload_status";
+const HEADER_COMMENTED_PROP_UPLOAD_CMD = "#upload_cmd";
 const DEFAULT_EXPORTED_JSON_FILE_PREFIX = "encode-metadata-submitter.exported";
 const TOOLTIP_FOR_PROP_SKIP = "Set as 1 to skip any READ/WRITE actions for a row, which is equivalent to hiding a row."
 const TOOLTIP_FOR_PROP_RESPONSE = "Action + HTTP error code + JSON response\n\n" +
@@ -159,7 +162,14 @@ function findIdentifyingPropValColInRow(sheet, row, profile) {
   //
   // returns prop, value, col
 
-  for (var identifyingProp of profile["identifyingProperties"]) {
+  // sorted based on identifying prop priority
+  // e.g. "accession" has highest priority
+  var sortedIdProp = [...profile["identifyingProperties"]];
+  sortedIdProp.sort(
+    (a,b) => getIdentifyingPropPriority(a) - getIdentifyingPropPriority(b),
+  );
+
+  for (var identifyingProp of sortedIdProp) {
     var identifyingCol = findColumnByHeaderValue(sheet, identifyingProp);
     var identifyingVal = identifyingCol ? getCellValue(sheet, row, identifyingCol) : undefined;
 
@@ -246,17 +256,17 @@ function submitSheetToPortal(
     var error = response.getResponseCode();
     var responseJson = JSON.parse(response.getContentText());
 
-    json[HEADER_COMMENTED_PROP_RESPONSE] = method + "," + error;
+    jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] = method + "," + error;
     if (method === "PATCH") {
-      json[HEADER_COMMENTED_PROP_RESPONSE] += "\nSelected props: ";
+      jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "\nSelected props: ";
       if (selectedColsForPatch.length === 0) {
-        json[HEADER_COMMENTED_PROP_RESPONSE] += "ALL";
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "ALL";
       } else {
-        json[HEADER_COMMENTED_PROP_RESPONSE] += selectedColsForPatch.map(x => x.headerProp).join(",");
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += selectedColsForPatch.map(x => x.headerProp).join(",");
       }
     }
 
-    json[HEADER_COMMENTED_PROP_RESPONSE_TIME] = getCurrentLocalTimeString("");
+    jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE_TIME] = getCurrentLocalTimeString("");
 
     switch(error) {
       case 200:
@@ -267,22 +277,22 @@ function submitSheetToPortal(
         // so update row with those new identifying values
         profile["identifyingProperties"].forEach(prop => {
           if (!isCommentedProp(profile, prop)) {
-            json[prop] = responseJson["@graph"][0][prop];
+            jsonBeforeTypeCast[prop] = responseJson["@graph"][0][prop];
           }
         });
-        json[HEADER_COMMENTED_PROP_RESPONSE] += "\n" + JSON.stringify(responseJson, null, HELP_TEXT_INDENT);
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "\n" + JSON.stringify(responseJson, null, HELP_TEXT_INDENT);
         break;
 
       case 422:
         // validation failure
-        json[HEADER_COMMENTED_PROP_RESPONSE] += "\nIf error message is not helpful, try Validate on the menu.\n"
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "\nIf error message is not helpful, try Validate on the menu.\n"
 
       default:
-        json[HEADER_COMMENTED_PROP_RESPONSE] += "\n" + JSON.stringify(responseJson, null, HELP_TEXT_INDENT);
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "\n" + JSON.stringify(responseJson, null, HELP_TEXT_INDENT);
     }
 
     // rewrite data, with commented headers such as error and text, on the sheet
-    writeJsonToRow(sheet, json, row);
+    writeJsonToRow(sheet, jsonBeforeTypeCast, row);
     numSubmitted++;
   }
   return numSubmitted;
