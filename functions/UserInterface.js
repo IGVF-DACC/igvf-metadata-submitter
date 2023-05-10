@@ -13,7 +13,7 @@ function setDefaultEndpointRead() {
     "* Supported ENCODE endpoints:\\n" +
     `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
-    `${IGVF_ENDPOINTS.join("\\n")}\\n\\n` +
+    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     "Enter a new endpoint:"
   );
   if (endpoint) {
@@ -25,9 +25,7 @@ function setDefaultEndpointRead() {
     }
     return;
   }
-
-  var userProperties = PropertiesService.getUserProperties();
-  return userProperties.setProperty(PROPERTY_DEFAULT_ENDPOINT_READ, endpoint);
+  setSpreadsheetDevMetadata(KEY_ENDPOINT_READ, endpoint);
 }
 
 function setDefaultEndpointWrite() {
@@ -36,7 +34,7 @@ function setDefaultEndpointWrite() {
     "* Supported ENCODE endpoints:\\n" +
     `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
-    `${IGVF_ENDPOINTS.join("\\n")}\\n\\n` +
+    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     'Enter a new endpoint:'
   );
   if (endpoint) {
@@ -49,18 +47,30 @@ function setDefaultEndpointWrite() {
     return;
   }
 
-  var userProperties = PropertiesService.getUserProperties();
-  return userProperties.setProperty(PROPERTY_DEFAULT_ENDPOINT_WRITE, endpoint);
+  setSpreadsheetDevMetadata(KEY_ENDPOINT_WRITE, endpoint);
 }
 
 function checkProfile() {
-  if (getProfileName() && getProfile(getProfileName(), getEndpointRead())) {
-    return true;
+  var profileName = getProfileName();
+
+  if (getProfileName()) {
+    var profile = getProfile(getProfileName(), getEndpointRead())
+
+    if (!profile) {
+      alertBox(
+        "Found profile name but couldn't get profile from portal. Wrong credentials?\n" +
+        "Go to the menu 'IGVF/ENCODE' -> 'Authorization'."
+      );
+    } else {
+      return true;
+    }
+
+  } else {
+    alertBox(
+      "No profile name found.\n" +
+      "Go to the menu 'IGVF/ENCODE' -> 'Settings & auth' to define it."
+    );
   }
-  alertBox(
-    "No profile name found.\n" + 
-    "Go to the menu 'IGVF/ENCODE' -> 'Settings & auth' to define it."
-  );
 }
 
 function search() {
@@ -82,25 +92,23 @@ function search() {
   }
   var currentProp = getCellValue(sheet, HEADER_ROW, currentCol);
   var profile = getProfile(getProfileName(), getEndpointRead());
+  var endpoint = getEndpointRead();
 
-  var endpointForSearch = getEndpointRead();
-
-  // adhoc fix for having different endpoints for REST and search.
-  if (isIgvfEndpoint(endpointForSearch)) {
-    endpointForSearch = ENDPOINT_IGVF_SEARCH_UI;
-  }
-
-  var url = makeSearchUrlForProp(profile, currentProp, endpointForSearch);
+  var url = makeSearchUrlForProp(profile, currentProp, endpoint);
 
   if (url) {
     var propType = profile["properties"][currentProp]["type"];
     var selectedCellValue = SpreadsheetApp.getActiveSheet().getActiveCell().getValue();
     openSearch(
-      url, currentProp, propType, endpointForSearch, selectedCellValue,
+      url, currentProp, propType, getUIEndpoint(endpoint), selectedCellValue,
     );
   } else {
     alertBox("Couldn't find Search URL for selected column's property.");
   }
+}
+
+function uploadSidebar() {
+  openUploadSidebar()
 }
 
 function openProfilePage() {
@@ -131,7 +139,7 @@ function showSheetInfoAndHeaderLegend() {
 
     "* Color legends for header properties\n" +
     "- red: required property\n" +
-    "- blue: indentifying property\n" +
+    "- blue: identifying property\n" +
     "- black: other editable property\n" +
     "- gray: ADMIN only property (readonly,nonSubmittable,'Do not sumit')\n\n" +
 
@@ -345,7 +353,7 @@ function patchAll() {
   if (numData === 0) {
     alertBox(`Found no data to submit to the portal.`);
     return;
-  }  
+  }
   if (!alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` + 
     "PATCH action will REPLACE properties on the portal with data on the sheet.\n\n" +
@@ -444,7 +452,7 @@ function setEndpointRead() {
     "* Supported ENCODE endpoints:\\n" +
     `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
-    `${IGVF_ENDPOINTS.join("\\n")}\\n\\n` +
+    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     "Enter a new endpoint:"
   );
   if (endpoint) {
@@ -456,7 +464,7 @@ function setEndpointRead() {
     }
     return;
   }
-  setCurrentSheetMetadata(KEY_ENDPOINT_READ, endpoint);
+  setCurrentSheetDevMetadata(KEY_ENDPOINT_READ, endpoint);
 }
 
 function setEndpointWrite() {
@@ -465,7 +473,7 @@ function setEndpointWrite() {
     "* Supported ENCODE endpoints:\\n" +
     `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
-    `${IGVF_ENDPOINTS.join("\\n")}\\n\\n` +
+    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     'Enter a new endpoint:'
   );
   if (endpoint) {
@@ -477,7 +485,7 @@ function setEndpointWrite() {
     }
     return;
   }
-  setCurrentSheetMetadata(KEY_ENDPOINT_WRITE, endpoint);
+  setCurrentSheetDevMetadata(KEY_ENDPOINT_WRITE, endpoint);
 }
 
 function setProfileName() {    
@@ -494,12 +502,11 @@ function setProfileName() {
     }
     return;
   }
-  setCurrentSheetMetadata(KEY_PROFILE_NAME, profileName);
+  setCurrentSheetDevMetadata(KEY_PROFILE_NAME, profileName);
 }
 
 function getDefaultProfileName() {
-  var userProperties = PropertiesService.getUserProperties();
-  return userProperties.getProperty(PROPERTY_DEFAULT_PROFILE_NAME);
+  return getSpreadsheetDevMetadata(KEY_PROFILE_NAME);
 }
 
 function setDefaultProfileName() {    
@@ -516,33 +523,66 @@ function setDefaultProfileName() {
     }
     return;
   }
-  var userProperties = PropertiesService.getUserProperties();
-  return userProperties.setProperty(PROPERTY_DEFAULT_PROFILE_NAME, profileName);
+  setSpreadsheetDevMetadata(KEY_PROFILE_NAME, profileName);
 }
 
 function getDefaultEndpointRead() {
-  var userProperties = PropertiesService.getUserProperties();
-  var defaultEndpointRead = userProperties.getProperty(PROPERTY_DEFAULT_ENDPOINT_READ);
+  var defaultEndpointRead = getSpreadsheetDevMetadata(KEY_ENDPOINT_READ);
   return defaultEndpointRead ? defaultEndpointRead : DEFAULT_ENDPOINT_READ
 }
 
 function getDefaultEndpointWrite() {
-  var userProperties = PropertiesService.getUserProperties();
-  var defaultEndpointWrite = userProperties.getProperty(PROPERTY_DEFAULT_ENDPOINT_WRITE);
+  var defaultEndpointWrite = getSpreadsheetDevMetadata(KEY_ENDPOINT_WRITE);
   return defaultEndpointWrite ? defaultEndpointWrite : DEFAULT_ENDPOINT_WRITE
 }
 
 function getEndpointRead() {
-  var endpoint = getCurrentSheetMetadata(KEY_ENDPOINT_READ);
+  var endpoint = getCurrentSheetDevMetadata(KEY_ENDPOINT_READ);
   return endpoint ? endpoint : getDefaultEndpointRead();
 }
 
 function getEndpointWrite() {
-  var endpoint = getCurrentSheetMetadata(KEY_ENDPOINT_WRITE);
+  var endpoint = getCurrentSheetDevMetadata(KEY_ENDPOINT_WRITE);
   return endpoint ? endpoint : getDefaultEndpointWrite();
 }
 
 function getProfileName() {
-  var profileName = getCurrentSheetMetadata(KEY_PROFILE_NAME);
+  var profileName = getCurrentSheetDevMetadata(KEY_PROFILE_NAME);
   return profileName ? profileName : getDefaultProfileName();
+}
+
+// developer only (debugging purpose)
+
+function authorizeForAws() {
+  if (getAwsAccessKey() && getAwsSecretAccessKey()) {
+    if (!alertBoxOkCancel(
+      `(Developer only) AWS access key and secret access key pair already exists, are you sure to proceed?`)) {
+      return;
+    }
+  }
+
+  var awsAccessKey = Browser.inputBox(`Enter your AWS access key:`);
+  if (!awsAccessKey || awsAccessKey === "cancel") {
+    alertBox("Failed to update AWS access key.");
+    return;
+  }
+  setAwsAccessKey(awsAccessKey);
+
+  var awsSecretAccessKey = Browser.inputBox(`Enter your AWS secret access key:`);
+  if (!awsSecretAccessKey || awsSecretAccessKey === "cancel") {
+    alertBox("Failed to update AWS secret access key.");
+    return;
+  }
+  setAwsSecretAccessKey(awsSecretAccessKey);
+}
+
+function showSheetAllDevMetadata() {
+  var sheet = getCurrentSheet();
+  var allMetadata = getSheetAllDevMetadata(sheet);
+  alertBox(JSON.stringify(allMetadata, null, 4));
+}
+
+function showSpreadsheetAllDevMetadata() {
+  var allMetadata = getSpreadsheetAllDevMetadata();
+  alertBox(JSON.stringify(allMetadata, null, 4));
 }

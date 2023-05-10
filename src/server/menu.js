@@ -4,9 +4,10 @@ global.onOpen = () => {
 
   menu.addItem('Search', 'search');
   menu.addSeparator();
+  menu.addItem('File upload sidebar', 'uploadSidebar');
+  menu.addSeparator();
   menu.addItem('Show sheet info & header legend', 'showSheetInfoAndHeaderLegend');
   menu.addSeparator();
-
   menu.addItem('Validate', 'validateJsonWithSchema');
   menu.addSeparator();
   menu.addItem('Make new template row', 'makeTemplateForUser');
@@ -36,6 +37,7 @@ global.onOpen = () => {
   const submenuAuth = SpreadsheetApp.getUi().createMenu('⚙️ Authorization');
   submenuAuth.addItem('Authorize for ENCODE', 'authorizeForEncode');
   submenuAuth.addItem('Authorize for IGVF', 'authorizeForIgvf');
+  submenuAuth.addItem('Authorize for AWS (for debugging)', 'authorizeForAws');
   menu.addSubMenu(submenuAuth);
 
   const submenuSettingsGlobal = SpreadsheetApp.getUi().createMenu('⚙️ Settings (Global)');
@@ -51,7 +53,13 @@ global.onOpen = () => {
   menu.addSubMenu(submenuSettingsSheet);
 
   menu.addSeparator();
-
   menu.addItem("Open tool's github page for README", 'openToolGithubPage');
+  menu.addSeparator();
+
+  const submenuDeveloper = SpreadsheetApp.getUi().createMenu('🛠 Developer (for debugging)');
+  submenuDeveloper.addItem('Show sheet developer metadata', 'showSheetAllDevMetadata');
+  submenuDeveloper.addItem('Show spreadsheet developer metadata', 'showSpreadsheetAllDevMetadata');
+  menu.addSubMenu(submenuDeveloper);
+
   menu.addToUi();
 };

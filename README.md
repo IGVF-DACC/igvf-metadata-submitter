@@ -3,6 +3,10 @@
 IGVF metadata submitter based on Google Sheet + Google Apps Script.
 
 
+## Limitation
+
+This script is heavily based on Google Apps Script(GAP)'s URL fetch call to communicate with the portal. GAP is free but has some limit/quota. Check quota [here](https://developers.google.com/apps-script/guides/services/quotas). It's limited to `20,000` URL fetch calls a day. It's `100,000` for Google Workspace users (it costs $6 per month).
+
 ## Installation
 
 You can install it from code or make a copy from a portable version.
@@ -24,7 +28,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.2" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.4" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -34,14 +38,18 @@ Deploy the script to the created sheet. Whenver you make changes to the code, ru
 $ npm run deploy
 ```
 
-
 ## Cloning a portable version (user)
 
 Make a copy of this portable version and grant any required permissions.
 
 -`v0.2.1`: https://docs.google.com/spreadsheets/d/1zEw5qilpKZdiMXCNv4n9hOXv9s3THWkwi7-WAC2sM7k/edit?usp=sharing
 -`v0.2.2`: https://docs.google.com/spreadsheets/d/12iLrhok81W4CqlOSJ2HD0S4B2vlKdiy3JbAS27awZkI/edit?usp=sharing
-
+-`v0.2.3b`: https://docs.google.com/spreadsheets/d/1X5JuSm2hJosoIvDlhpLQNzkG7WPPjCdiIPgTuE7s19I/edit?usp=sharing
+  - added new IGVF endpoints
+  - hid dev endpoints
+  - fixed POST issue. identifying value is not needed for POST
+-`v0.2.4`: https://docs.google.com/spreadsheets/d/1OGjZytJAu5B3VB5t8fG6QnqCD6YukyBbMRaUEQyhrt8/edit?usp=sharing
+  - file uploader sidebar
 
 ## Settings
 
@@ -100,3 +108,17 @@ Color and style represents a type of property.
 
 - <span style="text-decoration:underline">Underline</span>: Searchable property
 - ***Italic+Bold***: Array type property
+
+### File upload sidebar
+
+You can directly upload local files to portal's S3 bucket on the upload sidebar. Use it after POSTing metadata to the portal. Make sure that there is at least one identifying property in the header (e.g. `accession`, `uuid`).
+
+Add three commented columns `#upload_status`, `#upload_relpath` and `#upload_cmd` to the sheet. `#upload_status` will be automatically updated while uploading. `#upload_relpath` is to define relative path of files to be uploaded.
+
+Click on menu `IGVF/ENCODE` - `Upload sidebar` and read the instruction carefully. 
+
+`#upload_cmd` is optional for manual uploading using S3 CLI. If you want to upload from a remote server via AWS CLI, then drag and drop any empty folder and click on the initialize button. Make sure that `--body` parameter in `#upload_cmd` points to a correct path on a remote server.
+
+You need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory. Then the uploader will recursively parse all files in a dropped root directory and compare them with `#upload_relpath` for each row on the sheet.
+
+For example, you drop a root folder `/users/USER_NAME/data/test-folder` and then a file `test-folder/1/2/3.fastq.gz` should be defined under `#upload_relpath` on the sheet. Only files matching relative paths will be available for uploading.

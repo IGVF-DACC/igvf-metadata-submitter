@@ -4,18 +4,29 @@ const HEADER_PROP_NAME = "name";
 const HEADER_PROP_ALIASES = "aliases";
 const HEADER_PROP_AWARD = "award";
 const HEADER_PROP_LAB = "lab";
+const HEADER_PROP_S3_URI = "s3_uri";
+const BIG_NUMBER_FOR_PRIORITY_SORTING = 1000;
 
 // determines the column order of properties in the header
 const DEFAULT_PROP_PRIORITY = [
   HEADER_COMMENTED_PROP_SKIP,
   HEADER_COMMENTED_PROP_RESPONSE,
   HEADER_COMMENTED_PROP_RESPONSE_TIME,
+  HEADER_COMMENTED_PROP_UPLOAD_RELPATH,
+  HEADER_COMMENTED_PROP_UPLOAD_STATUS,
+  HEADER_COMMENTED_PROP_UPLOAD_CMD,
   HEADER_PROP_ACCESSION,
   HEADER_PROP_UUID,
   HEADER_PROP_NAME,
   HEADER_PROP_ALIASES,
   HEADER_PROP_AWARD,
   HEADER_PROP_LAB,
+];
+
+const IDENTIFYING_PROP_PRIORITY = [
+  HEADER_PROP_ACCESSION,
+  HEADER_PROP_UUID,
+  HEADER_PROP_NAME
 ];
 
 // https://github.com/ENCODE-DCC/encoded/blob/dev/docs/auth.rst#permissions
@@ -98,13 +109,13 @@ function makeSearchUrlForProp(profile, prop, endpoint) {
   var linkTo = propInProfile.hasOwnProperty("linkTo") ?
     propInProfile["linkTo"] : propInProfile["items"]["linkTo"];
 
-  if (isEncodeEndpoint(endpoint)) {
-    return `${endpoint}/search/?type=${linkTo}`;
+  // Search uses UI endpoint so convert to UI endpoint if available
+  const uiEndpoint = getUIEndpoint(endpoint);
 
-  } else if (endpoint === ENDPOINT_IGVF_SEARCH_UI) {
-    // linkTo is a profile name in capitalized CamelCase
-    // convert it to IGVF's format: snakecase with - + "s"(plural)    
-    return `${endpoint}/${camelToSnake(uncapitalizeWord(linkTo)).replace(/_/g,"-") + "s"}`;
+  if (isEncodeEndpoint(endpoint)) {
+    return `${uiEndpoint}/search/?type=${linkTo}`;
+  } else {
+    return `${uiEndpoint}/search?type=${linkTo}`;
   }
 }
 
@@ -343,3 +354,16 @@ function highlightHeaderAndDataCell(sheet, profile) {
   return missingProps;
 }
 
+function getIdentifyingPropPriority(prop) {
+  // return value
+  // - 0: highest priority
+  // - BIG_NUMBER_FOR_PRIORITY_SORTING: lowest priority
+  //   (if prop doesn't exist in IDENTIFYING_PROP_PRIORITY
+  //    then return BIG_NUMBER_FOR_PRIORITY_SORTING)
+
+  var index = IDENTIFYING_PROP_PRIORITY.indexOf(prop);
+  if (index === -1) {
+    return BIG_NUMBER_FOR_PRIORITY_SORTING;
+  }
+  return index;
+}
