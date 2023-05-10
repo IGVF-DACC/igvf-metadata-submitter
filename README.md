@@ -49,7 +49,7 @@ Make a copy of this portable version and grant any required permissions.
   - hid dev endpoints
   - fixed POST issue. identifying value is not needed for POST
 -`v0.2.4`: https://docs.google.com/spreadsheets/d/1OGjZytJAu5B3VB5t8fG6QnqCD6YukyBbMRaUEQyhrt8/edit?usp=sharing
-
+  - file uploader sidebar
 
 ## Settings
 
