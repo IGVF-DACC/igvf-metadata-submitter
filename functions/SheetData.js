@@ -162,6 +162,10 @@ function setProfileName(sheet, input) {
     "(e.g. Experiment, BiosampleType, biosample_type, lab):\\n\\n" +
     "Enter a new profile name:"
   );
+  if (getProfileName(sheet) && getProfileName(sheet) !== profileName) {
+    // if profile name has changed then reset last used schema version
+    resetLastUsedSchemaVersion(sheet);
+  }
   if (!isValidProfileName(profileName, getEndpointRead())) {
     if (profileName !== "cancel") {
       alertBox("Wrong profile name: " + profileName);
@@ -201,6 +205,14 @@ function setLastUsedSchemaVersion(sheet, input) {
     sheet !== undefined ? sheet : getCurrentSheet(),
     KEY_LAST_USED_SCHEMA_VERSION,
     schemaVersion
+  );
+}
+
+function resetLastUsedSchemaVersion(sheet) {
+  setSheetDevMetadata(
+    sheet !== undefined ? sheet : getCurrentSheet(),
+    KEY_LAST_USED_SCHEMA_VERSION,
+    undefined
   );
 }
 

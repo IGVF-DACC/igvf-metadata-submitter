@@ -395,10 +395,9 @@ function checkProfile() {
 
     if (sheetSchemaVersion && sheetSchemaVersion !== profileSchemaVersion) {
       alertBox(
-        "Found schema version mismatch.\n\n" +
+        "Found schema version mismatch (current sheet vs. portal).\n\n" +
         `- Current sheet's last used schema version: ${sheetSchemaVersion}\n` +
-        `- Profile's latest schema version: ${profileSchemaVersion}).\n\n` +
-        "You cannot use current sheet's data since it is based on a different schema version.\n\n" +
+        `- Portal's latest schema version: ${profileSchemaVersion}.\n\n` +
         "To re-use data on current sheet, please create a new sheet and copy-paste accession (or any other identifying property) column.\n" +
         "Then try GET on a new sheet to retrieve updated data from the portal."
       );
