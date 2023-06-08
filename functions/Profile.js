@@ -232,7 +232,12 @@ function getProfile(profileName, endpoint) {
   var url = makeProfileUrl(profileName, endpoint);
   var response = restGet(url);
   if (response.getResponseCode() === 200) {
-    return JSON.parse(response.getContentText());
+    // adhoc way to fix buggy schema (invalid escape \\:)
+    // pattern to be fixed:
+    //   "^(PMID:[0-9]+|doi:10\\.[0-9]{4}[\\d\\s\\S\\:\\.\\/]+|PMCID:PMC[0-9]+|[0-9]{4}\\.[0-9]{4})$";
+    raw_text = response.getContentText();
+    fixed_text = raw_text.replace(/\\\\S\\\\:/g, "\\\\S:");
+    return JSON.parse(fixed_text);
   }
 }
 
