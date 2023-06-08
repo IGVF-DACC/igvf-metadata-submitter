@@ -399,8 +399,8 @@ function checkProfile() {
         `- Current sheet's last used schema version: ${sheetSchemaVersion}\n` +
         `- Portal's latest schema version: ${profileSchemaVersion}\n\n` +
         "You can no longer use current sheet to communicate with the portal.\n\n" +
-        "For rows that haven’t been posted to the portal, copy and paste all columns of metadata to a new sheet and try GET on it.\n\n" +
-        "For rows that have already been posted to the portal, copy and paste accession column only to a nnnew sheet and try GET on it."
+        "For rows that haven’t been posted to the portal, copy and paste all columns of metadata to a new sheet and try POST on it.\n\n" +
+        "For rows that have already been posted to the portal, copy and paste accession column only to a new sheet and try GET on it."
       );
       return;
     }
