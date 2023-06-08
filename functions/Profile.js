@@ -397,9 +397,10 @@ function checkProfile() {
       alertBox(
         "Found schema version mismatch (current sheet vs. portal).\n\n" +
         `- Current sheet's last used schema version: ${sheetSchemaVersion}\n` +
-        `- Portal's latest schema version: ${profileSchemaVersion}.\n\n` +
-        "To re-use data on current sheet, please create a new sheet and copy-paste accession (or any other identifying property) column.\n" +
-        "Then try GET on a new sheet to retrieve updated data from the portal."
+        `- Portal's latest schema version: ${profileSchemaVersion}\n\n` +
+        "You can no longer use current sheet to communicate with the portal.\n\n" +
+        "For rows that haven’t been posted to the portal, copy and paste all columns of metadata to a new sheet and try GET on it.\n\n" +
+        "For rows that have already been posted to the portal, copy and paste accession column only to a nnnew sheet and try GET on it."
       );
       return;
     }
