@@ -1,77 +1,9 @@
-const PROPERTY_DEFAULT_PROFILE_NAME = "defaultProfileName";
-
-const KEY_ENDPOINT_READ = "endpointRead";
-const KEY_ENDPOINT_WRITE = "endpointWrite";
-const KEY_PROFILE_NAME = "profileName";
+/*
+Menu functions
+*/
 
 const URL_GITHUB = "https://github.com/IGVF-DACC/igvf-metadata-submitter/tree/dev";
 
-
-function setDefaultEndpointRead() {
-  var endpoint = Browser.inputBox(
-    `* Current default endpoint for READs (GET):\\n${getDefaultEndpointRead()}\\n\\n` +
-    "* Supported ENCODE endpoints:\\n" +
-    `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
-    "* Supported IGVF endpoints:\\n" +
-    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
-    "Enter a new endpoint:"
-  );
-  if (endpoint) {
-    endpoint = trimTrailingSlash(endpoint);
-  }
-  if (!isValidEndpoint(endpoint)) {
-    if (endpoint !== "cancel") {
-      alertBox("Wrong endpoint: " + endpoint);
-    }
-    return;
-  }
-  setSpreadsheetDevMetadata(KEY_ENDPOINT_READ, endpoint);
-}
-
-function setDefaultEndpointWrite() {
-  var endpoint = Browser.inputBox(
-    `* Current default endpoint for Write actions (PUT/POST):\\n${getDefaultEndpointWrite()}\\n\\n` +
-    "* Supported ENCODE endpoints:\\n" +
-    `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
-    "* Supported IGVF endpoints:\\n" +
-    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
-    'Enter a new endpoint:'
-  );
-  if (endpoint) {
-    endpoint = trimTrailingSlash(endpoint);
-  }
-  if (!isValidEndpoint(endpoint)) {
-    if (endpoint !== "cancel") {
-      alertBox("Wrong endpoint: " + endpoint);
-    }
-    return;
-  }
-
-  setSpreadsheetDevMetadata(KEY_ENDPOINT_WRITE, endpoint);
-}
-
-function checkProfile() {
-  var profileName = getProfileName();
-
-  if (getProfileName()) {
-    var profile = getProfile(getProfileName(), getEndpointRead())
-
-    if (!profile) {
-      alertBox(
-        "Found profile name but couldn't get profile from portal. Wrong credentials?\n" +
-        "Go to the menu 'IGVF/ENCODE' -> 'Authorization'."
-      );
-    } else {
-      return true;
-    }
-
-  } else {
-    alertBox(
-      "No profile name found.\n" +
-      "Go to the menu 'IGVF/ENCODE' -> 'Settings & auth' to define it."
-    );
-  }
-}
 
 function search() {
   if (!checkProfile()) {
@@ -127,10 +59,11 @@ function openToolGithubPage() {
 
 function showSheetInfoAndHeaderLegend() {
   alertBox(
-    "* Settings (This sheet)\n" +
+    "* Settings (Current sheet)\n" +
     `- Endpoint READ (GET, profile): ${getEndpointRead()}\n` +
     `- Endpoint WRITE (POST/PATCH/PUT): ${getEndpointWrite()}\n` +
-    `- Profile name: ${getProfileName()}\n\n` +
+    `- Profile name: ${getProfileName()}\n` +
+    `- Last used schema version: ${getLastUsedSchemaVersion()}\n\n` +
 
     "* Settings (Global)\n" +
     `- Endpoint READ (GET, profile): ${getDefaultEndpointRead()}\n` +
@@ -446,113 +379,7 @@ function authorizeForIgvf() {
   return authorize(IGVF);
 }
 
-function setEndpointRead() {
-  var endpoint = Browser.inputBox(
-    `* Current endpoint for READs (GET):\\n${getEndpointRead()}\\n\\n` +
-    "* Supported ENCODE endpoints:\\n" +
-    `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
-    "* Supported IGVF endpoints:\\n" +
-    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
-    "Enter a new endpoint:"
-  );
-  if (endpoint) {
-    endpoint = trimTrailingSlash(endpoint);
-  }
-  if (!isValidEndpoint(endpoint)) {
-    if (endpoint !== "cancel") {
-      alertBox("Wrong endpoint: " + endpoint);
-    }
-    return;
-  }
-  setCurrentSheetDevMetadata(KEY_ENDPOINT_READ, endpoint);
-}
-
-function setEndpointWrite() {
-  var endpoint = Browser.inputBox(
-    `* Current endpoint for Write actions (PUT/POST):\\n${getEndpointWrite()}\\n\\n` +
-    "* Supported ENCODE endpoints:\\n" +
-    `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
-    "* Supported IGVF endpoints:\\n" +
-    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
-    'Enter a new endpoint:'
-  );
-  if (endpoint) {
-    endpoint = trimTrailingSlash(endpoint);
-  }
-  if (!isValidEndpoint(endpoint)) {
-    if (endpoint !== "cancel") {
-      alertBox("Wrong endpoint: " + endpoint);
-    }
-    return;
-  }
-  setCurrentSheetDevMetadata(KEY_ENDPOINT_WRITE, endpoint);
-}
-
-function setProfileName() {    
-  var profileName = Browser.inputBox(
-    `* Current profile name:\\n${getProfileName()}\\n\\n` +
-    "Snakecase (with _) or capitalized CamelCase are allowed for a profile name.\\n" +
-    "No plural (s) is allowed in profile name.\\n" +
-    "(e.g. Experiment, BiosampleType, biosample_type, lab):\\n\\n" +
-    "Enter a new profile name:"
-  );
-  if (!isValidProfileName(profileName, getEndpointRead())) {
-    if (profileName !== "cancel") {
-      alertBox("Wrong profile name: " + profileName);
-    }
-    return;
-  }
-  setCurrentSheetDevMetadata(KEY_PROFILE_NAME, profileName);
-}
-
-function getDefaultProfileName() {
-  return getSpreadsheetDevMetadata(KEY_PROFILE_NAME);
-}
-
-function setDefaultProfileName() {    
-  var profileName = Browser.inputBox(
-    `* Current default profile name:\\n${getDefaultProfileName()}\\n\\n` +
-    "Snakecase (with _) or capitalized CamelCase are allowed for a profile name.\\n" +
-    "No plural (s) is allowed in profile name.\\n" +
-    "(e.g. Experiment, BiosampleType, biosample_type, lab):\\n\\n" +
-    "Enter a new profile name:"
-  );
-  if (!isValidProfileName(profileName, getEndpointRead())) {
-    if (profileName !== "cancel") {
-      alertBox("Wrong profile name: " + profileName);
-    }
-    return;
-  }
-  setSpreadsheetDevMetadata(KEY_PROFILE_NAME, profileName);
-}
-
-function getDefaultEndpointRead() {
-  var defaultEndpointRead = getSpreadsheetDevMetadata(KEY_ENDPOINT_READ);
-  return defaultEndpointRead ? defaultEndpointRead : DEFAULT_ENDPOINT_READ
-}
-
-function getDefaultEndpointWrite() {
-  var defaultEndpointWrite = getSpreadsheetDevMetadata(KEY_ENDPOINT_WRITE);
-  return defaultEndpointWrite ? defaultEndpointWrite : DEFAULT_ENDPOINT_WRITE
-}
-
-function getEndpointRead() {
-  var endpoint = getCurrentSheetDevMetadata(KEY_ENDPOINT_READ);
-  return endpoint ? endpoint : getDefaultEndpointRead();
-}
-
-function getEndpointWrite() {
-  var endpoint = getCurrentSheetDevMetadata(KEY_ENDPOINT_WRITE);
-  return endpoint ? endpoint : getDefaultEndpointWrite();
-}
-
-function getProfileName() {
-  var profileName = getCurrentSheetDevMetadata(KEY_PROFILE_NAME);
-  return profileName ? profileName : getDefaultProfileName();
-}
-
-// developer only (debugging purpose)
-
+// currently developer only (debugging purpose)
 function authorizeForAws() {
   if (getAwsAccessKey() && getAwsSecretAccessKey()) {
     if (!alertBoxOkCancel(
@@ -574,15 +401,4 @@ function authorizeForAws() {
     return;
   }
   setAwsSecretAccessKey(awsSecretAccessKey);
-}
-
-function showSheetAllDevMetadata() {
-  var sheet = getCurrentSheet();
-  var allMetadata = getSheetAllDevMetadata(sheet);
-  alertBox(JSON.stringify(allMetadata, null, 4));
-}
-
-function showSpreadsheetAllDevMetadata() {
-  var allMetadata = getSpreadsheetAllDevMetadata();
-  alertBox(JSON.stringify(allMetadata, null, 4));
 }

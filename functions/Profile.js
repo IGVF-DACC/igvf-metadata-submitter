@@ -232,7 +232,15 @@ function getProfile(profileName, endpoint) {
   var url = makeProfileUrl(profileName, endpoint);
   var response = restGet(url);
   if (response.getResponseCode() === 200) {
-    return JSON.parse(response.getContentText());
+    // adhoc way to fix buggy schema (invalid escapes: \\:, \\-)
+    // examples of wrong pattern:
+    //  "^(PMID:[0-9]+|doi:10\\.[0-9]{4}[\\d\\s\\S\\:\\.\\/]+|PMCID:PMC[0-9]+|[0-9]{4}\\.[0-9]{4})$";
+    //  "^(\\d+(\\.[1-9])?(\\-\\d+(\\.[1-9])?)?)$"
+    raw_text = response.getContentText();
+    fixed_text = raw_text
+      .replace(/\\\\S\\\\:/g, "\\\\S:")
+      .replace(/\\\\-/g, "-");
+    return JSON.parse(fixed_text);
   }
 }
 
@@ -366,4 +374,50 @@ function getIdentifyingPropPriority(prop) {
     return BIG_NUMBER_FOR_PRIORITY_SORTING;
   }
   return index;
+}
+
+function getProfileSchemaVersion(profile) {
+  return profile["properties"]["schema_version"]["default"];
+}
+
+function checkProfile() {
+  // check profile for current sheet
+
+  var profileName = getProfileName();
+
+  if (getProfileName()) {
+    var profile = getProfile(getProfileName(), getEndpointRead())
+
+    if (!profile) {
+      alertBox(
+        "Found profile name but couldn't get profile from portal. Wrong credentials?\n" +
+        "Go to the menu 'IGVF/ENCODE' -> 'Authorization' and input correct key/secret pair."
+      );
+      return;
+    }
+
+    // check schema versions of profile and sheet
+    // if they don't match then halt and show warning
+    const sheetSchemaVersion = getLastUsedSchemaVersion();
+    const profileSchemaVersion = getProfileSchemaVersion(profile);
+
+    if (sheetSchemaVersion && sheetSchemaVersion !== profileSchemaVersion) {
+      alertBox(
+        "Found schema version mismatch (current sheet vs. portal).\n\n" +
+        `- Current sheet's last used schema version: ${sheetSchemaVersion}\n` +
+        `- Portal's latest schema version: ${profileSchemaVersion}\n\n` +
+        "You can no longer use current sheet to communicate with the portal.\n\n" +
+        "For rows that haven’t been posted to the portal, copy and paste all columns of metadata to a new sheet and try POST on it.\n\n" +
+        "For rows that have already been posted to the portal, copy and paste accession column only to a new sheet and try GET on it."
+      );
+      return;
+    }
+
+    return true;
+  }
+
+  alertBox(
+    "No profile name found.\n" +
+    "Go to the menu 'IGVF/ENCODE' -> 'Settings & auth' to define it."
+  );
 }

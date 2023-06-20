@@ -8,6 +8,12 @@ function setDevMetadata(scope, key, val) {
     var finder = scope.createDeveloperMetadataFinder().withKey(key).find();
     finder[0].remove();
   }
+  if (val === undefined) {
+    // Dev Metadata does not allow undefined value and we already deleted the key
+    // so simply do nothing here
+    // this effectively resets the key
+    return;
+  }
   // DeveloperMetadataVisibility.DOCUMENT allows sharing of metadata properties
   scope.addDeveloperMetadata(
     key, val, SpreadsheetApp.DeveloperMetadataVisibility.DOCUMENT
