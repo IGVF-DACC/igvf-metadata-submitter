@@ -42,16 +42,7 @@ $ npm run deploy
 
 Make a copy of this portable version and grant any required permissions.
 
--`v0.2.1`: https://docs.google.com/spreadsheets/d/1zEw5qilpKZdiMXCNv4n9hOXv9s3THWkwi7-WAC2sM7k/edit?usp=sharing
--`v0.2.2`: https://docs.google.com/spreadsheets/d/12iLrhok81W4CqlOSJ2HD0S4B2vlKdiy3JbAS27awZkI/edit?usp=sharing
--`v0.2.3b`: https://docs.google.com/spreadsheets/d/1X5JuSm2hJosoIvDlhpLQNzkG7WPPjCdiIPgTuE7s19I/edit?usp=sharing
-  - added new IGVF endpoints
-  - hid dev endpoints
-  - fixed POST issue. identifying value is not needed for POST
--`v0.2.4`: https://docs.google.com/spreadsheets/d/1OGjZytJAu5B3VB5t8fG6QnqCD6YukyBbMRaUEQyhrt8/edit?usp=sharing
-  - file uploader sidebar
--`v0.2.5`: https://docs.google.com/spreadsheets/d/1Wlnz2bCS1KDHpIL4auF3p-CwF92HHuBINplHrYiSLd0/edit#gid=0
-  - schema update check
+`v0.2.5`: https://docs.google.com/spreadsheets/d/1Wlnz2bCS1KDHpIL4auF3p-CwF92HHuBINplHrYiSLd0/edit#gid=0
 
 ## Settings
 
