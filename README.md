@@ -28,7 +28,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.4" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.5" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -50,6 +50,8 @@ Make a copy of this portable version and grant any required permissions.
   - fixed POST issue. identifying value is not needed for POST
 -`v0.2.4`: https://docs.google.com/spreadsheets/d/1OGjZytJAu5B3VB5t8fG6QnqCD6YukyBbMRaUEQyhrt8/edit?usp=sharing
   - file uploader sidebar
+-`v0.2.5`: https://docs.google.com/spreadsheets/d/1Wlnz2bCS1KDHpIL4auF3p-CwF92HHuBINplHrYiSLd0/edit#gid=0
+  - schema update check
 
 ## Settings
 

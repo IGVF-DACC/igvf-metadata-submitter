@@ -46,7 +46,7 @@ global.onOpen = () => {
   submenuSettingsGlobal.addItem('Set default profile name', 'setDefaultProfileName');
   menu.addSubMenu(submenuSettingsGlobal);
 
-  const submenuSettingsSheet = SpreadsheetApp.getUi().createMenu('⚙️ Settings (This sheet)');
+  const submenuSettingsSheet = SpreadsheetApp.getUi().createMenu('⚙️ Settings (Current sheet)');
   submenuSettingsSheet.addItem('Set endpoint for READs (GET)', 'setEndpointRead');
   submenuSettingsSheet.addItem('Set endpoint for WRITEs (POST/PATCH/PUT)', 'setEndpointWrite');
   submenuSettingsSheet.addItem('Set profile name', 'setProfileName');
@@ -57,8 +57,9 @@ global.onOpen = () => {
   menu.addSeparator();
 
   const submenuDeveloper = SpreadsheetApp.getUi().createMenu('🛠 Developer (for debugging)');
-  submenuDeveloper.addItem('Show sheet developer metadata', 'showSheetAllDevMetadata');
+  submenuDeveloper.addItem('Show current sheet developer metadata', 'showSheetAllDevMetadata');
   submenuDeveloper.addItem('Show spreadsheet developer metadata', 'showSpreadsheetAllDevMetadata');
+  submenuDeveloper.addItem("Set current sheet's last used schema version", 'setLastUsedSchemaVersion');
   menu.addSubMenu(submenuDeveloper);
 
   menu.addToUi();

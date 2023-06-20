@@ -130,6 +130,11 @@ function updateSheetWithMetadataFromPortal(sheet, profileName, endpointForGet, e
     writeJsonToRow(sheet, metadataObj, row, sortedProps);
     numUpdated++;
   }
+
+  if (numUpdated > 0) {
+    setLastUsedSchemaVersion(sheet, getProfileSchemaVersion(profile));
+  }
+
   return numUpdated;
 }
 
@@ -295,6 +300,11 @@ function submitSheetToPortal(
     writeJsonToRow(sheet, jsonBeforeTypeCast, row);
     numSubmitted++;
   }
+
+  if (numSubmitted > 0) {
+    setLastUsedSchemaVersion(sheet, getProfileSchemaVersion(profile));
+  }
+
   return numSubmitted;
 }
 
@@ -342,4 +352,6 @@ function addMetadataTemplateToSheet(sheet, profile, forAdmin=false) {
   var metadataObj = makeMetadataTemplateFromProfile(profile, forAdmin);
   var sortedProps = getSortedProps(Object.keys(metadataObj), profile);
   addJsonToSheet(sheet, metadataObj, sortedProps);
+  // for schema version checking
+  setLastUsedSchemaVersion(sheet, getProfileSchemaVersion(profile));
 }
