@@ -7,7 +7,7 @@ curl "https://www.encodeproject.org/profiles/?format=json&frame=object" \
   | jq | perl -ne '/\/profiles\/(.+).json/ and print "  \"$1\",\n";' | sort | uniq
 
 
-ALL_IGVF_PROFILES from the following command line (snapshotted at 05/23/2023)
+ALL_IGVF_PROFILES from the following command line (snapshotted at 07/10/2023)
 
 curl "https://api.data.igvf.org/profiles?format=json&frame=object" \
   | jq | perl -ne '/\/profiles\/(.+).json/ and print "  \"$1\",\n";' | sort | uniq
@@ -198,6 +198,7 @@ const ALL_IGVF_PROFILES = [
   "in_vitro_system",
   "lab",
   "measurement_set",
+  "model",
   "modification",
   "page",
   "phenotype_term",
@@ -205,11 +206,9 @@ const ALL_IGVF_PROFILES = [
   "platform_term",
   "primary_cell",
   "publication",
-  "reference_data",
   "reference_file",
   "rodent_donor",
   "sample_term",
-  "sequence_data",
   "sequence_file",
   "signal_file",
   "software",
@@ -220,6 +219,7 @@ const ALL_IGVF_PROFILES = [
   "treatment",
   "user",
   "whole_organism",
+  "workflow",
 ];
 
 function isEncodeEndpoint(endpoint) {
