@@ -63,8 +63,6 @@ function getLastUsedSchemaVersion(sheet) {
 function setDefaultEndpointRead(input) {
   var endpoint = input !== undefined ? input : Browser.inputBox(
     `* Current default endpoint for READs (GET):\\n${getDefaultEndpointRead()}\\n\\n` +
-    "* Supported ENCODE endpoints:\\n" +
-    `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
     `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     "Enter a new endpoint:"
@@ -84,8 +82,6 @@ function setDefaultEndpointRead(input) {
 function setDefaultEndpointWrite(input) {
   var endpoint = input !== undefined ? input : Browser.inputBox(
     `* Current default endpoint for Write actions (PUT/POST):\\n${getDefaultEndpointWrite()}\\n\\n` +
-    "* Supported ENCODE endpoints:\\n" +
-    `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
     `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     'Enter a new endpoint:'
@@ -107,8 +103,6 @@ function setDefaultEndpointWrite(input) {
 function setEndpointRead(sheet, input) {
   var endpoint = input !== undefined ? input : Browser.inputBox(
     `* Current endpoint for READs (GET):\\n${getEndpointRead(sheet)}\\n\\n` +
-    "* Supported ENCODE endpoints:\\n" +
-    `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
     `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     "Enter a new endpoint:"
@@ -132,8 +126,6 @@ function setEndpointRead(sheet, input) {
 function setEndpointWrite(sheet, input) {
   var endpoint = input !== undefined ? input : Browser.inputBox(
     `* Current endpoint for Write actions (PUT/POST):\\n${getEndpointWrite(sheet)}\\n\\n` +
-    "* Supported ENCODE endpoints:\\n" +
-    `${ENCODE_ENDPOINTS.join("\\n")}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
     `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     'Enter a new endpoint:'
@@ -159,7 +151,7 @@ function setProfileName(sheet, input) {
     `* Current profile name:\\n${getProfileName(sheet)}\\n\\n` +
     "Snakecase (with _) or capitalized CamelCase are allowed for a profile name.\\n" +
     "No plural (s) is allowed in profile name.\\n" +
-    "(e.g. Experiment, BiosampleType, biosample_type, lab):\\n\\n" +
+    "(e.g. MeasurementSet, measurement_set, lab):\\n\\n" +
     "Enter a new profile name:"
   );
   if (getProfileName(sheet) && getProfileName(sheet) !== profileName) {

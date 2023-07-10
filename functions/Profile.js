@@ -391,7 +391,7 @@ function checkProfile() {
     if (!profile) {
       alertBox(
         "Found profile name but couldn't get profile from portal. Wrong credentials?\n" +
-        "Go to the menu 'IGVF/ENCODE' -> 'Authorization' and input correct key/secret pair."
+        "Go to the menu 'IGVF' -> 'Authorize for IGVF' and input access key and secret pair."
       );
       return;
     }
@@ -418,6 +418,6 @@ function checkProfile() {
 
   alertBox(
     "No profile name found.\n" +
-    "Go to the menu 'IGVF/ENCODE' -> 'Settings & auth' to define it."
+    "Go to the menu 'IGVF' -> 'Settings & auth' to define it."
   );
 }
