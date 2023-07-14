@@ -7,7 +7,7 @@ curl "https://www.encodeproject.org/profiles/?format=json&frame=object" \
   | jq | perl -ne '/\/profiles\/(.+).json/ and print "  \"$1\",\n";' | sort | uniq
 
 
-ALL_IGVF_PROFILES from the following command line (snapshotted at 07/10/2023)
+ALL_IGVF_PROFILES from the following command line (snapshotted at 07/14/2023)
 
 curl "https://api.data.igvf.org/profiles?format=json&frame=object" \
   | jq | perl -ne '/\/profiles\/(.+).json/ and print "  \"$1\",\n";' | sort | uniq
@@ -185,7 +185,9 @@ const ALL_IGVF_PROFILES = [
   "access_key",
   "alignment_file",
   "analysis_set",
+  "analysis_step",
   "assay_term",
+  "auxiliary_set",
   "award",
   "biomarker",
   "construct_library",
@@ -200,10 +202,12 @@ const ALL_IGVF_PROFILES = [
   "measurement_set",
   "model",
   "modification",
+  "multiplexed_sample",
   "page",
   "phenotype_term",
   "phenotypic_feature",
   "platform_term",
+  "prediction",
   "primary_cell",
   "publication",
   "reference_file",
