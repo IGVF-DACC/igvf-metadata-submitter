@@ -351,21 +351,21 @@ function exportToJson() {
 function authorize(server) {
   if (getUsername(server) && getPassword(server)) {
     if (!alertBoxOkCancel(
-      `Username and password already exist for ${server}, are you sure to proceed?`)) {
+      `Access key and access key secret already exist for ${server}, are you sure to proceed?`)) {
       return;
     }
   }
 
-  var username = Browser.inputBox(`Enter your username for ${server}:`);
+  var username = Browser.inputBox(`Enter your access key for ${server}:`);
   if (!username || username === "cancel") {
-    alertBox("Failed to update username.");
+    alertBox("Failed to update access key.");
     return;
   }
   setUsername(username, server);
 
-  var password = Browser.inputBox(`Enter your password for ${server}:`);
+  var password = Browser.inputBox(`Enter your access key secret for ${server}:`);
   if (!password || password === "cancel") {
-    alertBox("Failed to update password.");
+    alertBox("Failed to update access key secret.");
     return;
   }
   setPassword(password, server);

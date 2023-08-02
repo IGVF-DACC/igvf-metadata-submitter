@@ -1,6 +1,6 @@
 global.onOpen = () => {
   // create custom menu
-  const menu = SpreadsheetApp.getUi().createMenu('IGVF/ENCODE');
+  const menu = SpreadsheetApp.getUi().createMenu('IGVF');
 
   menu.addItem('Search', 'search');
   menu.addSeparator();
@@ -35,7 +35,7 @@ global.onOpen = () => {
   menu.addSeparator();
 
   const submenuAuth = SpreadsheetApp.getUi().createMenu('⚙️ Authorization');
-  submenuAuth.addItem('Authorize for ENCODE', 'authorizeForEncode');
+  // submenuAuth.addItem('Authorize for ENCODE', 'authorizeForEncode');
   submenuAuth.addItem('Authorize for IGVF', 'authorizeForIgvf');
   submenuAuth.addItem('Authorize for AWS (for debugging)', 'authorizeForAws');
   menu.addSubMenu(submenuAuth);
