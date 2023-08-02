@@ -42,7 +42,7 @@ $ npm run deploy
 
 Make a copy of this portable version and grant any required permissions.
 
-`v0.2.6` (dev): https://docs.google.com/spreadsheets/d/1G57o2NbwvOchV8FBmvW9xsHHZIaP-nnB9oO7Km2Yffc/edit?usp=sharing
+`v0.2.6`: https://docs.google.com/spreadsheets/d/1G57o2NbwvOchV8FBmvW9xsHHZIaP-nnB9oO7Km2Yffc/edit?usp=sharing
 
 
 ## Migrating from old version (alternative way)
