@@ -138,7 +138,7 @@ function updateSheetWithMetadataFromPortal(sheet, profileName, endpointForGet, e
   return numUpdated;
 }
 
-function exportSheetToJsonFile(sheet, profileName, endpointForProfile, keepCommentedProps, jsonFilePath) {
+function exportSheetToJson(sheet, profileName, endpointForProfile, keepCommentedProps) {
   var profile = getProfile(profileName, endpointForProfile);
 
   var result = [];
@@ -149,7 +149,13 @@ function exportSheetToJsonFile(sheet, profileName, endpointForProfile, keepComme
     var json = typeCastJsonValuesByProfile(profile, jsonBeforeTypeCast);
     result.push(json);
   }
-  DriveApp.createFile(jsonFilePath, JSON.stringify(result, null, EXPORTED_JSON_INDENT));
+
+  return result;
+}
+
+function exportSheetToJsonFile(sheet, profileName, endpointForProfile, keepCommentedProps, jsonFilePath) {
+  var json = exportSheetToJson(sheet, profileName, endpointForProfile, keepCommentedProps)
+  DriveApp.createFile(jsonFilePath, JSON.stringify(json, null, EXPORTED_JSON_INDENT));
 }
 
 function convertRowToJson(sheet, row, profileName, endpointForProfile, keepCommentedProps) {
