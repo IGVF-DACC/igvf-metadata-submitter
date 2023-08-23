@@ -22,14 +22,15 @@ global.onOpen = () => {
   menu.addItem('GET metadata from portal (ADMIN ONLY)', 'getMetadataForAllForAdmin');
   menu.addItem('PUT metadata to portal (ADMIN ONLY)', 'putAll');
   menu.addSeparator();
-  menu.addItem('Convert selected row to JSON', 'convertSelectedRowToJson');
+  menu.addItem('Export selected row to JSON', 'convertSelectedRowToJson');
   menu.addSeparator();
 
   const submenuTools = SpreadsheetApp.getUi().createMenu('🛠 Tools');
 
   submenuTools.addItem('Open profile page', 'openProfilePage');
   submenuTools.addItem('Apply profile to sheet manually', 'applyProfileToSheet');
-  submenuTools.addItem('Export JSON to Google Drive', 'exportToJson');
+  submenuTools.addItem('Export sheet to JSON', 'exportToJsonText');
+  submenuTools.addItem('Export sheet to JSON file (Google Drive)', 'exportToJson');
 
   menu.addSubMenu(submenuTools);
   menu.addSeparator();

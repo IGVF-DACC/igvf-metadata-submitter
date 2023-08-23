@@ -331,6 +331,27 @@ function postAll() {
   applyProfileToSheet();
 }
 
+function exportToJsonText() {
+  if (!checkProfile()) {
+    return;
+  }
+
+  var sheet = getCurrentSheet();
+
+  var json = exportSheetToJson(
+    sheet, getProfileName(), getEndpointRead(),
+    keepCommentedProps=false,
+  );
+
+  var jsonText = JSON.stringify(json, null, EXPORTED_JSON_INDENT);
+
+  var htmlOutput = HtmlService
+      .createHtmlOutput(`<pre>${jsonText}</pre>`)
+      .setWidth(500)
+      .setHeight(600);
+  SpreadsheetApp.getUi().showModalDialog(htmlOutput, `Sheet: ${sheet.getName()}`);
+}
+
 function exportToJson() {
   if (!checkProfile()) {
     return;
