@@ -1,12 +1,13 @@
 global.onOpen = () => {
-  // create custom menu
-  const menu = SpreadsheetApp.getUi().createMenu('IGVF');
+  const version = global.getScriptVersion();
+  const menu = SpreadsheetApp.getUi().createMenu(`IGVF ${version}`);
 
+  menu.addItem('Check for update', 'checkForUpdate');
+  menu.addSeparator();
   menu.addItem('Search', 'search');
   menu.addSeparator();
+  menu.addItem('Show sheet info', 'showSheetInfoAndHeaderLegend');
   menu.addItem('File upload sidebar', 'uploadSidebar');
-  menu.addSeparator();
-  menu.addItem('Show sheet info & header legend', 'showSheetInfoAndHeaderLegend');
   menu.addSeparator();
   menu.addItem('Validate', 'validateJsonWithSchema');
   menu.addSeparator();

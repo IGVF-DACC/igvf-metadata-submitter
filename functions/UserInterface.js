@@ -85,6 +85,7 @@ function showSheetInfoAndHeaderLegend() {
     "- Underline: Searachable property. Go to menu 'Search'.\n" +
     "- Italic+Bold: Array type property."
   );
+
 }
 
 function applyProfileToSheet() {
@@ -422,4 +423,26 @@ function authorizeForAws() {
     return;
   }
   setAwsSecretAccessKey(awsSecretAccessKey);
+}
+
+function checkForUpdate() {
+  const currentVersion = getScriptVersion();
+  const latestVersion = getLatestScriptVersionFromGithub();
+
+  var updateHelp = '';
+  if (currentVersion !== latestVersion) {
+    updateHelp = `<p>New version ${latestVersion} is out on github.</p>` +
+    '<p>Please check <a href="https://github.com/IGVF-DACC/igvf-metadata-submitter/blob/main/UPDATE.md" target="_blank">' +
+    'the update instruction</a></p>';
+  }
+
+  var htmlOutput = HtmlService
+      .createHtmlOutput(
+        `<p>Current script version: ${currentVersion}</p>` +
+        `<p>Latest script version on github: ${latestVersion}</p>` +
+        updateHelp
+      )
+      .setWidth(500)
+      .setHeight(200);
+  SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Check for update');
 }

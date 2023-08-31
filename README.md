@@ -45,30 +45,6 @@ Make a copy of this portable version and grant any required permissions.
 `v0.2.7`: https://docs.google.com/spreadsheets/d/1KCbyre3Uz4tkpYAJXM1rzu0UWtHjMgzmOAQUjXxl530/edit?usp=sharing
 
 
-## Migrating from old version (alternative way)
-
-**THIS METHOD IS NOT RECOMMENDED**. About migraion, it's still recommended to make a copy of the new official release and copy-paste all tabs to the new spreadsheet and then re-authorize and re-define profile name for each sheet. But there is a workaround to replace the script of the spreadsheet only.
-
-Make a copy of your spreadsheet (old version). On a copied spreadsheet, click on `Extensions` - `Apps Script` on the menu. Take the script ID from URL.
-e.g. `https://script.google.com/u/0/home/projects/SCRIPT_ID_IS_HERE/edit`.
-
-Clone the repo and follow the above instruction to install `npm` and dependencies.
-
-```bash
-# clone the repo
-git clone https://github.com/IGVF-DACC/igvf-metadata-submitter
-
-# edit .clasp.json file to add the new script ID
-# new script ID {"scriptId":"PASTE_YOUR_NEW_SCRIPT_ID_HERE","rootDir":"./dist"}
-vi .clasp.json
-```
-
-Deploy a new script to the spreadsheet.
-```bash
-npm run deploy
-```
-
-
 ## Settings
 
 You can configure the submitter either globally or for a specific sheet.
