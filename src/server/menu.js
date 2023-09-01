@@ -5,10 +5,15 @@ global.onOpen = () => {
   menu.addItem('Search', 'search');
   menu.addItem('File upload sidebar', 'uploadSidebar');
   menu.addSeparator();
-  menu.addItem('Check for update', 'checkForUpdate');
   menu.addItem('Show sheet info', 'showSheetInfoAndHeaderLegend');
   menu.addSeparator();
+  menu.addItem('Check for script update', 'checkForUpdate');
+  menu.addSeparator();
+  menu.addItem('Update current sheet schema version', 'updateCurrentSheet');
+  // menu.addItem('Update all sheets', 'updateAllSheets');
+  menu.addSeparator();
   menu.addItem('Validate', 'validateJsonWithSchema');
+  menu.addSeparator();
   menu.addItem('Export selected row to JSON', 'convertSelectedRowToJson');
   menu.addSeparator();
   menu.addItem('Make new template row', 'makeTemplateForUser');

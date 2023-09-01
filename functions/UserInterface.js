@@ -127,6 +127,7 @@ function makeTemplate(forAdmin=false) {
   addMetadataTemplateToSheet(sheet, profile, forAdmin);
 
   applyProfileToSheet();
+  saveSheetSpecificSettings();
 }
 
 function makeTemplateForAdmin() {
@@ -137,7 +138,7 @@ function makeTemplateForUser() {
   makeTemplate(forAdmin=false);
 }
 
-function getMetadataForAll(forAdmin) {
+function getMetadataForAll(forAdmin, showWarning=true) {
   if (!checkProfile()) {
     return;
   }
@@ -156,7 +157,7 @@ function getMetadataForAll(forAdmin) {
   }
 
   var numData = getNumMetadataInSheet(sheet, ignoreHiddenRows=true);
-  if (numData && !alertBoxOkCancel(
+  if (showWarning && numData && !alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` + 
     "THIS ACTION CAN OVERWRITE DATA ON UNHIDDEN ROWS.\n\n" +
     "Are you sure to proceed?")) {
@@ -166,9 +167,23 @@ function getMetadataForAll(forAdmin) {
   var numUpdated = updateSheetWithMetadataFromPortal(
     sheet, getProfileName(), getEndpointRead(), getEndpointRead(), forAdmin,
   );
-  alertBox(`Updated ${numUpdated} rows.`);
+  if (showWarning) {
+    alertBox(`Updated ${numUpdated} rows.`);
+  }
 
   applyProfileToSheet();
+  saveSheetSpecificSettings();
+}
+
+function saveSheetSpecificSettings() {
+  // If sheet doesn't have sheet specific settings like
+  // read/write endpoint and profile name, then save it to sheet
+  // it's recommended to do this everytime after communicating with the portal
+
+  var sheet = getCurrentSheet();
+  setEndpointRead(sheet, getEndpointRead(sheet));
+  setEndpointWrite(sheet, getEndpointWrite(sheet));
+  setProfileName(sheet, getProfileName(sheet));
 }
 
 function getMetadataForAllForAdmin() {
@@ -274,6 +289,7 @@ function patchSelected() {
   alertBox(`PATCHed ${numSubmitted} rows to ${getEndpointWrite()}.`);
 
   applyProfileToSheet();
+  saveSheetSpecificSettings();
 }
 
 function patchAll() {
@@ -330,6 +346,7 @@ function postAll() {
   alertBox(`Submitted (POST) ${numSubmitted} rows to ${getEndpointWrite()}.`);
 
   applyProfileToSheet();
+  saveSheetSpecificSettings();
 }
 
 function exportToJsonText() {
@@ -444,5 +461,40 @@ function checkForUpdate() {
       )
       .setWidth(500)
       .setHeight(200);
-  SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Check for update');
+  SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Check for script update');
+}
+
+function updateCurrentSheet() {
+  var currentSheet = getCurrentSheet();
+  updateSheet(currentSheet);
+}
+
+function updateAllSheets() {
+}
+
+function updateSheet(sheet) {
+  var endpoint = getEndpointRead(sheet);
+
+  // check if profile exists
+  var profileName = getProfileName(sheet);
+  if (!profileName) {
+    alertBox(`No profile is defined for sheet ${sheet.getName()}`);
+    return;
+  }
+  var profile = getProfile(profileName, endpoint);
+
+  // check if Id col exists
+  var identifyingCols = [];
+  for (var prop of profile["identifyingProperties"]) {
+    var col = findColumnByHeaderValue(sheet, prop);
+    if (col) {
+      identifyingCols.push(col);
+    }
+  }
+  if (!identifyingCols) {
+    alertBox(`Couldn't find an identifying column for sheet ${sheet.getName()}`);
+    return
+  }
+
+  createNewSheetAndGetMetadata(sheet, profileName, endpoint);
 }
