@@ -445,11 +445,12 @@ function authorizeForAws() {
 function checkForUpdate() {
   const currentVersion = getScriptVersion();
   const latestVersion = getLatestScriptVersionFromGithub();
+  const helpUrl = getUpdateHelpUrl(latestVersion);
 
   var updateHelp = '';
   if (currentVersion !== latestVersion) {
     updateHelp = `<p>New version ${latestVersion} is out on github.</p>` +
-    '<p>Please check <a href="https://github.com/IGVF-DACC/igvf-metadata-submitter/blob/main/UPDATE.md" target="_blank">' +
+    `<p>Please check <a href="${getUpdateHelpUrl(latestVersion)}" target="_blank">` +
     'the update instruction</a></p>';
   }
 
