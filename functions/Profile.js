@@ -276,6 +276,18 @@ function filterOutCommentedProps(json) {
   return result;
 }
 
+
+function getPropInDependentSchemas(profile, prop) {
+  if (!profile.hasOwnProperty("dependentSchemas")) {
+    return;
+  }
+  var dependentSchemas = profile["dependentSchemas"];
+  if (!dependentSchemas.hasOwnProperty(prop)) {
+    return;
+  }
+  return dependentSchemas[prop];
+}
+
 function makeTooltipForProp(profile, prop) {
   var propInProfile = profile["properties"][prop];
 
@@ -286,6 +298,12 @@ function makeTooltipForProp(profile, prop) {
     .filter(key => propInProfile.hasOwnProperty(key))
     .map(key => {return `* ${key}\n${propInProfile[key]}`})
     .join('\n\n');
+
+  // additionally find comment in dependency and add to tooltip
+  var dependencyProp = getPropInDependentSchemas(profile, prop)
+  if (dependencyProp && dependencyProp.hasOwnProperty("comment")) {
+    tooltip += `\n\n* dependency\n${dependencyProp["comment"]}`
+  }
 
   return tooltip;
 }
