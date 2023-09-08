@@ -13,4 +13,4 @@ https://raw.githubusercontent.com/IGVF-DACC/igvf-metadata-submitter/main/dist/co
 
 4) Refresh the spreadsheet and check the version number in the `IGVF` menu.
 
-5) Additionally run `IGVF` - `Show sheet info & check script version` to make sure that the script is up to date.
+5) Additionally run `IGVF` - `Check for script update` to make sure that the script is up to date.
