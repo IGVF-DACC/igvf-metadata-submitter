@@ -28,7 +28,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.7 (WRN-453)" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.7 (WRN-446)" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -42,7 +42,7 @@ $ npm run deploy
 
 Make a copy of this portable version and grant any required permissions.
 
-`v0.2.7 (WRN-453)`: https://docs.google.com/spreadsheets/d/1fq1Tk297428Zc5J1B22Tcv9wFuPRRjp6Osr8a1LjRSo/edit?usp=sharing
+`v0.2.7 (WRN-446)`: https://docs.google.com/spreadsheets/d/1fq1Tk297428Zc5J1B22Tcv9wFuPRRjp6Osr8a1LjRSo/edit?usp=sharing
 
 
 ## Settings
