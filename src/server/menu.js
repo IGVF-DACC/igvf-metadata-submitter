@@ -40,14 +40,13 @@ global.onOpen = () => {
   submenuDeveloper.addItem('Show current sheet developer metadata', 'showSheetAllDevMetadata');
   submenuDeveloper.addItem('Show spreadsheet developer metadata', 'showSpreadsheetAllDevMetadata');
   submenuDeveloper.addItem("Set current sheet's last used schema version", 'setLastUsedSchemaVersion');
+  submenuDeveloper.addItem('Authorize for ENCODE', 'authorizeForEncode');
   submenuTools.addSubMenu(submenuDeveloper);
   menu.addSubMenu(submenuTools);
   menu.addSeparator();
 
   const submenuAuth = SpreadsheetApp.getUi().createMenu('⚙️ Authorization');
-  // submenuAuth.addItem('Authorize for ENCODE', 'authorizeForEncode');
   submenuAuth.addItem('Authorize for IGVF', 'authorizeForIgvf');
-  // submenuAuth.addItem('Authorize for AWS (for debugging)', 'authorizeForAws');
   menu.addSubMenu(submenuAuth);
 
   const submenuSettingsGlobal = SpreadsheetApp.getUi().createMenu('⚙️ Settings (Global)');
