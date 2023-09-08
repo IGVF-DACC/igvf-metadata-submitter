@@ -35,16 +35,14 @@
 
   <body>
     <div id="help-text-dropzone">
-      <p>Drag and drop a root folder that contains all of your files to be submitted and click on the initialize button. You cannot drop multiple folders or files.</p>
-      <p>For each file, define <code>#upload_relpath</code> (including the root folder) on the sheet.</p>
-      <p>For example, you drop a root folder <code>test-folder</code> then a file <code>test-folder/1/2/3.fastq.gz</code> should be defined under <code>#upload_relpath</code> on the sheet.</p>
-      <p>Only files matching relative paths will be available for uploading. </p>
+      <p>Drag and drop a parent folder that includes all files to be submitted on the sheet. and then click on the Initialize button.</p>
+      <p>For example, to submit two files <code>/home/me/x/1/2.fastq.gz</code> and <code>/home/me/x/a/b.fastq.gz</code>, defined under the column <code>#upload_abspath</code> on a sheet, drop a folder <code>/home/me/x</code> and the script will try to find two files under the folder. You can also drop a higher level folder like <code>/home/me</code>, but it will take longer to find files.</p>
       <p>DO NOT CLOSE this side bar while uploading files. You can upload files for one sheet at a time.</p>
-    </div><br>
+    </div>
 
     <div id="dropzone">
       <div id="boxtitle">
-        Drop root folder here
+        Drop a folder here
       </div>
     </div><br>
 
@@ -61,7 +59,7 @@
     <script type="text/javascript">
       // constants with the same name as in the server side
       const S3_BUCKET_DEFAULT_REGION = "us-west-2";
-      const HEADER_COMMENTED_PROP_UPLOAD_RELPATH = "#upload_relpath";
+      const HEADER_COMMENTED_PROP_UPLOAD_ABSPATH = "#upload_abspath";
       const HEADER_COMMENTED_PROP_UPLOAD_STATUS = "#upload_status";
       const UPLOAD_CREDENTIALS = "upload_credentials";
       const IDENTIFYING_VAL = "identifying_val";
@@ -127,19 +125,15 @@
         // remove all DOM elements in upload panel
         uploadPanel.innerHTML = "";
 
-        // find files matching relpath in user's drag-n-dropped folder
+        // find files matching abspath in user's drag-n-dropped folder
         let numMatchingFiles = 0;
 
         for(let i=0; i<rows.length; i++) {
-          const relpath = rows[i][HEADER_COMMENTED_PROP_UPLOAD_RELPATH];
+          const abspath = rows[i][HEADER_COMMENTED_PROP_UPLOAD_ABSPATH];
           const identifyingVal = rows[i][IDENTIFYING_VAL];
           const identifyingProp = rows[i][IDENTIFYING_PROP];
           const uploadCredential = rows[i][UPLOAD_CREDENTIALS];
           const status = rows[i][HEADER_COMMENTED_PROP_UPLOAD_STATUS];
-
-          // trim relpath to ignore leading/trailing slashes in paths
-          // also replace backslash with slash (for Windows file system)
-          const trimmedRelpath = relpath.trim().replace(/^\/|\/$/g, "").replace(/\\/g,"/");
 
           let foundMatchingFile = false;
           for (let j=0; j<fileEntries.length; j++) {
@@ -149,10 +143,14 @@
               // weird bug, need to ignore undefined element
               continue;
             }
-            const trimmedFullPath = fileEntry.fullPath.replace(/^\/|\/$/g, "");
 
-            // if both (on sheet, in drag-n-dropped folder) paths match then make an upload item
-            if (trimmedRelpath === trimmedFullPath) {
+            // for security reasons, Javascript can't get absolute paths of drag-n-dropped folder and files within it
+            // so here we just check if user's absolute path "endsWith" fileEntry's fullPath
+
+            // when comparing file names, replace \ with / for files on Windows system
+            const abspathBackslashReplaced = abspath.replace(/\\/g, "/");
+
+            if (abspathBackslashReplaced.endsWith(fileEntry.fullPath)) {
               foundMatchingFile = true;
               numMatchingFiles++;
 
@@ -176,7 +174,7 @@
               var statusLabel = document.createElement("label");
               statusLabel.setAttribute("id", "status-" + idSuffix);
               statusLabel.style["color"] = "darkgray";
-              statusLabel.relpath = relpath;
+              // statusLabel.relpath = fileEntry.fullPath;
               statusLabel.innerHTML = status;
 
               var br2 = document.createElement("br");
@@ -269,7 +267,11 @@
           }
           if (!foundMatchingFile) {
             // found no matching file in the dropped folder
-            updateStatusOnSheet(identifyingProp, identifyingVal, "No matching file found in the dropped folder. wrong #upload_relpath?");
+            updateStatusOnSheet(
+              identifyingProp,
+              identifyingVal,
+              "No matching file found in the dropped folder. wrong #upload_abspath?"
+            );
           }
         }
         document.getElementById("btn-init-upload").innerHTML = `Found ${numMatchingFiles} file(s) to upload.`;
