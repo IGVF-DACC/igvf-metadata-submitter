@@ -91,3 +91,13 @@ function openUrl( url ){
   .setWidth( 90 ).setHeight( 1 );
   SpreadsheetApp.getUi().showModalDialog( html, "Opening ..." );
 }
+
+function getBasename(path) {
+  return path.split(/[\\/]/).pop();
+}
+
+function getDirname(path) {
+  var array = path.split(/[\\/]/);
+  array.pop();
+  return array.join("/");
+}
