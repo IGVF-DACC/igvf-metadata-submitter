@@ -107,12 +107,10 @@ Color and style represents a type of property.
 
 You can directly upload local files to portal's S3 bucket on the upload sidebar. Use it after POSTing metadata to the portal. Make sure that there is at least one identifying property in the header (e.g. `accession`, `uuid`).
 
-Add three commented columns `#upload_status`, `#upload_relpath` and `#upload_cmd` to the sheet. `#upload_status` will be automatically updated while uploading. `#upload_relpath` is to define relative path of files to be uploaded.
+Add three commented columns `#upload_status`, `#upload_abspath` and `#upload_cmd` to the sheet. `#upload_status` will be automatically updated while uploading. `#upload_abspath` is to define absolue path of files to be uploaded.
 
 Click on menu `IGVF/ENCODE` - `Upload sidebar` and read the instruction carefully. 
 
 `#upload_cmd` is optional for manual uploading using S3 CLI. If you want to upload from a remote server via AWS CLI, then drag and drop any empty folder and click on the initialize button. Make sure that `--body` parameter in `#upload_cmd` points to a correct path on a remote server.
 
-You need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory. Then the uploader will recursively parse all files in a dropped root directory and compare them with `#upload_relpath` for each row on the sheet.
-
-For example, you drop a root folder `/users/USER_NAME/data/test-folder` and then a file `test-folder/1/2/3.fastq.gz` should be defined under `#upload_relpath` on the sheet. Only files matching relative paths will be available for uploading.
+You need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory.
