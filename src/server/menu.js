@@ -41,6 +41,7 @@ global.onOpen = () => {
   submenuDeveloper.addItem('Show spreadsheet developer metadata', 'showSpreadsheetAllDevMetadata');
   submenuDeveloper.addItem("Set current sheet's last used schema version", 'setLastUsedSchemaVersion');
   submenuDeveloper.addItem('Authorize for ENCODE', 'authorizeForEncode');
+  // submenuDeveloper.addItem('Test Google Drive', 'testGoogleDrive');
   submenuTools.addSubMenu(submenuDeveloper);
   menu.addSubMenu(submenuTools);
   menu.addSeparator();
