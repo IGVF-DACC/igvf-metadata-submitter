@@ -12,7 +12,7 @@ const DEFAULT_PROP_PRIORITY = [
   HEADER_COMMENTED_PROP_SKIP,
   HEADER_COMMENTED_PROP_RESPONSE,
   HEADER_COMMENTED_PROP_RESPONSE_TIME,
-  HEADER_COMMENTED_PROP_UPLOAD_RELPATH,
+  HEADER_COMMENTED_PROP_UPLOAD_ABSPATH,
   HEADER_COMMENTED_PROP_UPLOAD_STATUS,
   HEADER_COMMENTED_PROP_UPLOAD_CMD,
   HEADER_PROP_ACCESSION,
@@ -276,6 +276,18 @@ function filterOutCommentedProps(json) {
   return result;
 }
 
+
+function getPropInDependentSchemas(profile, prop) {
+  if (!profile.hasOwnProperty("dependentSchemas")) {
+    return;
+  }
+  var dependentSchemas = profile["dependentSchemas"];
+  if (!dependentSchemas.hasOwnProperty(prop)) {
+    return;
+  }
+  return dependentSchemas[prop];
+}
+
 function makeTooltipForProp(profile, prop) {
   var propInProfile = profile["properties"][prop];
 
@@ -286,6 +298,12 @@ function makeTooltipForProp(profile, prop) {
     .filter(key => propInProfile.hasOwnProperty(key))
     .map(key => {return `* ${key}\n${propInProfile[key]}`})
     .join('\n\n');
+
+  // additionally find comment in dependency and add to tooltip
+  var dependencyProp = getPropInDependentSchemas(profile, prop)
+  if (dependencyProp && dependencyProp.hasOwnProperty("comment")) {
+    tooltip += `\n\n* dependency\n${dependencyProp["comment"]}`
+  }
 
   return tooltip;
 }
@@ -402,17 +420,16 @@ function checkProfile() {
     const profileSchemaVersion = getProfileSchemaVersion(profile);
 
     if (sheetSchemaVersion && sheetSchemaVersion !== profileSchemaVersion) {
-      alertBox(
-        "Found schema version mismatch (current sheet vs. portal).\n\n" +
-        `- Current sheet's last used schema version: ${sheetSchemaVersion}\n` +
-        `- Portal's latest schema version: ${profileSchemaVersion}\n\n` +
-        "You can no longer use current sheet to communicate with the portal.\n\n" +
-        "For rows that haven’t been posted to the portal, copy and paste all columns of metadata to a new sheet and try POST on it.\n\n" +
-        "For rows that have already been posted to the portal, copy and paste accession column only to a new sheet and try GET on it."
-      );
+      if (alertBoxOkCancel(
+          "Found schema version mismatch (current sheet vs. portal).\n\n" +
+          `- Current sheet's last used schema version: ${sheetSchemaVersion}\n` +
+          `- Portal's latest schema version: ${profileSchemaVersion}\n\n` +
+          "Would you like to automatically create a new sheet with updated schema?"
+      )) {
+        updateCurrentSheet();
+      }
       return;
     }
-
     return true;
   }
 

@@ -32,7 +32,7 @@ module.exports = {
     extensions: ['.js'],
   },
   optimization: {
-    minimize: true,
+    minimize: false,
     minimizer: [
       new TerserPlugin({
         test: /\.js$/i,
@@ -89,9 +89,16 @@ module.exports = {
         },
         {
           from: getSrcPath('../functions/*.js'),
-          to: '[name][ext]',
+          to: 'functions.js',
+          transformAll(assets) {
+            const result = assets.reduce((accumulator, asset) => {
+              const content = asset.data;
+              accumulator = `${accumulator}${content}\n`;
+              return accumulator;
+            }, "");
+            return result;
+          },
           noErrorOnMissing: true,
-          info: { minimized: true },
         },
       ],
     }),

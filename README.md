@@ -28,7 +28,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.7" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.7 (WRN-446)" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -42,31 +42,7 @@ $ npm run deploy
 
 Make a copy of this portable version and grant any required permissions.
 
-`v0.2.7`: https://docs.google.com/spreadsheets/d/1KCbyre3Uz4tkpYAJXM1rzu0UWtHjMgzmOAQUjXxl530/edit?usp=sharing
-
-
-## Migrating from old version (alternative way)
-
-**THIS METHOD IS NOT RECOMMENDED**. About migraion, it's still recommended to make a copy of the new official release and copy-paste all tabs to the new spreadsheet and then re-authorize and re-define profile name for each sheet. But there is a workaround to replace the script of the spreadsheet only.
-
-Make a copy of your spreadsheet (old version). On a copied spreadsheet, click on `Extensions` - `Apps Script` on the menu. Take the script ID from URL.
-e.g. `https://script.google.com/u/0/home/projects/SCRIPT_ID_IS_HERE/edit`.
-
-Clone the repo and follow the above instruction to install `npm` and dependencies.
-
-```bash
-# clone the repo
-git clone https://github.com/IGVF-DACC/igvf-metadata-submitter
-
-# edit .clasp.json file to add the new script ID
-# new script ID {"scriptId":"PASTE_YOUR_NEW_SCRIPT_ID_HERE","rootDir":"./dist"}
-vi .clasp.json
-```
-
-Deploy a new script to the spreadsheet.
-```bash
-npm run deploy
-```
+`v0.2.7 (WRN-446)`: https://docs.google.com/spreadsheets/d/1fq1Tk297428Zc5J1B22Tcv9wFuPRRjp6Osr8a1LjRSo/edit?usp=sharing
 
 
 ## Settings
@@ -131,12 +107,10 @@ Color and style represents a type of property.
 
 You can directly upload local files to portal's S3 bucket on the upload sidebar. Use it after POSTing metadata to the portal. Make sure that there is at least one identifying property in the header (e.g. `accession`, `uuid`).
 
-Add three commented columns `#upload_status`, `#upload_relpath` and `#upload_cmd` to the sheet. `#upload_status` will be automatically updated while uploading. `#upload_relpath` is to define relative path of files to be uploaded.
+Add three commented columns `#upload_status`, `#upload_abspath` and `#upload_cmd` to the sheet. `#upload_status` will be automatically updated while uploading. `#upload_abspath` is to define absolue path of files to be uploaded.
 
 Click on menu `IGVF/ENCODE` - `Upload sidebar` and read the instruction carefully. 
 
 `#upload_cmd` is optional for manual uploading using S3 CLI. If you want to upload from a remote server via AWS CLI, then drag and drop any empty folder and click on the initialize button. Make sure that `--body` parameter in `#upload_cmd` points to a correct path on a remote server.
 
-You need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory. Then the uploader will recursively parse all files in a dropped root directory and compare them with `#upload_relpath` for each row on the sheet.
-
-For example, you drop a root folder `/users/USER_NAME/data/test-folder` and then a file `test-folder/1/2/3.fastq.gz` should be defined under `#upload_relpath` on the sheet. Only files matching relative paths will be available for uploading.
+You need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory.

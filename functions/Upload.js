@@ -6,9 +6,9 @@ const IDENTIFYING_PROP = "identifying_prop";
 function openUploadSidebar() {
   var sheet = getCurrentSheet();
 
-  if ( !findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_UPLOAD_RELPATH) ) {
+  if ( !findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_UPLOAD_ABSPATH) ) {
     alertBox(
-      `Add a column ${HEADER_COMMENTED_PROP_UPLOAD_RELPATH} to the header row and try again.`
+      `Add a column ${HEADER_COMMENTED_PROP_UPLOAD_ABSPATH} to the header row and try again.`
     );
     return
   }
@@ -133,11 +133,11 @@ function initUpload() {
       continue;
     }
 
-    var uploadRelpathCol = findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_UPLOAD_RELPATH);
-    var uploadRelpath = uploadRelpathCol ? getCellValue(sheet, row, uploadRelpathCol) : undefined;
+    var uploadAbsPathCol = findColumnByHeaderValue(sheet, HEADER_COMMENTED_PROP_UPLOAD_ABSPATH);
+    var uploadAbsPath = uploadAbsPathCol ? getCellValue(sheet, row, uploadAbsPathCol) : undefined;
 
-    if (!uploadRelpath) {
-      json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = "Missing #upload_relpath.";
+    if (!uploadAbsPath) {
+      json[HEADER_COMMENTED_PROP_UPLOAD_STATUS] = `Missing ${HEADER_COMMENTED_PROP_UPLOAD_ABSPATH}.`;
       writeJsonToRow(sheet, json, row);
       continue;
     }
@@ -157,7 +157,7 @@ function initUpload() {
 
     const cmd =
       `AWS_ACCESS_KEY_ID="${accessKeyId}" AWS_SECRET_ACCESS_KEY="${secretAccessKey}" AWS_SESSION_TOKEN="${sessionToken}" ` +
-      `aws s3api put-object --bucket "${bucket}" --key "${key}" --body "${uploadRelpath}"`;
+      `aws s3api put-object --bucket "${bucket}" --key "${key}" --body "${uploadAbsPath}"`;
     json[HEADER_COMMENTED_PROP_UPLOAD_CMD] = cmd;
 
     // to report status on both sheet and upload sidebar
