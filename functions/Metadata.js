@@ -3,7 +3,7 @@ const EXPORTED_JSON_INDENT = 2;
 const HEADER_COMMENTED_PROP_SKIP = "#skip";
 const HEADER_COMMENTED_PROP_RESPONSE = "#response";
 const HEADER_COMMENTED_PROP_RESPONSE_TIME = "#response_time";
-const HEADER_COMMENTED_PROP_UPLOAD_RELPATH = "#upload_relpath";
+const HEADER_COMMENTED_PROP_UPLOAD_ABSPATH = "#upload_abspath";
 const HEADER_COMMENTED_PROP_UPLOAD_STATUS = "#upload_status";
 const HEADER_COMMENTED_PROP_UPLOAD_CMD = "#upload_cmd";
 const DEFAULT_EXPORTED_JSON_FILE_PREFIX = "encode-metadata-submitter.exported";
@@ -138,7 +138,7 @@ function updateSheetWithMetadataFromPortal(sheet, profileName, endpointForGet, e
   return numUpdated;
 }
 
-function exportSheetToJsonFile(sheet, profileName, endpointForProfile, keepCommentedProps, jsonFilePath) {
+function exportSheetToJson(sheet, profileName, endpointForProfile, keepCommentedProps) {
   var profile = getProfile(profileName, endpointForProfile);
 
   var result = [];
@@ -149,7 +149,13 @@ function exportSheetToJsonFile(sheet, profileName, endpointForProfile, keepComme
     var json = typeCastJsonValuesByProfile(profile, jsonBeforeTypeCast);
     result.push(json);
   }
-  DriveApp.createFile(jsonFilePath, JSON.stringify(result, null, EXPORTED_JSON_INDENT));
+
+  return result;
+}
+
+function exportSheetToJsonFile(sheet, profileName, endpointForProfile, keepCommentedProps, jsonFilePath) {
+  var json = exportSheetToJson(sheet, profileName, endpointForProfile, keepCommentedProps)
+  DriveApp.createFile(jsonFilePath, JSON.stringify(json, null, EXPORTED_JSON_INDENT));
 }
 
 function convertRowToJson(sheet, row, profileName, endpointForProfile, keepCommentedProps) {
@@ -354,4 +360,53 @@ function addMetadataTemplateToSheet(sheet, profile, forAdmin=false) {
   addJsonToSheet(sheet, metadataObj, sortedProps);
   // for schema version checking
   setLastUsedSchemaVersion(sheet, getProfileSchemaVersion(profile));
+}
+
+function createNewSheetAndGetMetadata(sheet, profileName, endpoint) {
+  // Copy current sheet's identifying columns to a new sheet
+  // and then do GET to get latest metadata from the portal
+
+  var spreadsheet = SpreadsheetApp.getActive();
+  var currentSheetName = sheet.getName();
+  var profile = getProfile(profileName, endpoint);
+
+  var identifyingCols = [];
+  
+  for (var prop of profile["identifyingProperties"]) {
+    var col = findColumnByHeaderValue(sheet, prop);
+    if (col) {
+      identifyingCols.push(col);
+    }
+  }
+
+  if (!identifyingCols) {
+    Logger.log("Couldn't find an identifying column.")
+    return;
+  }
+
+  var schemaVersion = getProfileSchemaVersion(profile);
+  var newSheetName = `${currentSheetName}_v${schemaVersion}`;
+  if (spreadsheet.getSheetByName(newSheetName)) {
+    alertBox(`Faild to create a new sheet, it already exists: ${newSheetName}`);
+    return;
+  }
+
+  // create a new sheet and SET FOCUS ON IT
+  var newSheet = createNewSheet(newSheetName, true);
+
+  // write id cols to a new sheet
+  var currentNewSheetCol = 1;
+  for (var col of identifyingCols) {
+    var valuesToCopy = sheet.getRange(HEADER_ROW, col, sheet.getLastRow(), 1).getValues();
+    newSheet.getRange(HEADER_ROW, currentNewSheetCol, valuesToCopy.length, 1).setValues(valuesToCopy);
+    currentNewSheetCol++;
+  }
+
+  // copy DeleveoptMetadata (endpoints and profile name) to new sheet
+  setEndpointRead(newSheet, getEndpointRead(sheet));
+  setEndpointWrite(newSheet, getEndpointWrite(sheet));
+  setProfileName(newSheet, getProfileName(sheet));
+
+  // run GET on new sheet to get metadata from the portal
+  getMetadataForAll(forAdmin=false, showWarning=false)
 }

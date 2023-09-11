@@ -350,3 +350,14 @@ function rowToJson(sheet, row, keepCommentedProps, bypassGoogleAutoParsing) {
   }
   return result;
 }
+
+function createNewSheet(newSheetName, activate=false) {  
+    var spreadsheet = SpreadsheetApp.getActive();
+    var newSheet = spreadsheet.insertSheet();
+    newSheet.setName(newSheetName);
+
+    if (activate) {
+      newSheet.activate();
+    }
+    return newSheet;
+}
