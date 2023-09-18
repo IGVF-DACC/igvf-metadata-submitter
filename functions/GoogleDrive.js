@@ -3,7 +3,6 @@ function getDriveFileFromPath(path) {
   var dirname = getDirname(path);
 
   var folder = getDriveFolderFromPath(dirname);
-
   var files = folder.getFilesByName(basename);
   if (files.hasNext()) {
     return files.next();
