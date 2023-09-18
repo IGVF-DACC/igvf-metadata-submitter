@@ -197,11 +197,18 @@ function findIdentifyingPropValColInRow(sheet, row, profile) {
   return [undefined, undefined, undefined];
 }
 
+
 function setAttachment(attachmentJson) {
   // attachmentJson has "path" property only
   var path = attachmentJson["path"];
-  var file = getDriveFileFromPath(path);
+  if (!path) {
+    alertBox(
+      'attachment is not a valid JSON string. A valid example format is {"path": "/GOOGLE/DRIVE/PATH/file.pdf"}.'
+    );
+    return;
+  }
 
+  var file = getDriveFileFromPath(path);
   if (!file) {
     alertBox(`${path} not found on Google Drive.`);
     return;
