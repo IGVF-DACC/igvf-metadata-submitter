@@ -1,23 +1,9 @@
-
-function testGoogleDrive() {
-    var path = "/test_submitter_attachment/aaaa/ok.tsv";
-    var file = getDriveFileFromPath(path);
-    Logger.log(readDriveFile(file));
-}
-
-function readDriveFile(file) {
-  return file.getBlob().getDataAsString();
-}
-
-function guessContentType(path) {
-}
-
 function getDriveFileFromPath(path) {
   var basename = getBasename(path);
   var dirname = getDirname(path);
 
   var folder = getDriveFolderFromPath(dirname);
-  console.log(folder.getName());
+
   var files = folder.getFilesByName(basename);
   if (files.hasNext()) {
     return files.next();

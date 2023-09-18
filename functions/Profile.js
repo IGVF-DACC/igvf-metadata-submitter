@@ -5,6 +5,7 @@ const HEADER_PROP_ALIASES = "aliases";
 const HEADER_PROP_AWARD = "award";
 const HEADER_PROP_LAB = "lab";
 const HEADER_PROP_S3_URI = "s3_uri";
+const HEADER_PROP_ATTACHMENT = "attachment";
 const BIG_NUMBER_FOR_PRIORITY_SORTING = 1000;
 
 // determines the column order of properties in the header
@@ -170,6 +171,11 @@ function hasDoNotSubmitInPropComment(profile, prop) {
   var propInProfile = profile["properties"][prop];
   return propInProfile.hasOwnProperty("comment") &&
     propInProfile["comment"].toLowerCase().startsWith("do not submit");
+}
+
+function hasAttachment(profile) {
+  return profile["properties"].hasOwnProperty(HEADER_PROP_ATTACHMENT) &&
+    profile["properties"][HEADER_PROP_ATTACHMENT]["attachment"];
 }
 
 function isAdminOrSystemProp(profile, prop) {

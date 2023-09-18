@@ -197,6 +197,31 @@ function findIdentifyingPropValColInRow(sheet, row, profile) {
   return [undefined, undefined, undefined];
 }
 
+function setAttachment(attachmentJson) {
+  // attachmentJson has "path" property only
+  var path = attachmentJson["path"];
+  var file = getDriveFileFromPath(path);
+
+  if (!file) {
+    alertBox(`${path} not found on Google Drive.`);
+    return;
+  }
+
+  var mimeType = file.getMimeType();
+  if (mimeType === "application/x-gzip") {
+    mimeType = "application/gzip";
+  }
+
+  var base64EncodedStr = Utilities.base64Encode(file.getBlob().getBytes());
+
+  var attachment = {
+    download: path,
+    type: mimeType,
+    href: `data:${mimeType};base64,${base64EncodedStr}`
+  }
+  return attachment;
+}
+
 function submitSheetToPortal(
   sheet, profileName, endpointForPut, endpointForProfile, method, selectedColsForPatch=[]
 ) {
@@ -224,6 +249,21 @@ function submitSheetToPortal(
     var json = typeCastJsonValuesByProfile(
       profile, jsonBeforeTypeCast, keepCommentedProps=false
     );
+
+    // if there is an attachment (e.g. document profile)
+    // then read from Google Drive, base64encode its content
+    if (
+      hasAttachment(profile) &&
+      json.hasOwnProperty(HEADER_PROP_ATTACHMENT) &&
+      json[HEADER_PROP_ATTACHMENT]
+    ) {
+      // overwrite on payload's attachment
+      var attachment = setAttachment(json[HEADER_PROP_ATTACHMENT]);
+      if (!attachment) {
+        continue;
+      }
+      json[HEADER_PROP_ATTACHMENT] = attachment;
+    }
 
     var payloadJson = {};
 
