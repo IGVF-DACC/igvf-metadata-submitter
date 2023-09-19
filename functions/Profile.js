@@ -410,7 +410,7 @@ function checkProfile() {
   var profileName = getProfileName();
 
   if (getProfileName()) {
-    var profile = getProfile(getProfileName(), getEndpointRead())
+    var profile = getProfile(getProfileName(), getEndpoint())
 
     if (!profile) {
       alertBox(

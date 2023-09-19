@@ -4,7 +4,7 @@ global.onOpen = () => {
 
   menu.addItem('Search', 'search');
   menu.addSeparator();
-  menu.addItem("Set profile name", 'setProfileName');
+  menu.addItem('Set profile name', 'setProfileName');
   menu.addItem('Show sheet info', 'showSheetInfoAndHeaderLegend');
   menu.addSeparator();
   menu.addItem('Validate', 'validateJsonWithSchema');
@@ -14,23 +14,20 @@ global.onOpen = () => {
   menu.addItem('PATCH selected columns', 'patchSelected');
   menu.addItem('PATCH all columns', 'patchAll');
   menu.addSeparator();
-  menu.addItem('Create a new sheet with updated profile schema', 'updateCurrentSheet');
-  menu.addSeparator();
   menu.addItem('File upload sidebar', 'uploadSidebar');
-  menu.addSeparator();
-  menu.addItem('Export selected row to JSON', 'convertSelectedRowToJson');
-  // menu.addItem('PATCH-APPEND selected columns', 'patchAppendAll');
-  // menu.addItem('PATCH-REMOVE selected columns', 'patchRemoveAll');
   menu.addSeparator();
 
   const submenuTools = SpreadsheetApp.getUi().createMenu('🛠 Tools');
   submenuTools.addItem('Make a new template row', 'makeTemplateForUser');
   submenuTools.addItem('Highlight sheet with profile schema', 'applyProfileToSheet');
   submenuTools.addSeparator();
-  submenuTools.addItem('Open profile page', 'openProfilePage');
+  submenuTools.addItem('Create a new sheet with updated profile schema', 'updateCurrentSheet');
   submenuTools.addSeparator();
+  submenuTools.addItem('Export selected row to JSON', 'convertSelectedRowToJson');
   submenuTools.addItem('Export sheet to JSON', 'exportToJsonText');
   submenuTools.addItem('Export sheet to JSON file (Google Drive)', 'exportToJson');
+  submenuTools.addSeparator();
+  submenuTools.addItem('Open profile page', 'openProfilePage');
   submenuTools.addSeparator();
   submenuTools.addItem('Make a new template row (ADMIN ONLY)', 'makeTemplateForAdmin');
   submenuTools.addItem('GET metadata from portal (ADMIN ONLY)', 'getMetadataForAllForAdmin');

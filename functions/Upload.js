@@ -33,7 +33,7 @@ function openUploadSidebar() {
 }
 
 function getUploadCredentialsFromFileId(fileId) {
-  var endPoint = getEndpointWrite();
+  var endPoint = getEndpoint();
 
   var url = `${endPoint}/${fileId}@@upload?format=json&frame=object`;
   var response = restGet(url);
@@ -54,7 +54,7 @@ function getUploadCredentialsFromIdentifyingVal(identifyingVal) {
 }
 
 function getFileStatusAndErrorFromFileId(fileId) {
-  var endPoint = getEndpointWrite();
+  var endPoint = getEndpoint();
 
   var url = `${endPoint}/${fileId}?format=json&frame=object`;
   var response = restGet(url);
@@ -83,7 +83,7 @@ function initUpload() {
   }
 
   var sheet = getCurrentSheet();
-  var profile = getProfile(getProfileName(), getEndpointRead());
+  var profile = getProfile(getProfileName(), getEndpoint());
 
   // check if identifying property exists
   if (profile["identifyingProperties"]
