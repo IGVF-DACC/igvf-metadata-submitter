@@ -450,8 +450,7 @@ function createNewSheetAndGetMetadata(sheet, profileName, endpoint) {
   }
 
   // copy DeleveoptMetadata (endpoints and profile name) to new sheet
-  setEndpointRead(newSheet, getEndpointRead(sheet));
-  setEndpointWrite(newSheet, getEndpointWrite(sheet));
+  setEndpoint(newSheet, getEndpoint(sheet));
   setProfileName(newSheet, getProfileName(sheet));
 
   // run GET on new sheet to get metadata from the portal

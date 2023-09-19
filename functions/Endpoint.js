@@ -17,9 +17,6 @@ curl "https://api.data.igvf.org/profiles?format=json&frame=object" \
 const ENCODE = "ENCODE";
 const IGVF = "IGVF";
 
-const PROPERTY_DEFAULT_ENDPOINT_READ = "defaultEndpointRead";
-const PROPERTY_DEFAULT_ENDPOINT_WRITE = "defaultEndpointWrite";
-
 // These are API endpoints.
 // If there is a UI endpoint then add it to ENDPOINT_MAP_API_TO_UI below
 // Otherwise, the script will use the same endpoint for API and UI
