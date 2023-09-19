@@ -3,62 +3,31 @@
 IGVF metadata submitter based on Google Sheet + Google Apps Script.
 
 
-## Limitation
-
-This script is heavily based on Google Apps Script(GAP)'s URL fetch call to communicate with the portal. GAP is free but has some limit/quota. Check quota [here](https://developers.google.com/apps-script/guides/services/quotas). It's limited to `20,000` URL fetch calls a day. It's `100,000` for Google Workspace users (it costs $6 per month).
-
 ## Installation
 
-You can install it from code or make a copy from a portable version.
-
-## Installing from code
-
-Enable [Google Apps Script API](https://script.google.com/home/usersettings).
-
-Update `Node.js` and `npm`
-```bash
-$ curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs
-$ sudo npm install npm -g
-```
-
-Install `clasp`
-```bash
-$ sudo npm i @google/clasp@2.3.0 -g
-```
-
-Create with a new Google Spreadsheet with the script.
-```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.3.0" --rootDir ./dist
-```
-
-Get the script ID from the output and edit `scriptId` in `.clasp.json`.
-
-Deploy the script to the created sheet. Whenver you make changes to the code, run this to update the code in Google Apps Script.
-```bash
-$ npm run deploy
-```
-
-## Cloning a portable version (user)
-
-Make a copy of this portable version and grant any required permissions.
+Make a copy of the following spreadsheet and grant any required permissions. Then refresh the cloned spreadsheet page.
 
 `v0.3.0`: https://docs.google.com/spreadsheets/d/1gWEHGdi0eNjaX1mmC3FrgHFntfhWMib3ipQeas3ukzI/edit?usp=sharing
 
+To build and deploy a new spreadsheet, see [INSTALL.md](INSTALL.md).
+
+
 ## Settings
 
-You can configure the submitter either globally or for a specific sheet.
+Authorization and endpoint are global settings. Profile name should be defined for each sheet.
 
 ### Authorization
 
-Authorize on ENCODE and IGVF portal. Get a username/password pair from portal's `Profile` menu.
+Get a key/serect pair from portal's `Profile` menu. Click on menu `Authorize for IGVF` and enter them.
 
-### Endpoints
+### Endpoint
 
-There are two endpoints for READ and WRITE. READ actions (GET, getting profile schema JSON) send requests to the READ endpoint and WRITE actions (PATCH, POST, PUT) send requests to the WRITE endpoint.
+We provide multiple endpoints to communicate with the portal. Click on menu `Set endpoint` and enter supported endpoints.
 
 ### Profile
 
-Name of a profile. Only `snake_case` or capitalized `CamelCase` works. For example, `experiment`, `Lab`, `human_donor` and `MouseDonor`.
+You need to set a profile for each sheet in the spreadsheet. For each sheet, click on menu `Set profile name`. Only `snake_case` or capitalized `CamelCase` works. For example, `measurement_set`, `award` and `Lab`.
+
 
 ## Functions
 
@@ -80,11 +49,12 @@ PATCH will send a patch request to the portal in order to patch properties of **
 
 POST sends a POST request to the portal. Use this to submit a new metadata and generate an accession/ID.
 
-### PUT
+### PUT (Admin only)
 
 PUT sends a PUT request to the portal so that the whole metadata on the portal is replaced with a row on the sheet. **Beware that this will remove any missing properties on the sheet from the portal**.
 
 Before you PUT to the portal, make sure to GET the metadata with GET (ADMIN) first.
+
 
 ## Property legends
 
@@ -102,7 +72,8 @@ Color and style represents a type of property.
 - <span style="text-decoration:underline">Underline</span>: Searchable property
 - ***Italic+Bold***: Array type property
 
-### File upload sidebar
+
+## File upload sidebar
 
 You can directly upload local files to portal's S3 bucket on the upload sidebar. Use it after POSTing metadata to the portal. Make sure that there is at least one identifying property in the header (e.g. `accession`, `uuid`).
 
@@ -114,7 +85,8 @@ Click on menu `IGVF/ENCODE` - `Upload sidebar` and read the instruction carefull
 
 You need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory.
 
-### Attachment
+
+## Attachment
 
 For a profile with `attachment` property (e.g. `document` profile), you can define `attachment` column as a JSON string `{"path":"/GOOGLE/DRIVE/PATH/TO/FILE/me.pdf"}`.
 
