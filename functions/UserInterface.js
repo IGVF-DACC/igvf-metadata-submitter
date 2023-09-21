@@ -82,13 +82,17 @@ function showSheetInfoAndHeaderLegend() {
 
 }
 
-function applyProfileToSheet() {
-  if (!checkProfile()) {
+function applyProfileToSheet(sheet, profile) {
+  if (!profile && !checkProfile()) {
     return;
   }
-
-  var sheet = getCurrentSheet();
-  var profile = getProfile(getProfileName(), getEndpoint());
+  if (!sheet) {
+    sheet = getCurrentSheet();
+  }
+  var profileName = getProfileName(sheet);
+  if (!profile) {
+    profile = getProfile(profileName, getEndpoint());
+  }
 
   // clear tooltip and dropdown menus
   clearFontColorInSheet(sheet);
@@ -104,32 +108,34 @@ function applyProfileToSheet() {
     alertBox(
       "Some properties are missing in the given profile.\n" +
       "- Possible mismatch between profile and accession?\n\n" +
-      "* Current profile: " + getProfileName() + "\n\n" +
+      "* Current profile: " + profileName + "\n\n" +
       "* Missing properties:\n" + missingProps.join(", ")
     );
   }
 }
 
-function makeTemplate(forAdmin=false) {
+function makeTemplate(sheet, forAdmin=false) {
   if (!checkProfile()) {
     return;
   }
 
-  var sheet = getCurrentSheet();
-  var profile = getProfile(getProfileName(), getEndpoint());
+  if (!sheet) {
+    sheet = getCurrentSheet();
+  }
+  var profileName = getProfileName(sheet);
+  var profile = getProfile(profileName, getEndpoint());
 
   addMetadataTemplateToSheet(sheet, profile, forAdmin);
 
-  applyProfileToSheet();
-  saveSheetSpecificSettings();
+  applyProfileToSheet(sheet, profile);
 }
 
 function makeTemplateForAdmin() {
-  makeTemplate(forAdmin=true);
+  makeTemplate(getCurrentSheet(), forAdmin=true);
 }
 
 function makeTemplateForUser() {
-  makeTemplate(forAdmin=false);
+  makeTemplate(getCurrentSheet(), forAdmin=false);
 }
 
 function getMetadataForAll(forAdmin, showWarning=true) {
@@ -166,17 +172,6 @@ function getMetadataForAll(forAdmin, showWarning=true) {
   }
 
   applyProfileToSheet();
-  saveSheetSpecificSettings();
-}
-
-function saveSheetSpecificSettings() {
-  // If sheet doesn't have sheet specific settings like
-  // read/write endpoint and profile name, then save it to sheet
-  // it's recommended to do this everytime after communicating with the portal
-
-  var sheet = getCurrentSheet();
-  setEndpoint(sheet, getEndpoint(sheet));
-  setProfileName(sheet, getProfileName(sheet));
 }
 
 function getMetadataForAllForAdmin() {
@@ -282,7 +277,6 @@ function patchSelected() {
   alertBox(`PATCHed ${numSubmitted} rows to ${getEndpoint()}.`);
 
   applyProfileToSheet();
-  saveSheetSpecificSettings();
 }
 
 function patchAll() {
@@ -339,7 +333,6 @@ function postAll() {
   alertBox(`Submitted (POST) ${numSubmitted} rows to ${getEndpoint()}.`);
 
   applyProfileToSheet();
-  saveSheetSpecificSettings();
 }
 
 function exportToJsonText() {
@@ -467,7 +460,7 @@ function updateAllSheets() {
 }
 
 function updateSheet(sheet) {
-  var endpoint = getEndpoint(sheet);
+  var endpoint = getEndpoint();
 
   // check if profile exists
   var profileName = getProfileName(sheet);
@@ -491,4 +484,27 @@ function updateSheet(sheet) {
   }
 
   createNewSheetAndGetMetadata(sheet, profileName, endpoint);
+}
+
+function createSheetsForCoreSetProfiles() {
+  var endpoint = getEndpoint();
+  var profiles = getCoreSetProfiles(endpoint);
+
+  // check if sheet with profile name already exists
+  var spreadsheet = SpreadsheetApp.getActive();
+  for (var profileName of profiles) {
+    if (spreadsheet.getSheetByName(profileName)) {
+      alertBox(`Sheet with name "${profileName}" already exists. Please delete it first.`);
+      return;
+    }
+  }
+  if (!alertBoxOkCancel(
+    "Are you sure to proceed to create template sheets for the following profiles?\n\n" +
+    JSON.stringify(profiles))) {
+    return;
+  }
+
+  for (var profileName of profiles) {
+    createNewSheetAndMakeTemplate(profileName, endpoint);
+  }
 }
