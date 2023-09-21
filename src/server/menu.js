@@ -20,14 +20,13 @@ global.onOpen = () => {
   const submenuTools = SpreadsheetApp.getUi().createMenu('🛠 Tools');
   submenuTools.addItem('Make a new template row', 'makeTemplateForUser');
   submenuTools.addItem('Highlight sheet with profile schema', 'applyProfileToSheet');
+  submenuTools.addItem('Open profile page', 'openProfilePage');
   submenuTools.addSeparator();
   submenuTools.addItem('Create a new sheet with updated profile schema', 'updateCurrentSheet');
   submenuTools.addSeparator();
   submenuTools.addItem('Export selected row to JSON', 'convertSelectedRowToJson');
   submenuTools.addItem('Export sheet to JSON', 'exportToJsonText');
   submenuTools.addItem('Export sheet to JSON file (Google Drive)', 'exportToJson');
-  submenuTools.addSeparator();
-  submenuTools.addItem('Open profile page', 'openProfilePage');
   submenuTools.addSeparator();
   submenuTools.addItem('Make a new template row (ADMIN ONLY)', 'makeTemplateForAdmin');
   submenuTools.addItem('GET metadata from portal (ADMIN ONLY)', 'getMetadataForAllForAdmin');
@@ -39,16 +38,18 @@ global.onOpen = () => {
   submenuDeveloper.addItem("Set current sheet's last used schema version", 'setLastUsedSchemaVersion');
   submenuDeveloper.addSeparator();
   submenuDeveloper.addItem('Authorize for ENCODE', 'authorizeForEncode');
+  submenuDeveloper.addSeparator();
+  submenuDeveloper.addItem('Create template sheets for core set profiles', 'createSheetsForCoreSetProfiles');
   submenuTools.addSubMenu(submenuDeveloper);
 
   menu.addSubMenu(submenuTools);
   menu.addSeparator();
 
-  menu.addItem('Authorize for IGVF', 'authorizeForIgvf');
   menu.addItem('Set endpoint', 'setDefaultEndpoint');
+  menu.addItem('Authorize for IGVF', 'authorizeForIgvf');
   menu.addSeparator();
   menu.addItem('Check for script update', 'checkForUpdate');
-  menu.addItem("Open tool's github page for README", 'openToolGithubPage');
+  menu.addItem('README', 'openToolGithubPage');
 
   menu.addToUi();
 };
