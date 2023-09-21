@@ -24,14 +24,14 @@ function getDefaultEndpoint() {
   return defaultEndpoint ? defaultEndpoint : DEFAULT_ENDPOINT_WRITE
 }
 
-function getEndpoint(sheet) {
+function getEndpoint() {
   // As of 0.3.0, it's just a wrapper for default endpoint
   return getDefaultEndpoint();
 }
 
 function getProfileName(sheet) {
   var profileName = getSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_PROFILE_NAME
   );
   return profileName ? profileName : null;
@@ -39,13 +39,13 @@ function getProfileName(sheet) {
 
 function getLastUsedSchemaVersion(sheet) {
   return getSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_LAST_USED_SCHEMA_VERSION
   );
 }
 
 function setDefaultEndpoint(input) {
-  var endpoint = input !== undefined ? input : Browser.inputBox(
+  var endpoint = input ? input : Browser.inputBox(
     `* Current endpoint:\\n${getDefaultEndpoint()}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
     `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
@@ -70,7 +70,7 @@ function setEndpoint(sheet, input) {
 }
 
 function setProfileName(sheet, input) {    
-  var profileName = input !== undefined ? input : Browser.inputBox(
+  var profileName = input ? input : Browser.inputBox(
     `* Current profile name:\\n${getProfileName(sheet)}\\n\\n` +
     "Snakecase (with _) or capitalized CamelCase are allowed for a profile name.\\n" +
     "No plural (s) is allowed in profile name.\\n" +
@@ -88,24 +88,24 @@ function setProfileName(sheet, input) {
     return;
   }
   setSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_PROFILE_NAME,
     profileName
   );
   // if sheet is empty then make a template row automatically
-  var currentSheet = sheet !== undefined ? sheet : getCurrentSheet();
+  var currentSheet = sheet ? sheet : getCurrentSheet();
   if (isSheetEmpty(currentSheet)) {
-    makeTemplate(forAdmin=false);
+    makeTemplate(currentSheet, forAdmin=false);
   }
 }
 
 function setLastUsedSchemaVersion(sheet, input) {
-  var schemaVersion = input !== undefined ? input : Browser.inputBox(
+  var schemaVersion = input ? input : Browser.inputBox(
     `* Current sheet's last used schema version:\\n${getLastUsedSchemaVersion(sheet)}\\n\\n` +
     "Enter a new schema version:"
   );
   setSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_LAST_USED_SCHEMA_VERSION,
     schemaVersion
   );
@@ -113,7 +113,7 @@ function setLastUsedSchemaVersion(sheet, input) {
 
 function resetLastUsedSchemaVersion(sheet) {
   setSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_LAST_USED_SCHEMA_VERSION,
     undefined
   );
@@ -121,7 +121,7 @@ function resetLastUsedSchemaVersion(sheet) {
 
 function showSheetAllDevMetadata(sheet) {
   var allMetadata = getSheetAllDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet()
+    sheet ? sheet : getCurrentSheet()
   );
   alertBox(JSON.stringify(allMetadata, null, 4));
 }

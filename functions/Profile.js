@@ -67,7 +67,6 @@ function isValidProfileName(profileName, endpoint) {
     // make capitalized sentence from snakecase 
     var capitalizedName = capitalizeWord(snakeToCamel(name));
     if ([name, capitalizedName].includes(profileName)) {
-      Logger.log(profileName + " " + name + " " + capitalizedName);
       return true;
     }
   }
@@ -374,7 +373,8 @@ function highlightHeaderAndDataCell(sheet, profile) {
 
     if (!isCommentedProp(profile, prop) && !profile["properties"].hasOwnProperty(prop)) {
       Logger.info(
-        `Property ${prop} does not exist in current profile\n\nPossible mismatch between profile and accession?`
+        `Property ${prop} does not exist in current profile(${profile.title})\n\n` +
+        "Possible mismatch between profile and accession?"
       );
       missingProps.push(prop);
       continue;

@@ -178,6 +178,10 @@ const ALL_ENCODE_PROFILES = [
   "user",
   "worm_donor",
 ];
+const CORE_SET_ENCODE_PROFILES = [
+  "experiment",
+];
+
 const ALL_IGVF_PROFILES = [
   "access_key",
   "alignment_file",
@@ -226,6 +230,12 @@ const ALL_IGVF_PROFILES = [
   "user",
   "whole_organism",
   "workflow",
+];
+
+const CORE_SET_IGVF_PROFILES = [
+  "document",
+  "measurement_set",
+  "sequence_file",
 ];
 
 function isEncodeEndpoint(endpoint) {
@@ -284,3 +294,10 @@ function getIgvfEndpointsAvailableForUsers() {
   return IGVF_ENDPOINTS.filter(e => e !== ENDPOINT_IGVF_TEST);
 }
 
+function getCoreSetProfiles(endpoint) {
+  if (isEncodeEndpoint(endpoint)) {
+    return CORE_SET_ENCODE_PROFILES;
+  } else if (isIgvfEndpoint(endpoint)) {
+    return CORE_SET_IGVF_PROFILES;
+  }
+}
