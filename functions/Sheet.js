@@ -352,12 +352,32 @@ function rowToJson(sheet, row, keepCommentedProps, bypassGoogleAutoParsing) {
 }
 
 function createNewSheet(newSheetName, activate=false) {  
-    var spreadsheet = SpreadsheetApp.getActive();
-    var newSheet = spreadsheet.insertSheet();
-    newSheet.setName(newSheetName);
+  var spreadsheet = SpreadsheetApp.getActive();
+  var newSheet = spreadsheet.insertSheet();
+  newSheet.setName(newSheetName);
 
-    if (activate) {
-      newSheet.activate();
+  if (activate) {
+    newSheet.activate();
+  }
+  return newSheet;
+}
+
+function insertColumnLeftmostWithHeadersAndTooltips(sheet, headers, tooltips, skipExistingHeader=true) {
+  // insert columns to the leftmost with headers array
+  // can skip existing header
+  for (var i = 0; i < headers.length; i++) {
+    var header = headers[i];
+
+    if (skipExistingHeader && findColumnByHeaderValue(sheet, header)) {
+      continue;
     }
-    return newSheet;
+    const col = 1;
+    sheet.insertColumnBefore(col);
+    sheet.getRange(HEADER_ROW, col).setValue(header);
+
+    if (tooltips) {
+      var tooltip = tooltips[i];
+      setCellTooltip(sheet, HEADER_ROW, col, tooltip);
+    }
+  }
 }

@@ -74,7 +74,7 @@ function setProfileName(sheet, input) {
     `* Current profile name:\\n${getProfileName(sheet)}\\n\\n` +
     "Snakecase (with _) or capitalized CamelCase are allowed for a profile name.\\n" +
     "No plural (s) is allowed in profile name.\\n" +
-    "(e.g. MeasurementSet, measurement_set, lab):\\n\\n" +
+    "(e.g. MeasurementSet, measurement_set, sequence_file, lab):\\n\\n" +
     "Enter a new profile name:"
   );
   if (getProfileName(sheet) && getProfileName(sheet) !== profileName) {
