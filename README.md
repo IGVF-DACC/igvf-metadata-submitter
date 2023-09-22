@@ -9,7 +9,7 @@ Make a copy of the following spreadsheet and grant any required permissions. The
 
 `v0.3.0`: https://docs.google.com/spreadsheets/d/1gWEHGdi0eNjaX1mmC3FrgHFntfhWMib3ipQeas3ukzI/edit?usp=sharing
 
-To build and deploy a new spreadsheet, see [INSTALL.md](INSTALL.md).
+To build and deploy a new spreadsheet from the code, see [INSTALL.md](INSTALL.md).
 
 
 ## Settings
@@ -18,7 +18,7 @@ Authorization and endpoint are global settings. Profile name should be defined f
 
 ### Authorization
 
-Get a key/serect pair from portal's `Profile` menu. Click on menu `Authorize for IGVF` and enter them.
+Get a key/secret pair from portal's `Profile` menu. Click on menu `Authorize for IGVF` and enter them.
 
 ### Endpoint
 
@@ -26,7 +26,7 @@ We provide multiple endpoints to communicate with the portal. Click on menu `Set
 
 ### Profile
 
-You need to set a profile for each sheet in the spreadsheet. For each sheet, click on menu `Set profile name`. Only `snake_case` or capitalized `CamelCase` works. For example, `measurement_set`, `award` and `Lab`.
+You need to set a profile for each sheet in the spreadsheet. For each sheet, click on menu `Set profile name`. Only `snake_case` or capitalized `CamelCase` works. For example, `measurement_set`, `sequence_file`, `award` and `Lab`.
 
 
 ## Functions
@@ -77,13 +77,9 @@ Color and style represents a type of property.
 
 You can directly upload local files to portal's S3 bucket on the upload sidebar. Use it after POSTing metadata to the portal. Make sure that there is at least one identifying property in the header (e.g. `accession`, `uuid`).
 
-Add three commented columns `#upload_status`, `#upload_abspath` and `#upload_cmd` to the sheet. `#upload_status` will be automatically updated while uploading. `#upload_abspath` is to define absolue path of files to be uploaded.
+Click on menu `IGVF/ENCODE` - `Upload local files (sidebar)` and it will automatically create two columns to a current sheet: `#upload_status` and `#upload_abspath`. Define absolute paths of files to be uploaded under the column #`#upload_abspath`. `#upload_status` will show uploading status.
 
-Click on menu `IGVF/ENCODE` - `Upload sidebar` and read the instruction carefully. 
-
-`#upload_cmd` is optional for manual uploading using S3 CLI. If you want to upload from a remote server via AWS CLI, then drag and drop any empty folder and click on the initialize button. Make sure that `--body` parameter in `#upload_cmd` points to a correct path on a remote server.
-
-You need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory.
+On the sidebar, you need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory.
 
 
 ## Attachment
