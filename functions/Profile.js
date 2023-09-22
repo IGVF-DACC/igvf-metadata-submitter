@@ -441,6 +441,6 @@ function checkProfile() {
 
   alertBox(
     "No profile name found.\n" +
-    "Go to the menu 'IGVF' -> 'Settings & auth' to define it."
+    'Go to the menu "IGVF" -> "Set profile name".'
   );
 }
