@@ -14,7 +14,8 @@ global.onOpen = () => {
   menu.addItem('PATCH selected columns', 'patchSelected');
   menu.addItem('PATCH all columns', 'patchAll');
   menu.addSeparator();
-  menu.addItem('File upload sidebar', 'uploadSidebar');
+  menu.addItem('Upload local files (sidebar)', 'uploadSidebar');
+  menu.addItem('Generate S3 cmd line for file uploading', 'generateS3UploadCmd');
   menu.addSeparator();
 
   const submenuTools = SpreadsheetApp.getUi().createMenu('🛠 Tools');
