@@ -25,6 +25,8 @@ global.onOpen = () => {
   submenuTools.addSeparator();
   submenuTools.addItem('Create a new sheet with updated profile schema', 'updateCurrentSheet');
   submenuTools.addSeparator();
+  submenuTools.addItem('Create template sheets for all profiles', 'createSheetsForAllProfiles');
+  submenuTools.addSeparator();
   submenuTools.addItem('Export selected row to JSON', 'convertSelectedRowToJson');
   submenuTools.addItem('Export sheet to JSON', 'exportToJsonText');
   submenuTools.addItem('Export sheet to JSON file (Google Drive)', 'exportToJson');
@@ -32,6 +34,7 @@ global.onOpen = () => {
   submenuTools.addItem('Make a new template row (ADMIN ONLY)', 'makeTemplateForAdmin');
   submenuTools.addItem('GET metadata from portal (ADMIN ONLY)', 'getMetadataForAllForAdmin');
   submenuTools.addItem('PUT metadata to portal (ADMIN ONLY)', 'putAll');
+  submenuTools.addSeparator();
 
   const submenuDeveloper = SpreadsheetApp.getUi().createMenu('🛠 Developers only (for debugging)');
   submenuDeveloper.addItem('Show current sheet developer metadata', 'showSheetAllDevMetadata');
@@ -39,8 +42,6 @@ global.onOpen = () => {
   submenuDeveloper.addItem("Set current sheet's last used schema version", 'setLastUsedSchemaVersion');
   submenuDeveloper.addSeparator();
   submenuDeveloper.addItem('Authorize for ENCODE', 'authorizeForEncode');
-  submenuDeveloper.addSeparator();
-  submenuDeveloper.addItem('Create template sheets for core set profiles', 'createSheetsForCoreSetProfiles');
   submenuTools.addSubMenu(submenuDeveloper);
 
   menu.addSubMenu(submenuTools);
