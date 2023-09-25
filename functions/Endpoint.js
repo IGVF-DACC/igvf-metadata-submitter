@@ -7,7 +7,11 @@ curl "https://www.encodeproject.org/profiles/?format=json&frame=object" \
   | jq | perl -ne '/\/profiles\/(.+).json/ and print "  \"$1\",\n";' | sort | uniq
 
 
-ALL_IGVF_PROFILES from the following command line (snapshotted at 09/06/2023)
+ALL_IGVF_PROFILES from "ORDER" array in the following file (snapshotted at 09/25/2023)
+It's an ordered list of profiles:
+  https://github.com/IGVF-DACC/igvfd/blob/dev/src/igvfd/loadxl.py#L15
+
+Double-check it with profiles retrieved with the following command line
 
 curl "https://api.data.igvf.org/profiles?format=json&frame=object" \
   | jq | perl -ne '/\/profiles\/(.+).json/ and print "  \"$1\",\n";' | sort | uniq
@@ -183,53 +187,53 @@ const CORE_SET_ENCODE_PROFILES = [
 ];
 
 const ALL_IGVF_PROFILES = [
-  "access_key",
-  "alignment_file",
-  "analysis_set",
-  "analysis_step",
-  "assay_term",
-  "auxiliary_set",
+  "user",
   "award",
-  "biomarker",
-  "configuration_file",
-  "construct_library",
-  "construct_library_set",
-  "curated_set",
+  "source",
+  "lab",
   "document",
   "gene",
-  "human_donor",
-  "human_genomic_variant",
-  "image",
-  "in_vitro_system",
-  "lab",
-  "matrix_file",
-  "measurement_set",
-  "model",
-  "model_set",
-  "modification",
-  "multiplexed_sample",
-  "page",
-  "phenotype_term",
-  "phenotypic_feature",
-  "platform_term",
-  "prediction",
-  "prediction_set",
-  "primary_cell",
-  "publication",
-  "reference_file",
-  "rodent_donor",
   "sample_term",
-  "sequence_file",
-  "signal_file",
+  "assay_term",
+  "phenotype_term",
+  "platform_term",
+  "phenotypic_feature",
+  "human_donor",
+  "rodent_donor",
+  "treatment",
+  "modification",
+  "human_genomic_variant",
+  "biomarker",
+  "tissue",
+  "in_vitro_system",
+  "primary_cell",
+  "technical_sample",
+  "whole_organism",
+  "multiplexed_sample",
+  "curated_set",
   "software",
   "software_version",
-  "source",
-  "technical_sample",
-  "tissue",
-  "treatment",
-  "user",
-  "whole_organism",
+  "construct_library",
+  "construct_library_set",
+  "image",
+  "page",
   "workflow",
+  "publication",
+  "access_key",
+  "measurement_set",
+  "analysis_set",
+  "model",
+  "model_set",
+  "auxiliary_set",
+  "prediction",
+  "prediction_set",
+  "reference_file",
+  "sequence_file",
+  "signal_file",
+  "alignment_file",
+  "configuration_file",
+  "matrix_file",
+  "analysis_step"
 ];
 
 const CORE_SET_IGVF_PROFILES = [
