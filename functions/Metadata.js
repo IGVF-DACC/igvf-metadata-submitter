@@ -222,7 +222,7 @@ function setAttachment(attachmentJson) {
   var base64EncodedStr = Utilities.base64Encode(file.getBlob().getBytes());
 
   var attachment = {
-    download: path,
+    download: getBasename(path),
     type: mimeType,
     href: `data:${mimeType};base64,${base64EncodedStr}`
   }
