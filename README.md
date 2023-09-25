@@ -28,7 +28,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.7" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.2.7 (WRN-453)" --rootDir ./dist
 ```
 
 Get the script ID from the output and edit `scriptId` in `.clasp.json`.
@@ -42,8 +42,7 @@ $ npm run deploy
 
 Make a copy of this portable version and grant any required permissions.
 
-`v0.2.7`: https://docs.google.com/spreadsheets/d/1fq1Tk297428Zc5J1B22Tcv9wFuPRRjp6Osr8a1LjRSo/edit?usp=sharing
-
+`v0.2.7 (WRN-453)`: https://docs.google.com/spreadsheets/d/1gWEHGdi0eNjaX1mmC3FrgHFntfhWMib3ipQeas3ukzI/edit?usp=sharing
 
 ## Settings
 
@@ -114,3 +113,9 @@ Click on menu `IGVF/ENCODE` - `Upload sidebar` and read the instruction carefull
 `#upload_cmd` is optional for manual uploading using S3 CLI. If you want to upload from a remote server via AWS CLI, then drag and drop any empty folder and click on the initialize button. Make sure that `--body` parameter in `#upload_cmd` points to a correct path on a remote server.
 
 You need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory.
+
+### Attachment
+
+For a profile with `attachment` property (e.g. `document` profile), you can define `attachment` column as a JSON string `{"path":"/GOOGLE/DRIVE/PATH/TO/FILE/me.pdf"}`.
+
+It is recommended to make a local directory for document files only on your computer, and then drag and drop the folder itself to your Google Drive. Then all files in it will be transferred to Google Drive while keeping the directory structure.
