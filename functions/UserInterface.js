@@ -456,9 +456,6 @@ function updateCurrentSheet() {
   updateSheet(currentSheet);
 }
 
-function updateAllSheets() {
-}
-
 function updateSheet(sheet) {
   var endpoint = getEndpoint();
 
@@ -486,9 +483,9 @@ function updateSheet(sheet) {
   createNewSheetAndGetMetadata(sheet, profileName, endpoint);
 }
 
-function createSheetsForCoreSetProfiles() {
+function createSheetsForAllProfiles() {
   var endpoint = getEndpoint();
-  var profiles = getCoreSetProfiles(endpoint);
+  var profiles = getAllProfilesForTemplateGeneration(endpoint);
 
   // check if sheet with profile name already exists
   var spreadsheet = SpreadsheetApp.getActive();
@@ -507,4 +504,5 @@ function createSheetsForCoreSetProfiles() {
   for (var profileName of profiles) {
     createNewSheetAndMakeTemplate(profileName, endpoint);
   }
+  alertBox("Successfully created template sheets for all profiles.");
 }

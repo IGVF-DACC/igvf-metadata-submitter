@@ -236,6 +236,24 @@ const ALL_IGVF_PROFILES = [
   "analysis_step"
 ];
 
+const IGVF_PROFILES_EXCLUSION_LIST_FOR_TEMPLATE_GENERATION = [
+  "access_key",
+  "award",
+  "lab",
+  "gene",
+  "assay_term",
+  "phenotype_term",
+  "platform_term",
+  "sample_term",
+  "page",
+  "source",
+  "user",
+  "human_genomic_variant",
+  "construct_library",
+  "prediction",
+  "model",
+];
+
 const CORE_SET_IGVF_PROFILES = [
   "document",
   "measurement_set",
@@ -298,10 +316,12 @@ function getIgvfEndpointsAvailableForUsers() {
   return IGVF_ENDPOINTS.filter(e => e !== ENDPOINT_IGVF_TEST);
 }
 
-function getCoreSetProfiles(endpoint) {
+function getAllProfilesForTemplateGeneration(endpoint) {
   if (isEncodeEndpoint(endpoint)) {
-    return CORE_SET_ENCODE_PROFILES;
+    return ALL_ENCODE_PROFILES;
   } else if (isIgvfEndpoint(endpoint)) {
-    return CORE_SET_IGVF_PROFILES;
+    // apply exclusion list for igvf profiles
+    return ALL_IGVF_PROFILES
+      .filter(item => !IGVF_PROFILES_EXCLUSION_LIST_FOR_TEMPLATE_GENERATION.includes(item));
   }
 }
