@@ -95,7 +95,7 @@ function setProfileName(sheet, input) {
   // if sheet is empty then make a template row automatically
   var currentSheet = sheet ? sheet : getCurrentSheet();
   if (isSheetEmpty(currentSheet)) {
-    makeTemplate(currentSheet, forAdmin=false);
+    makeTemplate(currentSheet, forAdmin=false, newSheet=true);
   }
 }
 

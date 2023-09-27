@@ -82,7 +82,7 @@ function showSheetInfoAndHeaderLegend() {
 
 }
 
-function applyProfileToSheet(sheet, profile) {
+function applyProfileToSheet(sheet, profile, newSheet=false) {
   if (!profile && !checkProfile()) {
     return;
   }
@@ -94,11 +94,13 @@ function applyProfileToSheet(sheet, profile) {
     profile = getProfile(profileName, getEndpoint());
   }
 
-  // clear tooltip and dropdown menus
-  clearFontColorInSheet(sheet);
-  clearNoteInSheet(sheet);
-  clearFormatInSheet(sheet);
-  clearDataValidationsInSheet(sheet);
+  // clear tooltip and dropdown menus for non-empty sheets only
+  if (!newSheet) {
+    clearFontColorInSheet(sheet);
+    clearNoteInSheet(sheet);
+    clearFormatInSheet(sheet);
+    clearDataValidationsInSheet(sheet);
+  }
 
   // align all text to TOP to make more readable
   setRangeAlignTop(sheet);
@@ -487,15 +489,25 @@ function createSheetsForAllProfiles() {
   var endpoint = getEndpoint();
   var profiles = getAllProfilesForTemplateGeneration(endpoint);
 
+  var existingProfileNames = [];
   // check if sheet with profile name already exists
   var spreadsheet = SpreadsheetApp.getActive();
   for (var profileName of profiles) {
     if (spreadsheet.getSheetByName(profileName)) {
-      alertBox(`Sheet with name "${profileName}" already exists. Please delete it first.`);
-      return;
+      existingProfileNames.push(profileName);
     }
   }
+  var existingSheetWarning = "";
+  if (existingProfileNames) {
+    existingSheetWarning =
+      "Found existing sheet names with profiles. Skipping these profiles:\n\n" +
+      JSON.stringify(existingProfileNames) +
+      "\n\n\n";
+    profiles = profiles.filter(item => !existingProfileNames.includes(item));
+  }
+
   if (!alertBoxOkCancel(
+    existingSheetWarning +
     "Are you sure to proceed to create template sheets for the following profiles?\n\n" +
     JSON.stringify(profiles))) {
     return;
@@ -504,5 +516,5 @@ function createSheetsForAllProfiles() {
   for (var profileName of profiles) {
     createNewSheetAndMakeTemplate(profileName, endpoint);
   }
-  alertBox("Successfully created template sheets for all profiles.");
+  alertBox("Successfully created template sheets.");
 }

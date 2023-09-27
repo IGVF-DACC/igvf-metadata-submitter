@@ -39,5 +39,4 @@ function createNewSheetAndMakeTemplate(profileName, endpoint) {
   // create a new sheet (no need to set focus on it)
   var newSheet = createNewSheet(profileName, false);
   setProfileName(newSheet, profileName);
-  // makeTemplate(newSheet, forAdmin=false);
 }
