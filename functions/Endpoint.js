@@ -7,7 +7,7 @@ curl "https://www.encodeproject.org/profiles/?format=json&frame=object" \
   | jq | perl -ne '/\/profiles\/(.+).json/ and print "  \"$1\",\n";' | sort | uniq
 
 
-ALL_IGVF_PROFILES from "ORDER" array in the following file (snapshotted at 09/25/2023)
+ALL_IGVF_PROFILES from "ORDER" array in the following file (snapshotted at 09/27/2023)
 It's an ordered list of profiles:
   https://github.com/IGVF-DACC/igvfd/blob/dev/src/igvfd/loadxl.py#L15
 
