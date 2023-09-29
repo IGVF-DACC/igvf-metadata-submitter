@@ -59,7 +59,8 @@ const SELECTED_PROP_KEYS_FOR_TOOLTIP = [
   "comment",
   "type",
   "readonly",
-  "notSubmittable"
+  "notSubmittable",
+  "linkTo",
 ];
 
 function isValidProfileName(profileName, endpoint) {
@@ -304,10 +305,6 @@ function makeTooltipForProp(profile, prop) {
     .map(key => {return `* ${key}\n${propInProfile[key]}`})
     .join('\n\n');
 
-  // additionally find linkTo profile and add to tooltip
-  if (propInProfile.hasOwnProperty("linkTo")) {
-    tooltip += `\n\n* linkTo\n${propInProfile.linkTo}`;
-  }
   if (propInProfile.hasOwnProperty("items") && propInProfile.items.hasOwnProperty("linkTo")) {
     tooltip += `\n\n* linkTo\n${propInProfile.items.linkTo}`;
   }
