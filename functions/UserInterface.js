@@ -68,7 +68,7 @@ function showSheetInfoAndHeaderLegend() {
     "- red: required property\n" +
     "- blue: identifying property\n" +
     "- black: other editable property\n" +
-    "- gray: ADMIN only property (readonly,nonSubmittable,'Do not sumit')\n\n" +
+    "- gray: ADMIN only property (readonly,nonSubmittable,'Do not submit')\n\n" +
 
     "* Commented properties (filtered out when being sent to the portal)\n" +
     "- #skip: Set it to 1 to skip any READ/WRITE REST action for a row.\n" +
