@@ -304,10 +304,18 @@ function makeTooltipForProp(profile, prop) {
     .map(key => {return `* ${key}\n${propInProfile[key]}`})
     .join('\n\n');
 
+  // additionally find linkTo profile and add to tooltip
+  if (propInProfile.hasOwnProperty("linkTo")) {
+    tooltip += `\n\n* linkTo\n${propInProfile.linkTo}`;
+  }
+  if (propInProfile.hasOwnProperty("items") && propInProfile.items.hasOwnProperty("linkTo")) {
+    tooltip += `\n\n* linkTo\n${propInProfile.items.linkTo}`;
+  }
+
   // additionally find comment in dependency and add to tooltip
   var dependencyProp = getPropInDependentSchemas(profile, prop)
   if (dependencyProp && dependencyProp.hasOwnProperty("comment")) {
-    tooltip += `\n\n* dependency\n${dependencyProp["comment"]}`
+    tooltip += `\n\n* dependency\n${dependencyProp["comment"]}`;
   }
 
   return tooltip;
