@@ -305,8 +305,19 @@ function makeTooltipForProp(profile, prop) {
     .map(key => {return `* ${key}\n${propInProfile[key]}`})
     .join('\n\n');
 
+  // find linkTo for Array type and add it to tooltip
   if (propInProfile.hasOwnProperty("items") && propInProfile.items.hasOwnProperty("linkTo")) {
     tooltip += `\n\n* linkTo\n${propInProfile.items.linkTo}`;
+  }
+
+  // find submissionExample for Array type and add it to tooltip
+  if (propInProfile.hasOwnProperty("submissionExample")) {
+    if (propInProfile.submissionExample.hasOwnProperty("appscript")) {
+      tooltip += `\n\n* submissionExample (appscript)\n${propInProfile.submissionExample.appscript}`;
+    }
+    if (propInProfile.submissionExample.hasOwnProperty("igvf_utils")) {
+      tooltip += `\n\n* submissionExample (igvf_utils)\n${propInProfile.submissionExample.igvf_utils}`;
+    }
   }
 
   // additionally find comment in dependency and add to tooltip
