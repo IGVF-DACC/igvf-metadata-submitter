@@ -4,9 +4,6 @@ URL_PREFIX_UPDATE_HELP='https://github.com/IGVF-DACC/igvf-metadata-submitter/blo
 URL_SUFFIX_UPDATE_HELP='/UPDATE.md';
 
 
-https://github.com/IGVF-DACC/igvf-metadata-submitter/blob/v0.2.6/README.md
-
-
 function getScriptVersion() {
   return SCRIPT_VERSION;
 }
