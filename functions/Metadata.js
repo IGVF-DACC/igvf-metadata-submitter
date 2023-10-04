@@ -401,14 +401,6 @@ function validateSheet(sheet, profileName, endpointForProfile) {
   return numSubmitted;
 }
 
-function addMetadataTemplateToSheet(sheet, profile, forAdmin=false) {
-  var metadataObj = makeMetadataTemplateFromProfile(profile, forAdmin);
-  var sortedProps = getSortedProps(Object.keys(metadataObj), profile);
-  addJsonToSheet(sheet, metadataObj, sortedProps);
-  // for schema version checking
-  setLastUsedSchemaVersion(sheet, getProfileSchemaVersion(profile));
-}
-
 function createNewSheetAndGetMetadata(sheet, profileName, endpoint) {
   // Copy current sheet's identifying columns to a new sheet
   // and then do GET to get latest metadata from the portal
@@ -434,7 +426,7 @@ function createNewSheetAndGetMetadata(sheet, profileName, endpoint) {
   var schemaVersion = getProfileSchemaVersion(profile);
   var newSheetName = `${currentSheetName}_v${schemaVersion}`;
   if (spreadsheet.getSheetByName(newSheetName)) {
-    alertBox(`Faild to create a new sheet, it already exists: ${newSheetName}`);
+    alertBox(`Faild to create a new sheet since it already exists: ${newSheetName}.`);
     return;
   }
 
@@ -449,9 +441,7 @@ function createNewSheetAndGetMetadata(sheet, profileName, endpoint) {
     currentNewSheetCol++;
   }
 
-  // copy DeleveoptMetadata (endpoints and profile name) to new sheet
-  setEndpointRead(newSheet, getEndpointRead(sheet));
-  setEndpointWrite(newSheet, getEndpointWrite(sheet));
+  // copy DeveloperMetadata (profile name) to new sheet
   setProfileName(newSheet, getProfileName(sheet));
 
   // run GET on new sheet to get metadata from the portal

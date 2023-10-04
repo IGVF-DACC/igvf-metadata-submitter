@@ -7,81 +7,46 @@ But they are stored separately in different scopes.
 
 e.g. getSpreadsheetDevMetadata vs. getSheetDevMetadata(sheet)
 
+Dev Notes:
+
+As of 0.3.0, script uses the same endpoint for both read/write actions
+but script still uses KEY_ENDPOINT_WRITE for backward compatibility
 */
 
-const KEY_ENDPOINT_READ = "endpointRead";
+// still using "endpointWrite" for backward compatibility
 const KEY_ENDPOINT_WRITE = "endpointWrite";
 const KEY_PROFILE_NAME = "profileName";
 const KEY_LAST_USED_SCHEMA_VERSION = "lastUsedSchemaVersion";
 
 
-function getDefaultEndpointRead() {
-  var defaultEndpointRead = getSpreadsheetDevMetadata(KEY_ENDPOINT_READ);
-  return defaultEndpointRead ? defaultEndpointRead : DEFAULT_ENDPOINT_READ
+function getDefaultEndpoint() {
+  var defaultEndpoint = getSpreadsheetDevMetadata(KEY_ENDPOINT_WRITE);
+  return defaultEndpoint ? defaultEndpoint : DEFAULT_ENDPOINT_WRITE
 }
 
-function getDefaultEndpointWrite() {
-  var defaultEndpointWrite = getSpreadsheetDevMetadata(KEY_ENDPOINT_WRITE);
-  return defaultEndpointWrite ? defaultEndpointWrite : DEFAULT_ENDPOINT_WRITE
-}
-
-function getDefaultProfileName() {
-  return getSpreadsheetDevMetadata(KEY_PROFILE_NAME);
-}
-
-function getEndpointRead(sheet) {
-  var endpoint = getSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
-    KEY_ENDPOINT_READ
-  );
-  return endpoint ? endpoint : getDefaultEndpointRead();
-}
-
-function getEndpointWrite(sheet) {
-  var endpoint = getSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
-    KEY_ENDPOINT_WRITE
-  );
-  return endpoint ? endpoint : getDefaultEndpointWrite();
+function getEndpoint() {
+  // As of 0.3.0, it's just a wrapper for default endpoint
+  return getDefaultEndpoint();
 }
 
 function getProfileName(sheet) {
   var profileName = getSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_PROFILE_NAME
   );
-  return profileName ? profileName : getDefaultProfileName();
+  return profileName ? profileName : null;
 }
 
 function getLastUsedSchemaVersion(sheet) {
   return getSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_LAST_USED_SCHEMA_VERSION
   );
 }
 
-function setDefaultEndpointRead(input) {
-  var endpoint = input !== undefined ? input : Browser.inputBox(
-    `* Current default endpoint for READs (GET):\\n${getDefaultEndpointRead()}\\n\\n` +
-    "* Supported IGVF endpoints:\\n" +
-    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
-    "Enter a new endpoint:"
-  );
-  if (endpoint) {
-    endpoint = trimTrailingSlash(endpoint);
-  }
-  if (!isValidEndpoint(endpoint)) {
-    if (endpoint !== "cancel") {
-      alertBox("Wrong endpoint: " + endpoint);
-    }
-    return;
-  }
-  setSpreadsheetDevMetadata(KEY_ENDPOINT_READ, endpoint);
-}
-
-function setDefaultEndpointWrite(input) {
-  var endpoint = input !== undefined ? input : Browser.inputBox(
-    `* Current default endpoint for Write actions (PUT/POST):\\n${getDefaultEndpointWrite()}\\n\\n` +
+function setDefaultEndpoint(input) {
+  var endpoint = input ? input : Browser.inputBox(
+    `* Current endpoint:\\n${getDefaultEndpoint()}\\n\\n` +
     "* Supported IGVF endpoints:\\n" +
     `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
     'Enter a new endpoint:'
@@ -99,102 +64,48 @@ function setDefaultEndpointWrite(input) {
   setSpreadsheetDevMetadata(KEY_ENDPOINT_WRITE, endpoint);
 }
 
-
-function setEndpointRead(sheet, input) {
-  var endpoint = input !== undefined ? input : Browser.inputBox(
-    `* Current endpoint for READs (GET):\\n${getEndpointRead(sheet)}\\n\\n` +
-    "* Supported IGVF endpoints:\\n" +
-    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
-    "Enter a new endpoint:"
-  );
-  if (endpoint) {
-    endpoint = trimTrailingSlash(endpoint);
-  }
-  if (!isValidEndpoint(endpoint)) {
-    if (endpoint !== "cancel") {
-      alertBox("Wrong endpoint: " + endpoint);
-    }
-    return;
-  }
-  setSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
-    KEY_ENDPOINT_READ,
-    endpoint
-  );
-}
-
-function setEndpointWrite(sheet, input) {
-  var endpoint = input !== undefined ? input : Browser.inputBox(
-    `* Current endpoint for Write actions (PUT/POST):\\n${getEndpointWrite(sheet)}\\n\\n` +
-    "* Supported IGVF endpoints:\\n" +
-    `${getIgvfEndpointsAvailableForUsers().join("\\n")}\\n\\n` +
-    'Enter a new endpoint:'
-  );
-  if (endpoint) {
-    endpoint = trimTrailingSlash(endpoint);
-  }
-  if (!isValidEndpoint(endpoint)) {
-    if (endpoint !== "cancel") {
-      alertBox("Wrong endpoint: " + endpoint);
-    }
-    return;
-  }
-  setSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
-    KEY_ENDPOINT_WRITE,
-    endpoint
-  );
+function setEndpoint(sheet, input) {
+  // As of 0.3.0, it's just a wrapper for default endpoint
+  setDefaultEndpoint(input);
 }
 
 function setProfileName(sheet, input) {    
-  var profileName = input !== undefined ? input : Browser.inputBox(
+  var profileName = input ? input : Browser.inputBox(
     `* Current profile name:\\n${getProfileName(sheet)}\\n\\n` +
     "Snakecase (with _) or capitalized CamelCase are allowed for a profile name.\\n" +
     "No plural (s) is allowed in profile name.\\n" +
-    "(e.g. MeasurementSet, measurement_set, lab):\\n\\n" +
+    "(e.g. MeasurementSet, measurement_set, sequence_file, lab):\\n\\n" +
     "Enter a new profile name:"
   );
   if (getProfileName(sheet) && getProfileName(sheet) !== profileName) {
     // if profile name has changed then reset last used schema version
     resetLastUsedSchemaVersion(sheet);
   }
-  if (!isValidProfileName(profileName, getEndpointRead())) {
+  if (!isValidProfileName(profileName, getEndpoint())) {
     if (profileName !== "cancel") {
       alertBox("Wrong profile name: " + profileName);
     }
     return;
   }
   setSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_PROFILE_NAME,
     profileName
   );
-}
-
-function setDefaultProfileName(input) {
-  var profileName = input !== undefined ? input : Browser.inputBox(
-    `* Current default profile name:\\n${getDefaultProfileName()}\\n\\n` +
-    "Snakecase (with _) or capitalized CamelCase are allowed for a profile name.\\n" +
-    "No plural (s) is allowed in profile name.\\n" +
-    "(e.g. Experiment, BiosampleType, biosample_type, lab):\\n\\n" +
-    "Enter a new profile name:"
-  );
-  if (!isValidProfileName(profileName, getEndpointRead())) {
-    if (profileName !== "cancel") {
-      alertBox("Wrong profile name: " + profileName);
-    }
-    return;
+  // if sheet is empty then make a template row automatically
+  var currentSheet = sheet ? sheet : getCurrentSheet();
+  if (isSheetEmpty(currentSheet)) {
+    makeTemplate(currentSheet, forAdmin=false, newSheet=true);
   }
-  setSpreadsheetDevMetadata(KEY_PROFILE_NAME, profileName);
 }
 
 function setLastUsedSchemaVersion(sheet, input) {
-  var schemaVersion = input !== undefined ? input : Browser.inputBox(
+  var schemaVersion = input ? input : Browser.inputBox(
     `* Current sheet's last used schema version:\\n${getLastUsedSchemaVersion(sheet)}\\n\\n` +
     "Enter a new schema version:"
   );
   setSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_LAST_USED_SCHEMA_VERSION,
     schemaVersion
   );
@@ -202,7 +113,7 @@ function setLastUsedSchemaVersion(sheet, input) {
 
 function resetLastUsedSchemaVersion(sheet) {
   setSheetDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet(),
+    sheet ? sheet : getCurrentSheet(),
     KEY_LAST_USED_SCHEMA_VERSION,
     undefined
   );
@@ -210,7 +121,7 @@ function resetLastUsedSchemaVersion(sheet) {
 
 function showSheetAllDevMetadata(sheet) {
   var allMetadata = getSheetAllDevMetadata(
-    sheet !== undefined ? sheet : getCurrentSheet()
+    sheet ? sheet : getCurrentSheet()
   );
   alertBox(JSON.stringify(allMetadata, null, 4));
 }

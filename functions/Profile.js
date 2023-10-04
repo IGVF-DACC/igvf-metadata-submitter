@@ -59,7 +59,8 @@ const SELECTED_PROP_KEYS_FOR_TOOLTIP = [
   "comment",
   "type",
   "readonly",
-  "notSubmittable"
+  "notSubmittable",
+  "linkTo",
 ];
 
 function isValidProfileName(profileName, endpoint) {
@@ -67,7 +68,6 @@ function isValidProfileName(profileName, endpoint) {
     // make capitalized sentence from snakecase 
     var capitalizedName = capitalizeWord(snakeToCamel(name));
     if ([name, capitalizedName].includes(profileName)) {
-      Logger.log(profileName + " " + name + " " + capitalizedName);
       return true;
     }
   }
@@ -305,10 +305,25 @@ function makeTooltipForProp(profile, prop) {
     .map(key => {return `* ${key}\n${propInProfile[key]}`})
     .join('\n\n');
 
+  // find linkTo for Array type and add it to tooltip
+  if (propInProfile.hasOwnProperty("items") && propInProfile.items.hasOwnProperty("linkTo")) {
+    tooltip += `\n\n* linkTo\n${propInProfile.items.linkTo}`;
+  }
+
+  // find submissionExample for Array type and add it to tooltip
+  if (propInProfile.hasOwnProperty("submissionExample")) {
+    if (propInProfile.submissionExample.hasOwnProperty("appscript")) {
+      tooltip += `\n\n* submissionExample (appscript)\n${propInProfile.submissionExample.appscript}`;
+    }
+    if (propInProfile.submissionExample.hasOwnProperty("igvf_utils")) {
+      tooltip += `\n\n* submissionExample (igvf_utils)\n${propInProfile.submissionExample.igvf_utils}`;
+    }
+  }
+
   // additionally find comment in dependency and add to tooltip
   var dependencyProp = getPropInDependentSchemas(profile, prop)
   if (dependencyProp && dependencyProp.hasOwnProperty("comment")) {
-    tooltip += `\n\n* dependency\n${dependencyProp["comment"]}`
+    tooltip += `\n\n* dependency\n${dependencyProp["comment"]}`;
   }
 
   return tooltip;
@@ -374,7 +389,8 @@ function highlightHeaderAndDataCell(sheet, profile) {
 
     if (!isCommentedProp(profile, prop) && !profile["properties"].hasOwnProperty(prop)) {
       Logger.info(
-        `Property ${prop} does not exist in current profile\n\nPossible mismatch between profile and accession?`
+        `Property ${prop} does not exist in current profile(${profile.title})\n\n` +
+        "Possible mismatch between profile and accession?"
       );
       missingProps.push(prop);
       continue;
@@ -410,7 +426,7 @@ function checkProfile() {
   var profileName = getProfileName();
 
   if (getProfileName()) {
-    var profile = getProfile(getProfileName(), getEndpointRead())
+    var profile = getProfile(getProfileName(), getEndpoint())
 
     if (!profile) {
       alertBox(
@@ -441,6 +457,6 @@ function checkProfile() {
 
   alertBox(
     "No profile name found.\n" +
-    "Go to the menu 'IGVF' -> 'Settings & auth' to define it."
+    'Go to the menu "IGVF" -> "Set profile name".'
   );
 }
