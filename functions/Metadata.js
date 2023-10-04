@@ -197,6 +197,38 @@ function findIdentifyingPropValColInRow(sheet, row, profile) {
   return [undefined, undefined, undefined];
 }
 
+
+function setAttachment(attachmentJson) {
+  // attachmentJson has "path" property only
+  var path = attachmentJson["path"];
+  if (!path) {
+    alertBox(
+      'attachment is not a valid JSON string. A valid example format is {"path": "/GOOGLE/DRIVE/PATH/file.pdf"}.'
+    );
+    return;
+  }
+
+  var file = getDriveFileFromPath(path);
+  if (!file) {
+    alertBox(`${path} not found on Google Drive.`);
+    return;
+  }
+
+  var mimeType = file.getMimeType();
+  if (mimeType === "application/x-gzip") {
+    mimeType = "application/gzip";
+  }
+
+  var base64EncodedStr = Utilities.base64Encode(file.getBlob().getBytes());
+
+  var attachment = {
+    download: getBasename(path),
+    type: mimeType,
+    href: `data:${mimeType};base64,${base64EncodedStr}`
+  }
+  return attachment;
+}
+
 function submitSheetToPortal(
   sheet, profileName, endpointForPut, endpointForProfile, method, selectedColsForPatch=[]
 ) {
@@ -224,6 +256,21 @@ function submitSheetToPortal(
     var json = typeCastJsonValuesByProfile(
       profile, jsonBeforeTypeCast, keepCommentedProps=false
     );
+
+    // if there is an attachment (e.g. document profile)
+    // then read from Google Drive, base64encode its content
+    if (
+      hasAttachment(profile) &&
+      json.hasOwnProperty(HEADER_PROP_ATTACHMENT) &&
+      json[HEADER_PROP_ATTACHMENT]
+    ) {
+      // overwrite on payload's attachment
+      var attachment = setAttachment(json[HEADER_PROP_ATTACHMENT]);
+      if (!attachment) {
+        continue;
+      }
+      json[HEADER_PROP_ATTACHMENT] = attachment;
+    }
 
     var payloadJson = {};
 
@@ -354,14 +401,6 @@ function validateSheet(sheet, profileName, endpointForProfile) {
   return numSubmitted;
 }
 
-function addMetadataTemplateToSheet(sheet, profile, forAdmin=false) {
-  var metadataObj = makeMetadataTemplateFromProfile(profile, forAdmin);
-  var sortedProps = getSortedProps(Object.keys(metadataObj), profile);
-  addJsonToSheet(sheet, metadataObj, sortedProps);
-  // for schema version checking
-  setLastUsedSchemaVersion(sheet, getProfileSchemaVersion(profile));
-}
-
 function createNewSheetAndGetMetadata(sheet, profileName, endpoint) {
   // Copy current sheet's identifying columns to a new sheet
   // and then do GET to get latest metadata from the portal
@@ -387,7 +426,7 @@ function createNewSheetAndGetMetadata(sheet, profileName, endpoint) {
   var schemaVersion = getProfileSchemaVersion(profile);
   var newSheetName = `${currentSheetName}_v${schemaVersion}`;
   if (spreadsheet.getSheetByName(newSheetName)) {
-    alertBox(`Faild to create a new sheet, it already exists: ${newSheetName}`);
+    alertBox(`Faild to create a new sheet since it already exists: ${newSheetName}.`);
     return;
   }
 
@@ -402,9 +441,7 @@ function createNewSheetAndGetMetadata(sheet, profileName, endpoint) {
     currentNewSheetCol++;
   }
 
-  // copy DeleveoptMetadata (endpoints and profile name) to new sheet
-  setEndpointRead(newSheet, getEndpointRead(sheet));
-  setEndpointWrite(newSheet, getEndpointWrite(sheet));
+  // copy DeveloperMetadata (profile name) to new sheet
   setProfileName(newSheet, getProfileName(sheet));
 
   // run GET on new sheet to get metadata from the portal

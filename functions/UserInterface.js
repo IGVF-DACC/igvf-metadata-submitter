@@ -23,8 +23,8 @@ function search() {
     return;
   }
   var currentProp = getCellValue(sheet, HEADER_ROW, currentCol);
-  var profile = getProfile(getProfileName(), getEndpointRead());
-  var endpoint = getEndpointRead();
+  var profile = getProfile(getProfileName(), getEndpoint());
+  var endpoint = getEndpoint();
 
   var url = makeSearchUrlForProp(profile, currentProp, endpoint);
 
@@ -49,7 +49,7 @@ function openProfilePage() {
   }
 
   openUrl(
-    makeProfileUrl(getProfileName(), getEndpointRead(), format="page")
+    makeProfileUrl(getProfileName(), getEndpoint(), format="page")
   );
 }
 
@@ -59,22 +59,16 @@ function openToolGithubPage() {
 
 function showSheetInfoAndHeaderLegend() {
   alertBox(
-    "* Settings (Current sheet)\n" +
-    `- Endpoint READ (GET, profile): ${getEndpointRead()}\n` +
-    `- Endpoint WRITE (POST/PATCH/PUT): ${getEndpointWrite()}\n` +
+    "* Settings\n" +
+    `- Endpoint: ${getEndpoint()}\n` +
     `- Profile name: ${getProfileName()}\n` +
-    `- Last used schema version: ${getLastUsedSchemaVersion()}\n\n` +
-
-    "* Settings (Global)\n" +
-    `- Endpoint READ (GET, profile): ${getDefaultEndpointRead()}\n` +
-    `- Endpoint WRITE (POST/PATCH/PUT): ${getDefaultEndpointWrite()}\n` +
-    `- Profile name: ${getDefaultProfileName()}\n\n` +
+    `- Last used schema version of profile: ${getLastUsedSchemaVersion()}\n\n` +
 
     "* Color legends for header properties\n" +
     "- red: required property\n" +
     "- blue: identifying property\n" +
     "- black: other editable property\n" +
-    "- gray: ADMIN only property (readonly,nonSubmittable,'Do not sumit')\n\n" +
+    "- gray: ADMIN only property (readonly,nonSubmittable,'Do not submit')\n\n" +
 
     "* Commented properties (filtered out when being sent to the portal)\n" +
     "- #skip: Set it to 1 to skip any READ/WRITE REST action for a row.\n" +
@@ -88,19 +82,25 @@ function showSheetInfoAndHeaderLegend() {
 
 }
 
-function applyProfileToSheet() {
-  if (!checkProfile()) {
+function applyProfileToSheet(sheet, profile, newSheet=false) {
+  if (!profile && !checkProfile()) {
     return;
   }
+  if (!sheet) {
+    sheet = getCurrentSheet();
+  }
+  var profileName = getProfileName(sheet);
+  if (!profile) {
+    profile = getProfile(profileName, getEndpoint());
+  }
 
-  var sheet = getCurrentSheet();
-  var profile = getProfile(getProfileName(), getEndpointRead());
-
-  // clear tooltip and dropdown menus
-  clearFontColorInSheet(sheet);
-  clearNoteInSheet(sheet);
-  clearFormatInSheet(sheet);
-  clearDataValidationsInSheet(sheet);
+  // clear tooltip and dropdown menus for non-empty sheets only
+  if (!newSheet) {
+    clearFontColorInSheet(sheet);
+    clearNoteInSheet(sheet);
+    clearFormatInSheet(sheet);
+    clearDataValidationsInSheet(sheet);
+  }
 
   // align all text to TOP to make more readable
   setRangeAlignTop(sheet);
@@ -110,32 +110,34 @@ function applyProfileToSheet() {
     alertBox(
       "Some properties are missing in the given profile.\n" +
       "- Possible mismatch between profile and accession?\n\n" +
-      "* Current profile: " + getProfileName() + "\n\n" +
+      "* Current profile: " + profileName + "\n\n" +
       "* Missing properties:\n" + missingProps.join(", ")
     );
   }
 }
 
-function makeTemplate(forAdmin=false) {
+function makeTemplate(sheet, forAdmin=false) {
   if (!checkProfile()) {
     return;
   }
 
-  var sheet = getCurrentSheet();
-  var profile = getProfile(getProfileName(), getEndpointRead());
+  if (!sheet) {
+    sheet = getCurrentSheet();
+  }
+  var profileName = getProfileName(sheet);
+  var profile = getProfile(profileName, getEndpoint());
 
   addMetadataTemplateToSheet(sheet, profile, forAdmin);
 
-  applyProfileToSheet();
-  saveSheetSpecificSettings();
+  applyProfileToSheet(sheet, profile);
 }
 
 function makeTemplateForAdmin() {
-  makeTemplate(forAdmin=true);
+  makeTemplate(getCurrentSheet(), forAdmin=true);
 }
 
 function makeTemplateForUser() {
-  makeTemplate(forAdmin=false);
+  makeTemplate(getCurrentSheet(), forAdmin=false);
 }
 
 function getMetadataForAll(forAdmin, showWarning=true) {
@@ -144,7 +146,7 @@ function getMetadataForAll(forAdmin, showWarning=true) {
   }
 
   var sheet = getCurrentSheet();
-  var profile = getProfile(getProfileName(), getEndpointRead());
+  var profile = getProfile(getProfileName(), getEndpoint());
 
   if (profile["identifyingProperties"]
     .filter(prop => findColumnByHeaderValue(sheet, prop))
@@ -165,25 +167,13 @@ function getMetadataForAll(forAdmin, showWarning=true) {
   }
 
   var numUpdated = updateSheetWithMetadataFromPortal(
-    sheet, getProfileName(), getEndpointRead(), getEndpointRead(), forAdmin,
+    sheet, getProfileName(), getEndpoint(), getEndpoint(), forAdmin,
   );
   if (showWarning) {
     alertBox(`Updated ${numUpdated} rows.`);
   }
 
   applyProfileToSheet();
-  saveSheetSpecificSettings();
-}
-
-function saveSheetSpecificSettings() {
-  // If sheet doesn't have sheet specific settings like
-  // read/write endpoint and profile name, then save it to sheet
-  // it's recommended to do this everytime after communicating with the portal
-
-  var sheet = getCurrentSheet();
-  setEndpointRead(sheet, getEndpointRead(sheet));
-  setEndpointWrite(sheet, getEndpointWrite(sheet));
-  setProfileName(sheet, getProfileName(sheet));
 }
 
 function getMetadataForAllForAdmin() {
@@ -200,7 +190,7 @@ function validateJsonWithSchema() {
   }
 
   var numSubmitted = validateSheet(
-    getCurrentSheet(), getProfileName(), getEndpointRead()
+    getCurrentSheet(), getProfileName(), getEndpoint()
   );
   alertBox(`Validated ${numSubmitted} rows.`);
 }
@@ -218,7 +208,7 @@ function convertSelectedRowToJson() {
   }
 
   var json = convertRowToJson(
-    sheet, currentRow, getProfileName(), getEndpointRead(), keepCommentedProps=false
+    sheet, currentRow, getProfileName(), getEndpoint(), keepCommentedProps=false
   );
   var jsonText = JSON.stringify(json, null, EXPORTED_JSON_INDENT);
 
@@ -246,14 +236,14 @@ function putAll() {
     "PUT action will REPLACE metadata on the portal with those on the sheet. " +
     "Therefore, any properties missing on the sheet will also be REMOVED from portal's metadata." +
     "If you are not an admin and just want to patch non-empty values of properties on the sheet, use PATCH instead.\n\n" +
-    `Are you sure to PUT to ${getEndpointWrite()}?`)) {
+    `Are you sure to PUT to ${getEndpoint()}?`)) {
     return;
   }
 
   var numSubmitted = submitSheetToPortal(
-    sheet, getProfileName(), getEndpointWrite(), getEndpointRead(), method="PUT"
+    sheet, getProfileName(), getEndpoint(), getEndpoint(), method="PUT"
   );
-  alertBox(`Submitted (PUT) ${numSubmitted} rows to ${getEndpointWrite()}.`);
+  alertBox(`Submitted (PUT) ${numSubmitted} rows to ${getEndpoint()}.`);
 }
 
 function patchSelected() {
@@ -278,18 +268,17 @@ function patchSelected() {
     `Found ${numData} data row(s).\n\n` +
     "PATCH action will REPLACE properties on the portal with data on selected columns only.\n\n" +
     `Selected properties: ${selectedCols.map(x => x.headerProp).join(",")}` + "\n\n" +
-    `Are you sure to PATCH to ${getEndpointWrite()}?`)) {
+    `Are you sure to PATCH to ${getEndpoint()}?`)) {
     return;
   }
 
   var numSubmitted = submitSheetToPortal(
-    sheet, getProfileName(), getEndpointWrite(), getEndpointRead(), method="PATCH",
+    sheet, getProfileName(), getEndpoint(), getEndpoint(), method="PATCH",
     selectedColsForPatch=selectedCols,
   );
-  alertBox(`PATCHed ${numSubmitted} rows to ${getEndpointWrite()}.`);
+  alertBox(`PATCHed ${numSubmitted} rows to ${getEndpoint()}.`);
 
   applyProfileToSheet();
-  saveSheetSpecificSettings();
 }
 
 function patchAll() {
@@ -307,14 +296,14 @@ function patchAll() {
   if (!alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` + 
     "PATCH action will REPLACE properties on the portal with data on the sheet.\n\n" +
-    `Are you sure to PATCH to ${getEndpointWrite()}?`)) {
+    `Are you sure to PATCH to ${getEndpoint()}?`)) {
     return;
   } 
 
   var numSubmitted = submitSheetToPortal(
-    sheet, getProfileName(), getEndpointWrite(), getEndpointRead(), method="PATCH"
+    sheet, getProfileName(), getEndpoint(), getEndpoint(), method="PATCH"
   );
-  alertBox(`Submitted (PATCH) ${numSubmitted} rows to ${getEndpointWrite()}.`);
+  alertBox(`Submitted (PATCH) ${numSubmitted} rows to ${getEndpoint()}.`);
 }
 
 function postAll() {
@@ -336,17 +325,16 @@ function postAll() {
     "No other properties/values will be updated on the sheet even though some new properties with " +
     "default values are assigned to them on the portal.\n\n" +
     `You can add ${HEADER_COMMENTED_PROP_SKIP} column and set it to 1 for a row that you want to skip REST actions.\n\n` +
-    `Are you sure to POST to ${getEndpointWrite()}?`)) {
+    `Are you sure to POST to ${getEndpoint()}?`)) {
     return;
   }
 
   var numSubmitted = submitSheetToPortal(
-    sheet, getProfileName(), getEndpointWrite(), getEndpointRead(), method="POST"
+    sheet, getProfileName(), getEndpoint(), getEndpoint(), method="POST"
   );
-  alertBox(`Submitted (POST) ${numSubmitted} rows to ${getEndpointWrite()}.`);
+  alertBox(`Submitted (POST) ${numSubmitted} rows to ${getEndpoint()}.`);
 
   applyProfileToSheet();
-  saveSheetSpecificSettings();
 }
 
 function exportToJsonText() {
@@ -357,7 +345,7 @@ function exportToJsonText() {
   var sheet = getCurrentSheet();
 
   var json = exportSheetToJson(
-    sheet, getProfileName(), getEndpointRead(),
+    sheet, getProfileName(), getEndpoint(),
     keepCommentedProps=false,
   );
 
@@ -381,7 +369,7 @@ function exportToJson() {
   );
 
   exportSheetToJsonFile(
-    sheet, getProfileName(), getEndpointRead(),
+    sheet, getProfileName(), getEndpoint(),
     keepCommentedProps=false,
     jsonFilePath=jsonFilePath,
   );
@@ -470,11 +458,8 @@ function updateCurrentSheet() {
   updateSheet(currentSheet);
 }
 
-function updateAllSheets() {
-}
-
 function updateSheet(sheet) {
-  var endpoint = getEndpointRead(sheet);
+  var endpoint = getEndpoint();
 
   // check if profile exists
   var profileName = getProfileName(sheet);
@@ -498,4 +483,38 @@ function updateSheet(sheet) {
   }
 
   createNewSheetAndGetMetadata(sheet, profileName, endpoint);
+}
+
+function createSheetsForAllProfiles() {
+  var endpoint = getEndpoint();
+  var profiles = getAllProfilesForTemplateGeneration(endpoint);
+
+  var existingProfileNames = [];
+  // check if sheet with profile name already exists
+  var spreadsheet = SpreadsheetApp.getActive();
+  for (var profileName of profiles) {
+    if (spreadsheet.getSheetByName(profileName)) {
+      existingProfileNames.push(profileName);
+    }
+  }
+  var existingSheetWarning = "";
+  if (existingProfileNames) {
+    existingSheetWarning =
+      "Found existing sheet names with profiles. Skipping these profiles:\n\n" +
+      JSON.stringify(existingProfileNames) +
+      "\n\n\n";
+    profiles = profiles.filter(item => !existingProfileNames.includes(item));
+  }
+
+  if (!alertBoxOkCancel(
+    existingSheetWarning +
+    "Are you sure to proceed to create template sheets for the following profiles?\n\n" +
+    JSON.stringify(profiles))) {
+    return;
+  }
+
+  for (var profileName of profiles) {
+    createNewSheetAndMakeTemplate(profileName, endpoint);
+  }
+  alertBox("Successfully created template sheets.");
 }
