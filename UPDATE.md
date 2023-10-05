@@ -5,9 +5,9 @@ Please make a copy of original spreadsheet first and run the following on the co
 
 1) Click on the menu `Extensions` - `Apps Script`.
 
-2) Click on `functions.gs` and replace contents with [`functions.js`](https://github.com/IGVF-DACC/igvf-metadata-submitter/releases/download/v0.3.0/functions.js).
+2) Click on `functions.gs` and replace contents with [`functions.gs`](https://github.com/IGVF-DACC/igvf-metadata-submitter/releases/download/v0.3.0/functions.gs).
 
-3) Click on `code.gs` and replace contents with [`code.js`](https://github.com/IGVF-DACC/igvf-metadata-submitter/releases/download/v0.3.0/code.js).
+3) Click on `code.gs` and replace contents with [`code.gs`](https://github.com/IGVF-DACC/igvf-metadata-submitter/releases/download/v0.3.0/code.gs).
 
 4) Refresh the spreadsheet and check the version number in the `IGVF` menu.
 
