@@ -2,7 +2,7 @@
 
 See [`INSTALL.md`](./INSTALL.md) for details about how to create a new Google Sheet document.
 
-Update the followings:
+And then update the followings:
 - var `SCRIPT_VERSION` in `functions/Version.gs`.
 - Google Sheet URL and version number in `README.md`.
 - Version number in `INSTALL.md`.
