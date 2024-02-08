@@ -97,3 +97,8 @@ Color and style represents a type of property.
 
 - <span style="text-decoration:underline">Underline</span>: Searchable property
 - ***Italic+Bold***: Array type property
+
+
+## Developer notes
+
+See (`DEV.md`)[./DEV.md] for details how to maintain this tool.
