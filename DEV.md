@@ -1,6 +1,6 @@
 ### How to bump version and make a new sheet
 
-See (`INSTALL.md`)[./INSTALL.md] for details about how to create a new Google Sheet document.
+See [`INSTALL.md`](./INSTALL.md) for details about how to create a new Google Sheet document.
 
 Update the followings:
 - var `SCRIPT_VERSION` in `functions/Version.gs`.

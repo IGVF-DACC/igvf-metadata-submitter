@@ -101,4 +101,4 @@ Color and style represents a type of property.
 
 ## Developer notes
 
-See (`DEV.md`)[./DEV.md] for details how to maintain this tool.
+See [`DEV.md`](./DEV.md) for details how to maintain this tool.
