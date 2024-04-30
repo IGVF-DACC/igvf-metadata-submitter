@@ -7,7 +7,7 @@ IGVF metadata submitter based on Google Sheet + Google Apps Script.
 
 Make a copy of the following spreadsheet.
 
-`v0.3.2`: https://docs.google.com/spreadsheets/d/1B3rtH8j0D-EI_zJksYD40cuG-eF-RxArKjk2ZvYDOmQ/edit?usp=sharing
+`v0.3.1`: https://docs.google.com/spreadsheets/d/1B3rtH8j0D-EI_zJksYD40cuG-eF-RxArKjk2ZvYDOmQ/edit?usp=sharing
 
 Click on the menu item `IGVF` and then `Authorize for IGVF`. You will see an error message `Authorization Required`. Click on `Continue`, choose your Google account. Click on `Advanced` and `Go to IGVF Metadata Submitter (unsafe)` and then click on `Allow`.
 
