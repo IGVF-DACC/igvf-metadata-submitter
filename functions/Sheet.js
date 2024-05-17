@@ -299,7 +299,7 @@ function getSelectedColumns(sheet, keepCommentedProps=true) {
   var ranges = sheet.getSelection().getActiveRangeList().getRanges();
   for (var i = 0; i < ranges.length; i++) {
     for (var j = 0; j < ranges[i].getNumColumns(); j++) {
-      var col = ranges[i].getColumn() + i;
+      var col = ranges[i].getColumn() + j;
       var headerProp = getCellValue(sheet, HEADER_ROW, col);
       if (!keepCommentedProps && headerProp.startsWith("#")) {
         continue;
