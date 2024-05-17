@@ -37,6 +37,8 @@ Apps Script is free but limited. There is a quota for many actions. e.g. Number 
 
 Go to the spreadsheet and click on `Extensions` - `Apps Script`. Most menu items are linked to functions in `functions/UserInterface.gs` and they are free of arguments. So select any function to debug and click on Debug button.
 
+If you want to debug running the script from google sheet menu item, you can use [Apps Script execution log](https://developers.google.com/apps-script/guides/logging#use_the_apps_script_execution_log).
+
 
 ### How script update (upgrade) works
 

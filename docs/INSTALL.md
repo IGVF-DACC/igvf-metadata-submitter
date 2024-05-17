@@ -18,7 +18,7 @@ Create with a new Google Spreadsheet with the script.
 $ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.3.1" --rootDir ./dist
 ```
 
-Get the script ID from the output and edit `scriptId` in `.clasp.json`.
+Get the new Google Sheets Add-on script ID from the console output and edit `scriptId` in `.clasp.json`.
 
 Deploy the script to the created sheet. Whenver you make changes to the code, run this to update the code in Google Apps Script.
 ```bash
