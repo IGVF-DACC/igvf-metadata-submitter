@@ -47,7 +47,7 @@ If a user clicks on `Check for script update` menu then the code wil check the l
 
 ### How to bump version and make a new sheet
 
-See [`INSTALL.md`](./INSTALL.md) for details about how to create a new Google Sheet document.
+See [`INSTALL.md`](docs/INSTALL.md) for details about how to create a new Google Sheet document.
 
 And then update the followings:
 - var `SCRIPT_VERSION` in `functions/Version.gs`.

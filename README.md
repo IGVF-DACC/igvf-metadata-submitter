@@ -11,7 +11,7 @@ Make a copy of the following spreadsheet.
 
 Click on the menu item `IGVF` and then `Authorize for IGVF`. You will see an error message `Authorization Required`. Click on `Continue`, choose your Google account. Click on `Advanced` and `Go to IGVF Metadata Submitter (unsafe)` and then click on `Allow`.
 
-To build and deploy a new spreadsheet directly from a code, see [INSTALL.md](INSTALL.md).
+To build and deploy a new spreadsheet directly from a code, see [INSTALL.md](docs/INSTALL.md).
 
 ### Authorization
 
@@ -101,4 +101,4 @@ Color and style represents a type of property.
 
 ## Developer notes
 
-See [`DEV.md`](./DEV.md) for details how to maintain this tool.
+See [`DEV.md`](docs/DEV.md) for details how to maintain this tool.
