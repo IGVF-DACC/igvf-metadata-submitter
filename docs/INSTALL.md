@@ -15,7 +15,7 @@ $ sudo npm i @google/clasp@2.3.0 -g
 
 Create with a new Google Spreadsheet with the script.
 ```bash
-$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.3.2" --rootDir ./dist
+$ npx clasp create --type sheets --title "IGVF Metadata Submitter v0.3.3" --rootDir ./dist
 ```
 
 Get the new Google Sheets Add-on script ID from the console output and edit `scriptId` in `.clasp.json`.
