@@ -307,7 +307,7 @@ function patchAll() {
 }
 
 function postAll() {
-  if (!checkProfile()) {
+  if (!checkProfileForPost()) {
     return;
   }
 
