@@ -491,6 +491,7 @@ function checkProfileForPost() {
       );
       return;
     }
+    return true;
   }
 
   alertBox(
