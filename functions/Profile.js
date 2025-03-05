@@ -460,3 +460,42 @@ function checkProfile() {
     'Go to the menu "IGVF" -> "Set profile name".'
   );
 }
+
+function checkProfileForPost() {
+  // check profile for current sheet
+
+  var profileName = getProfileName();
+
+  if (getProfileName()) {
+    var profile = getProfile(getProfileName(), getEndpoint())
+
+    if (!profile) {
+      alertBox(
+        "Found profile name but couldn't get profile from portal. Wrong credentials?\n" +
+        "Go to the menu 'IGVF' -> 'Authorize for IGVF' and input access key and secret pair."
+      );
+      return;
+    }
+
+    // check schema versions of profile and sheet
+    // if they don't match then halt and show warning
+    const sheetSchemaVersion = getLastUsedSchemaVersion();
+    const profileSchemaVersion = getProfileSchemaVersion(profile);
+
+    if (sheetSchemaVersion && sheetSchemaVersion !== profileSchemaVersion) {
+      alertBox(
+          "Found schema version mismatch (current sheet vs. portal).\n\n" +
+          `- Current sheet's last used schema version: ${sheetSchemaVersion}\n` +
+          `- Portal's latest schema version: ${profileSchemaVersion}\n\n` +
+          "Please create a new tab and pull the latest profile."
+      );
+      return;
+    }
+    return true;
+  }
+
+  alertBox(
+    "No profile name found.\n" +
+    'Go to the menu "IGVF" -> "Set profile name".'
+  );
+}
