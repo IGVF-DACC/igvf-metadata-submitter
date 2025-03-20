@@ -2,12 +2,9 @@
 
 IGVF metadata submitter based on Google Sheet + Google Apps Script.
 
-
 ## Installation
 
-Make a copy of the following spreadsheet.
-
-`v0.3.5`: https://docs.google.com/spreadsheets/d/1UX8SIB8ZvhgdKaCqXl-cbPnyaUelWuDa8Jd383jME98/edit?usp=sharing
+Make a copy of the following spreadsheet: <https://docs.google.com/spreadsheets/d/1UX8SIB8ZvhgdKaCqXl-cbPnyaUelWuDa8Jd383jME98/edit?usp=sharing>
 
 Click on the menu item `IGVF` and then `Authorize for IGVF`. You will see an error message `Authorization Required`. Click on `Continue`, choose your Google account. Click on `Advanced` and `Go to IGVF Metadata Submitter (unsafe)` and then click on `Allow`.
 
@@ -17,16 +14,13 @@ To build and deploy a new spreadsheet directly from a code, see [INSTALL.md](doc
 
 Get a key/secret pair from portal's `Profile` menu. Click on menu `Authorize for IGVF` and enter credentials.
 
-
 ### Endpoint
 
 Click on menu `Set endpoint`. We provide multiple endpoints to communicate with the portal. For example, `https://api.sandbox.igvf.org` is an endpoint for testing purpose and `https://api.data.igvf.org` is for production. Click on menu `Set endpoint` and enter supported endpoints.
 
-
 ### Profile
 
 Create a new sheet and click on menu `Set endpoint`. An endpoint is set for each sheet. Only `snake_case` (recommended) or capitalized `CamelCase` works. For example, `measurement_set`, `sequence_file`, `award` and `Lab`. The script will automatically create a template row for the given profile.
-
 
 ## Functions
 
@@ -54,13 +48,11 @@ PUT sends a PUT request to the portal so that the whole metadata on the portal i
 
 Before you PUT to the portal, make sure to GET the metadata with GET (ADMIN) first.
 
-
 ### Attachment
 
 For a profile with `attachment` property (e.g. `document` profile), you can define `attachment` column as a JSON string `{"path":"/GOOGLE/DRIVE/PATH/TO/FILE/me.pdf"}`.
 
 It is recommended to make a local directory for document files only on your computer, and then drag and drop the folder itself to your Google Drive. Then all files in it will be transferred to Google Drive while keeping the directory structure.
-
 
 ### Local file uploading (sidebar)
 
@@ -76,11 +68,10 @@ On the sidebar, you need to drag and drop a root folder that contains all files 
 Install AWS CLI first on your local computer/cluster where your files are.
 
 ```bash
-$ pip install awscli
+pip install awscli
 ```
 
 Click on menu `IGVF` - `Generate S3 command line for file uploading` and then the script will generate required columns for the feature: `#upload_abspath` and `#upload_cmd`. Define `#upload_abspath` for each row and click on the menu again. Use shell command line under `#upload_cmd` column to manually upload your files to the portal.
-
 
 ## Property legends
 
@@ -97,7 +88,6 @@ Color and style represents a type of property.
 
 - <span style="text-decoration:underline">Underline</span>: Searchable property
 - ***Italic+Bold***: Array type property
-
 
 ## Developer notes
 
