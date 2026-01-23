@@ -4,7 +4,7 @@ IGVF metadata submitter based on Google Sheet + Google Apps Script.
 
 ## Installation
 
-Make a copy of the following spreadsheet: <https://docs.google.com/spreadsheets/d/1Vn4xXTJm0RkgId7hhYy6eXExySNFEborDs8TqweVjE4/edit?usp=sharing>
+Make a copy of the following spreadsheet: <https://docs.google.com/spreadsheets/d/1e3yuUGzttGP7tOlr0oaz2VAbzD2yU1aFFA9jC9GbCD0/edit?usp=sharing>
 
 Click on the menu item `IGVF` and then `Authorize for IGVF`. You will see an error message `Authorization Required`. Click on `Continue`, choose your Google account. Click on `Advanced` and `Go to IGVF Metadata Submitter (unsafe)` and then click on `Allow`.
 
@@ -16,7 +16,7 @@ Get a key/secret pair from portal's `Profile` menu. Click on menu `Authorize for
 
 ### Endpoint
 
-Click on menu `Set endpoint`. We provide multiple endpoints to communicate with the portal. For example, `https://api.sandbox.igvf.org` is an endpoint for testing purpose and `https://api.data.igvf.org` is for production. Click on menu `Set endpoint` and enter supported endpoints.
+Click on menu `Set endpoint`. We provide multiple endpoints to communicate with the portal. For example, `https://api.staging.igvf.org` is an endpoint for staging purpose and `https://api.data.igvf.org` is for production. Click on menu `Set endpoint` and enter supported endpoints.
 
 ### Profile
 

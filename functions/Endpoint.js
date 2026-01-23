@@ -32,19 +32,15 @@ const ENCODE_ENDPOINTS = [
   ENDPOINT_ENCODE_TEST,
 ];
 
-const ENDPOINT_IGVF_TEST = "https://igvfd-dev.demo.igvf.org";
-const ENDPOINT_IGVF_SANDBOX = "https://api.sandbox.igvf.org";
 const ENDPOINT_IGVF_STAGING = "https://api.staging.igvf.org";
 const ENDPOINT_IGVF_DATA = "https://api.data.igvf.org";
 const IGVF_ENDPOINTS = [
-  ENDPOINT_IGVF_TEST,
-  ENDPOINT_IGVF_SANDBOX,
   ENDPOINT_IGVF_STAGING,
   ENDPOINT_IGVF_DATA,
 ];
 
-const DEFAULT_ENDPOINT_READ = ENDPOINT_IGVF_SANDBOX;
-const DEFAULT_ENDPOINT_WRITE = ENDPOINT_IGVF_SANDBOX;
+const DEFAULT_ENDPOINT_READ = ENDPOINT_IGVF_STAGING;
+const DEFAULT_ENDPOINT_WRITE = ENDPOINT_IGVF_STAGING;
 
 const ALL_ENDPOINTS = [
   ...ENCODE_ENDPOINTS,
@@ -54,8 +50,6 @@ const ALL_ENDPOINTS = [
 // Mapping from API to UI
 // Define only if API and UI endpoints are different
 const ENDPOINT_MAP_API_TO_UI = {
-  "https://igvfd-dev.demo.igvf.org": "https://igvf-ui-dev.demo.igvf.org",
-  "https://api.sandbox.igvf.org" : "https://sandbox.igvf.org",
   "https://api.staging.igvf.org" : "https://staging.igvf.org",
   "https://api.data.igvf.org" : "https://data.igvf.org",
 };
@@ -190,8 +184,8 @@ const ALL_IGVF_PROFILES = [
   "access_key",
   "alignment_file",
   "analysis_set",
-  "analysis_step",
   "analysis_step_version",
+  "analysis_step",
   "assay_term",
   "auxiliary_set",
   "award",
@@ -203,10 +197,9 @@ const ALL_IGVF_PROFILES = [
   "degron_modification",
   "document",
   "gene",
-  "genome_browser_annotation_file",
   "human_donor",
-  "image",
   "image_file",
+  "image",
   "in_vitro_system",
   "index_file",
   "institutional_certificate",
@@ -233,8 +226,8 @@ const ALL_IGVF_PROFILES = [
   "signal_file",
   "single_cell_atac_seq_quality_metric",
   "single_cell_rna_seq_quality_metric",
-  "software",
   "software_version",
+  "software",
   "source",
   "starr_seq_quality_metric",
   "tabular_file",
@@ -322,8 +315,7 @@ function getUIEndpoint(endpoint) {
 }
 
 function getIgvfEndpointsAvailableForUsers() {
-  // hide ENDPOINT_IGVF_TEST from users
-  return IGVF_ENDPOINTS.filter(e => e !== ENDPOINT_IGVF_TEST);
+  return IGVF_ENDPOINTS;
 }
 
 function getAllProfilesForTemplateGeneration(endpoint) {
