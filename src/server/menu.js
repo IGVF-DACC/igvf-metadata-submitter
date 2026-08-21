@@ -13,6 +13,7 @@ global.onOpen = () => {
   menu.addItem('POST new metadata to portal', 'postAll');
   menu.addItem('PATCH selected columns', 'patchSelected');
   menu.addItem('PATCH all columns', 'patchAll');
+  menu.addItem('PATCH with property removal (optional selected columns)', 'patchRemoveProps');
   menu.addSeparator();
   menu.addItem('Upload local files (sidebar)', 'uploadSidebar');
   menu.addItem('Generate S3 cmd line for file uploading', 'generateS3UploadCmd');

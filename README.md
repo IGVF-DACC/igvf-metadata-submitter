@@ -4,7 +4,7 @@ IGVF metadata submitter based on Google Sheet + Google Apps Script.
 
 ## Installation
 
-Make a copy of the following spreadsheet: <https://docs.google.com/spreadsheets/d/15DZMshJ3d02xN_4pOPKbZ_6ZYMrAsQb4gs_S_M3Ksdk/edit?usp=sharing>
+Make a copy of the following spreadsheet: <https://docs.google.com/spreadsheets/d/1-S4AOMN3Ge54IAHgME4PpkWj3CT9Cq7klrH4n6nzsZA/edit?usp=sharing>
 
 Click on the menu item `IGVF` and then `Authorize for IGVF`. You will see an error message `Authorization Required`. Click on `Continue`, choose your Google account. Click on `Advanced` and `Go to IGVF Metadata Submitter (unsafe)` and then click on `Allow`.
 
@@ -40,7 +40,13 @@ POST sends a POST request to the portal. Use this to submit a new metadata and g
 
 ### PATCH
 
-PATCH will send a patch request to the portal in order to patch properties of **SELECTED** columns. Only selected columns will be affected by this request. Properties in other columns will not be included in the request.
+PATCH actions send a PATCH request to update existing metadata on the portal.
+
+- `PATCH selected columns`: Patches properties of selected columns only.
+- `PATCH all columns`: Patches all non-commented and non-empty properties on the row.
+- `PATCH with property removal (optional selected columns)`: Removes specified properties by deleting keys from current portal metadata and submitting the edited object with `PUT`, and can also patch selected columns at the same time.
+
+For `PATCH with property removal (optional selected columns)`, remove-only is supported (no selected columns needed). The action still requires at least one identifying property on each row (for example `accession` or `uuid`).
 
 ### PUT (Admin only)
 
@@ -62,7 +68,6 @@ Click on menu `IGVF` - `Upload local files (sidebar)` and it will automatically 
 
 On the sidebar, you need to drag and drop a root folder that contains all files to be uploaded. Such action is necessary to grant read permission of files to the sidebar. Therefore, make sure that all files are organized under a single root directory.
 
-
 ### Local file uploading (S3 command line)
 
 Install AWS CLI first on your local computer/cluster where your files are.
@@ -79,14 +84,14 @@ Color and style represents a type of property.
 
 ### Property color
 
-- <span style="color:blue">Blue</span>: Identifying property
-- <span style="color:red">Red</span>: Required property
-- <span style="color:gray">Gray</span>: Admin-only/non-submittable property
-- <span style="color:black">Black</span>: Submittable property
+- Blue: Identifying property
+- Red: Required property
+- Gray: Admin-only/non-submittable property
+- Black: Submittable property
 
 ### Property style
 
-- <span style="text-decoration:underline">Underline</span>: Searchable property
+- Underline: Searchable property
 - ***Italic+Bold***: Array type property
 
 ## Developer notes

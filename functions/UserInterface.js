@@ -306,6 +306,58 @@ function patchAll() {
   alertBox(`Submitted (PATCH) ${numSubmitted} rows to ${getEndpoint()}.`);
 }
 
+function patchRemoveProps() {
+  if (!checkProfile()) {
+    return;
+  }
+
+  var sheet = getCurrentSheet();
+  var numData = getNumMetadataInSheet(sheet, ignoreHiddenRows=true);
+  if (numData === 0) {
+    alertBox(`Found no data to submit to the portal.`);
+    return;
+  }
+
+  var removePropsInput = Browser.inputBox(
+    "Enter comma-delimited property names to remove (example: aliases,description,notes):"
+  );
+  if (!removePropsInput || removePropsInput === "cancel") {
+    alertBox("Cancelled.");
+    return;
+  }
+
+  var propsToRemove = removePropsInput
+    .split(",")
+    .map(x => x.trim())
+    .filter(x => x !== "");
+  propsToRemove = [...new Set(propsToRemove)];
+
+  var selectedCols = getSelectedColumns(sheet, keepCommentedProps=false);
+  if (selectedCols.length === 0 && propsToRemove.length === 0) {
+    alertBox("Nothing to submit. Select columns and/or provide property names to remove.");
+    return;
+  }
+
+  if (!alertBoxOkCancel(
+    `Found ${numData} data row(s).\n\n` +
+    "PATCH remove action will remove specified properties from existing portal metadata " +
+    "and optionally apply selected-column updates in the same submission.\n\n" +
+    `Selected properties for PATCH: ${selectedCols.length > 0 ? selectedCols.map(x => x.headerProp).join(",") : "NONE"}\n` +
+    `Properties to remove: ${propsToRemove.join(",")}\n\n` +
+    `Are you sure to PATCH to ${getEndpoint()}?`
+  )) {
+    return;
+  }
+
+  var numSubmitted = submitSheetToPortal(
+    sheet, getProfileName(), getEndpoint(), getEndpoint(), method="PATCH_REMOVE",
+    selectedColsForPatch=selectedCols, propsToRemove=propsToRemove
+  );
+  alertBox(`Submitted (PATCH_REMOVE) ${numSubmitted} rows to ${getEndpoint()}.`);
+
+  applyProfileToSheet();
+}
+
 function postAll() {
   if (!checkProfileForPost()) {
     return;
