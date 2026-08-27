@@ -306,8 +306,13 @@ function submitSheetToPortal(
       payloadJson = JSON.parse(JSON.stringify(json));
     }
 
-    // skip no-op payloads (e.g. PATCH_REMOVE with no selected props and no remove props)
-    if (Object.keys(payloadJson).length === 0) {
+    // skip no-op payloads
+    // - PATCH_REMOVE: allow remove-only flow
+    // - other methods: require non-empty payload
+    if (
+      (method === "PATCH_REMOVE" && Object.keys(payloadJson).length === 0 && propsToRemove.length === 0) ||
+      (method !== "PATCH_REMOVE" && Object.keys(payloadJson).length === 0)
+    ) {
       continue;
     }
 
@@ -344,17 +349,17 @@ function submitSheetToPortal(
           }
 
           var url = makeMetadataUrl("PUT", profileName, endpointForPut, identifyingVal);
-          var response = restSubmit(url, payloadJson=putPayloadJson, method="PUT");
+          var response = restSubmit(url, putPayloadJson, "PUT");
 
         } else {
           var url = makeMetadataUrl(method, profileName, endpointForPut, identifyingVal);
-          var response = restSubmit(url, payloadJson=payloadJson, method=method);
+          var response = restSubmit(url, payloadJson, method);
         }
         break;
 
       case "POST":
         var url = makeMetadataUrl(method, profileName, endpointForPut);
-        var response = restSubmit(url, payloadJson=payloadJson, method=method);
+        var response = restSubmit(url, payloadJson, method);
         break;
 
       default:
@@ -366,10 +371,17 @@ function submitSheetToPortal(
     var responseJson = JSON.parse(response.getContentText());
 
     jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] = method + "," + error;
-    if (method === "PATCH" || method === "PATCH_REMOVE") {
+    if (method === "PATCH") {
       jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "\nSelected props: ";
       if (selectedColsForPatch.length === 0) {
-        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += method === "PATCH" ? "ALL" : "NONE";
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "ALL";
+      } else {
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += selectedColsForPatch.map(x => x.headerProp).join(",");
+      }
+    } else if (method === "PATCH_REMOVE") {
+      jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "\nSelected props: ";
+      if (selectedColsForPatch.length === 0) {
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "NONE";
       } else {
         jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += selectedColsForPatch.map(x => x.headerProp).join(",");
       }

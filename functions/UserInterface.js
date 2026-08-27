@@ -341,7 +341,8 @@ function patchRemoveProps() {
   if (!alertBoxOkCancel(
     `Found ${numData} data row(s).\n\n` +
     "PATCH remove action will remove specified properties from existing portal metadata " +
-    "and optionally apply selected-column updates in the same submission.\n\n" +
+    "and optionally apply selected-column updates in the same submission.\n" +
+    "Note: removed properties are not cleared automatically from sheet cells.\n\n" +
     `Selected properties for PATCH: ${selectedCols.length > 0 ? selectedCols.map(x => x.headerProp).join(",") : "NONE"}\n` +
     `Properties to remove: ${propsToRemove.join(",")}\n\n` +
     `Are you sure to PATCH to ${getEndpoint()}?`
@@ -353,7 +354,10 @@ function patchRemoveProps() {
     sheet, getProfileName(), getEndpoint(), getEndpoint(), method="PATCH_REMOVE",
     selectedColsForPatch=selectedCols, propsToRemove=propsToRemove
   );
-  alertBox(`Submitted (PATCH_REMOVE) ${numSubmitted} rows to ${getEndpoint()}.`);
+  alertBox(
+    `Submitted (PATCH_REMOVE) ${numSubmitted} rows to ${getEndpoint()}.\n\n` +
+    "Removed properties on portal are not cleared automatically from sheet cells."
+  );
 
   applyProfileToSheet();
 }
