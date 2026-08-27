@@ -10,6 +10,7 @@
     "build": "webpack",
     "format": "prettier --write dist/code.js",
     "postbuild": "npm run format",
+    "sync:install-version": "node scripts/sync-install-version.js",
     "upload": "npx clasp push",
     "deploy": "npm run build && npm run upload",
     "test": "jest"

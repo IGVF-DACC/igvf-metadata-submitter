@@ -30,8 +30,11 @@ function makeMetadataUrl(method, profileName, endpoint, identifyingVal) {
   switch(method) {
     case "GET":
       return `${endpoint}/${profileName}/${identifyingVal}/?format=json&frame=object`;
+    case "GET_EDIT":
+      return `${endpoint}/${profileName}/${identifyingVal}/?format=json&frame=edit`;
     case "PUT":
     case "PATCH":
+    case "PATCH_REMOVE":
       return `${endpoint}/${profileName}/${identifyingVal}`;
     case "POST":
       return `${endpoint}/${profileName}`;
@@ -230,7 +233,8 @@ function setAttachment(attachmentJson) {
 }
 
 function submitSheetToPortal(
-  sheet, profileName, endpointForPut, endpointForProfile, method, selectedColsForPatch=[]
+  sheet, profileName, endpointForPut, endpointForProfile, method,
+  selectedColsForPatch=[], propsToRemove=[]
 ) {
   // returns actual number of submitted rows
   var profile = getProfile(profileName, endpointForProfile);
@@ -283,13 +287,39 @@ function submitSheetToPortal(
         }
       }
 
+    } else if (method === "PATCH_REMOVE") {
+      // PATCH_REMOVE supports:
+      // - remove-only: selectedColsForPatch is empty
+      // - remove+patch: selectedColsForPatch is non-empty
+      // payloadJson for PATCH_REMOVE stores only patch values.
+      // Property removal is handled as true key deletion from frame=edit payload.
+      if (selectedColsForPatch.length > 0) {
+        const selectedHeaderProps = selectedColsForPatch.map((x) => x.headerProp);
+        for (var prop of Object.keys(json)) {
+          if (selectedHeaderProps.includes(prop)) {
+            payloadJson[prop] = json[prop];
+          }
+        }
+      }
+
     } else {
       payloadJson = JSON.parse(JSON.stringify(json));
+    }
+
+    // skip no-op payloads
+    // - PATCH_REMOVE: allow remove-only flow
+    // - other methods: require non-empty payload
+    if (
+      (method === "PATCH_REMOVE" && Object.keys(payloadJson).length === 0 && propsToRemove.length === 0) ||
+      (method !== "PATCH_REMOVE" && Object.keys(payloadJson).length === 0)
+    ) {
+      continue;
     }
 
     switch(method) {
       case "PUT":
       case "PATCH":
+      case "PATCH_REMOVE":
         var [identifyingProp, identifyingVal, identifyingCol] =
           findIdentifyingPropValColInRow(sheet, row, profile);
 
@@ -297,13 +327,39 @@ function submitSheetToPortal(
           continue;
         }
 
-        var url = makeMetadataUrl(method, profileName, endpointForPut, identifyingVal);
-        var response = restSubmit(url, payloadJson=payloadJson, method=method);
+        if (method === "PATCH_REMOVE") {
+          // True remove-and-patch:
+          // 1) GET current editable metadata.
+          // 2) Remove keys from that object.
+          // 3) Apply optional selected-column patch values.
+          // 4) PUT full edited object back.
+          var editUrl = makeMetadataUrl("GET_EDIT", profileName, endpointForPut, identifyingVal);
+          var editResponse = restGet(editUrl);
+          if (editResponse.getResponseCode() !== 200) {
+            var response = editResponse;
+            break;
+          }
+
+          var putPayloadJson = JSON.parse(editResponse.getContentText());
+          for (var removeProp of propsToRemove) {
+            delete putPayloadJson[removeProp];
+          }
+          for (var patchProp of Object.keys(payloadJson)) {
+            putPayloadJson[patchProp] = payloadJson[patchProp];
+          }
+
+          var url = makeMetadataUrl("PUT", profileName, endpointForPut, identifyingVal);
+          var response = restSubmit(url, putPayloadJson, "PUT");
+
+        } else {
+          var url = makeMetadataUrl(method, profileName, endpointForPut, identifyingVal);
+          var response = restSubmit(url, payloadJson, method);
+        }
         break;
 
       case "POST":
         var url = makeMetadataUrl(method, profileName, endpointForPut);
-        var response = restSubmit(url, payloadJson=payloadJson, method=method);
+        var response = restSubmit(url, payloadJson, method);
         break;
 
       default:
@@ -321,6 +377,19 @@ function submitSheetToPortal(
         jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "ALL";
       } else {
         jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += selectedColsForPatch.map(x => x.headerProp).join(",");
+      }
+    } else if (method === "PATCH_REMOVE") {
+      jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "\nSelected props: ";
+      if (selectedColsForPatch.length === 0) {
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "NONE";
+      } else {
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += selectedColsForPatch.map(x => x.headerProp).join(",");
+      }
+      jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "\nRemove props: ";
+      if (propsToRemove.length === 0) {
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += "NONE";
+      } else {
+        jsonBeforeTypeCast[HEADER_COMMENTED_PROP_RESPONSE] += propsToRemove.join(",");
       }
     }
 
